@@ -15,7 +15,7 @@ class OnJoin:
 
         # generate save_path
         par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-        self.save_path = par_dir + '\\Red-DiscordBot\\data\\audio\\localtracks\\on_join'
+        self.save_path = par_dir + '\\Red-DiscordBot\\data\\on_join'
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
 
