@@ -1,7 +1,5 @@
-{
-    "AUTHOR" : "samclane",
-    "INSTALL_MSG" : "Thank you for installing Snake-Cogs",
-    "NAME" : "Snake Cogs",
-    "SHORT" : "Personal cogs for my Red-Bot",
-    "DESCRIPTION" : "Cogs that make life easier"
+{"NAME": "Snake-Cogs",
+"AUTHOR" : "Watersnake",
+"SHORT": "General purpose cogs",
+"DESCRIPTION" : "Cogs that make life easier!"
 }
