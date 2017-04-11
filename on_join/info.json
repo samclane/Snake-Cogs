@@ -1,0 +1,19 @@
+{
+    "AUTHOR" : "watersnake",
+    "DESCRIPTION" : "Announces when a new user join a voice channel. The bot will join the channel, and read a TTS message announcing the new user. Will do the same thing when a user quits. ",
+    "INSTALL_MSG" : "",
+    "NAME" : "on_join",
+    "REQUIREMENTS" : [
+        "asyncio",
+        "discord",
+        "gTTS"
+    ],
+    "SHORT" : "Announces (via gTTS) when a user joins a voice channel.",
+    "TAGS" : [
+        "tts",
+        "on",
+        "join",
+        "announce",
+        "quit"
+    ]
+}
