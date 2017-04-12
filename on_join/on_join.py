@@ -59,25 +59,25 @@ class OnJoin:
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
                     self.audio_players[server.id].start()
-                    await self.wait_for_disconnect(server)
+                    # await self.wait_for_disconnect(server)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
                     self.audio_players[server.id].start()
-                    await self.wait_for_disconnect(server)
+                    # await self.wait_for_disconnect(server)
             else:
                 await self.bot.join_voice_channel(channel)
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
                     self.audio_players[server.id].start()
-                    await self.wait_for_disconnect(server)
+                    # await self.wait_for_disconnect(server)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
                     self.audio_players[server.id].start()
-                    await self.wait_for_disconnect(server)
+                    # await self.wait_for_disconnect(server)
 
     async def voice_state_update(self, before: discord.Member, after: discord.Member):
         bserver = before.server
@@ -110,7 +110,9 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=True, no_pm=True, name='seals')
     async def seals(self, ctx: commands.Context):
-        await self.sound_play(ctx.message.author.server, ctx.message.author.voice_channel,
+    	server = ctx.message.author.server
+    	channel = ctx.message.author.voice_channel
+        await self.sound_play(server, channel,
                               self.save_path + "\\seals.mp3")
 
 
