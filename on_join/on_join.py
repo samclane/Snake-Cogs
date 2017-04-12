@@ -110,8 +110,8 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=True, no_pm=True, name='seals')
     async def seals(self, ctx: commands.Context):
-    	server = ctx.message.author.server
-    	channel = ctx.message.author.voice_channel
+        server = ctx.message.author.server
+        channel = ctx.message.author.voice_channel
         await self.sound_play(server, channel,
                               self.save_path + "\\seals.mp3")
 
