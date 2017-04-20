@@ -80,7 +80,7 @@ class TalkBack:
         tts.save("audio.mp3")
         sp.sound_play(ctx.message.server, ctx.message.author.voice_channel, "audio.mp3")
 
-    async def record_audio(self):
+    def record_audio(self):
         with sr.Microphone as source:
             print("Say something!")
         audio = self.recognizer.listen(source)
@@ -95,7 +95,7 @@ class TalkBack:
 
         return data
 
-    async def audio_commands(self, data, ctx):
+    def audio_commands(self, data, ctx):
         if "Hello Red" in data:
             print("Hello world!")
             self.speak("Hello world!", ctx)
