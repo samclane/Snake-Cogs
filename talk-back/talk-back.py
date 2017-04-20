@@ -78,8 +78,7 @@ class TalkBack:
         sp = SoundPlayer(self.bot)
         tts = gTTS(text=audio_string, lang='en')
         tts.save("audio.mp3")
-        try:
-            await sp.sound_play(ctx.message.server, ctx.message.author.voice_channel, "audio.mp3")
+        await sp.sound_play(ctx.message.server, ctx.message.author.voice_channel, "audio.mp3")
 
     def record_audio(self):
         with sr.Microphone() as source:
