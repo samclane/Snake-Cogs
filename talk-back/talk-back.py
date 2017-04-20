@@ -112,7 +112,7 @@ class TalkBack:
             except asyncio.futures.TimeoutError as e:
                 raise ConnectionError("Error connecting to voice channel; " + e)
         data = self.record_audio()
-        self.audio_commands(data, ctx)
+        await self.audio_commands(data, ctx)
 
 
 def setup(bot):
