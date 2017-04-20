@@ -105,10 +105,11 @@ class TalkBack:
         author = ctx.message.author
         server = ctx.message.server
         voice_channel = author.voice_channel
-        try:
-            await asyncio.wait_for(self.bot.join_voice_channel(voice_channel), timeout=5, loop=self.bot.loop)
-        except asyncio.futures.TimeoutError as e:
-            raise ConnectionError("Error connecting to voice channel; " + e)
+        if self.bot.voice_channel is not None:
+            try:
+                await asyncio.wait_for(self.bot.join_voice_channel(voice_channel), timeout=5, loop=self.bot.loop)
+            except asyncio.futures.TimeoutError as e:
+                raise ConnectionError("Error connecting to voice channel; " + e)
         data = self.record_audio()
         self.audio_commands(data, ctx)
 
