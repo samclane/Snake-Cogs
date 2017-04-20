@@ -74,11 +74,12 @@ class TalkBack:
         self.bot = bot
         self.recognizer = sr.Recognizer()
 
-    def speak(self, audio_string, ctx):
+    async def speak(self, audio_string, ctx):
         sp = SoundPlayer(self.bot)
         tts = gTTS(text=audio_string, lang='en')
         tts.save("audio.mp3")
-        sp.sound_play(ctx.message.server, ctx.message.author.voice_channel, "audio.mp3")
+        try:
+            await sp.sound_play(ctx.message.server, ctx.message.author.voice_channel, "audio.mp3")
 
     def record_audio(self):
         with sr.Microphone() as source:
@@ -95,11 +96,11 @@ class TalkBack:
 
         return data
 
-    def audio_commands(self, data, ctx):
+    async def audio_commands(self, data, ctx):
         print("Heard: " + data)
         if "how are you" in data:
             print("Hello world!")
-            self.speak("Hello world!", ctx)
+            await self.speak("Hello world!", ctx)
 
     @commands.command(pass_context=True, no_pm=True, name='get_in_here')
     async def get_in_here(self, ctx: commands.Context):
