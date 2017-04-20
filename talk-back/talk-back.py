@@ -43,7 +43,7 @@ class SoundPlayer:
             path, options=options)
 
     async def sound_play(self, server: discord.Server,
-                          channel: discord.Channel, p: str):
+                         channel: discord.Channel, p: str):
         if self.voice_channel_full(channel):
             return
 
@@ -97,7 +97,7 @@ class TalkBack:
 
     def audio_commands(self, data, ctx):
         print("Heard: " + data)
-        if "Hello Red" in data:
+        if "How are you" in data:
             print("Hello world!")
             self.speak("Hello world!", ctx)
 
@@ -113,6 +113,7 @@ class TalkBack:
                 raise ConnectionError("Error connecting to voice channel; " + e)
         data = self.record_audio()
         self.audio_commands(data, ctx)
+
 
 def setup(bot):
     n = TalkBack(bot)
