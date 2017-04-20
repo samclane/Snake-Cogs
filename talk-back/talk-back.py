@@ -105,7 +105,7 @@ class TalkBack:
         author = ctx.message.author
         server = ctx.message.server
         voice_channel = author.voice_channel
-        if self.bot.voice_channel is not None:
+        if self.bot.get_channel() is None or self.bot.get_channel() is not voice_channel:
             try:
                 await asyncio.wait_for(self.bot.join_voice_channel(voice_channel), timeout=5, loop=self.bot.loop)
             except asyncio.futures.TimeoutError as e:
