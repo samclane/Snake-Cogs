@@ -83,7 +83,7 @@ class TalkBack:
     def record_audio(self):
         with sr.Microphone() as source:
             print("Say something!")
-        audio = self.recognizer.listen(source)
+            audio = self.recognizer.listen(source)
 
         data = ""
         try:
