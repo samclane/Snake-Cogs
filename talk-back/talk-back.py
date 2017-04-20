@@ -97,7 +97,7 @@ class TalkBack:
 
     def audio_commands(self, data, ctx):
         print("Heard: " + data)
-        if "How are you" in data:
+        if "how are you" in data:
             print("Hello world!")
             self.speak("Hello world!", ctx)
 
