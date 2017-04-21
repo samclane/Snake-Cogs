@@ -68,9 +68,6 @@ class Armor(namedtuple('Armor', Item._fields + ('damage_reduction',)), Item):
 
 
 class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
-    def __init__(self, *args, **kwargs):
-        super(Potion, self).__init__(type="healing")
-
     def _healing_roll(self):
         return self._roll_dice(self.heal_dice)
 
