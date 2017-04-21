@@ -221,6 +221,7 @@ class Store:
         self.inventory = {"weapons": [],
                           "armor": [],
                           "potions": []}
+        self._generate_inventory()
 
     def _generate_inventory(self):
         item_list = dataIO.load_json(self.file_path)
