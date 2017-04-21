@@ -349,8 +349,8 @@ class Armorsmith:
     @_store.command(pass_context=True, no_pm=False)
     async def list(self, ctx):
         """Lists all available items for purchase"""
-        message = self.store.list_items()
-        await self.bot.whisper(message)
+        embed = self.store.list_items()
+        await self.bot.whisper(embed=embed)
 
     @_store.command(pass_context=True, no_pm=True)
     async def buy(self, ctx, item_name):
