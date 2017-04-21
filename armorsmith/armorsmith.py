@@ -253,6 +253,7 @@ class Store:
             for item in item_type:
                 if item.name == item_name:
                     return item
+        raise ItemNotFound
 
 
 class Armorsmith:
