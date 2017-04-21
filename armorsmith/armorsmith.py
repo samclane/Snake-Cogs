@@ -177,7 +177,7 @@ class Inventory:
 
     def get_stash(self, user):
         account = self._get_account(user)
-        return account["stash"]
+        return [str(x) for x in account["stash"]]
 
     def get_account(self, user):
         acc = self._get_account(user)
