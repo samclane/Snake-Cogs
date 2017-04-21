@@ -1,0 +1,50 @@
+{
+  "weapons_list": [
+    {
+      "name": "Dagger",
+      "cost": 100,
+      "hit_dice": "1d4"
+    },
+    {
+      "name": "Short Sword",
+      "cost": 500,
+      "hit dice": "1d6"
+    },
+    {
+      "name": "Long Sword",
+      "cost": 1200,
+      "hit dice": "1d12"
+    }
+  ],
+  "armor_list": [
+    {
+      "name": "Cloth Armor",
+      "cost": 100,
+      "damage_reduction": "1"
+    },
+    {
+      "name": "Leather Armor",
+      "cost": 500,
+      "damage_reduction": "2"
+    },
+    {
+      "name": "Chainmail Armor",
+      "cost": 1200,
+      "damage_reduction": "3"
+    }
+  ],
+  "potion_list": [
+    {
+      "name": "Small Healing Potion",
+      "cost": 500,
+      "type": "healing",
+      "heal_dice": "1d6"
+    },
+    {
+      "name": "Large Healing Potion",
+      "cost": 1200,
+      "type": "healing",
+      "heal_dice": "1d20"
+    }
+  ]
+}

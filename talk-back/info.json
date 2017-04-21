@@ -3,7 +3,7 @@
     "SHORT" : "TTS Announce when user joins or leaves voice chat",
     "DESCRIPTION" : "Uses gTTS, so only those in the voice chat are notified",
     "DISABLED" : false,
-    "NAME" : "on_join",
-    "TAGS" : ["on_join", "tts", "announce"],
+    "NAME" : "talk-back",
+    "TAGS" : ["talk-back", "stt", "voice"],
     "INSTALL_MSG" : "Requires gTTS be installed in python."
 }
