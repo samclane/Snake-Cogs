@@ -225,7 +225,7 @@ class Store:
 
     def _generate_inventory(self):
         item_list = dataIO.load_json(self.file_path)
-        for weapon in item_list["weapon_list"]:
+        for weapon in item_list["weapons_list"]:
             self.inventory["weapons"].append(Weapon(
                 weapon["name"],
                 weapon["cost"],
