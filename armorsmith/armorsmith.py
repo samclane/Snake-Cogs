@@ -244,8 +244,7 @@ class Store:
         embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapons"]]))
         embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
         embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potions"]]))
-        # TODO: Add buying instructions
-        embed.set_footer(text="TODO: Add buying instructions here")
+        embed.set_footer(text="Buy using `[p]store buy \"<Item Name>\"`. USE QUOTES!")
         return embed
 
     def get_item_by_name(self, item_name):
