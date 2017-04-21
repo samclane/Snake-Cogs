@@ -360,10 +360,6 @@ class Armorsmith:
             item = self.store.get_item_by_name(item_name)
             self.bank.withdraw_credits(author, item.cost)
             self.inventory.give_item(author, item)
-        except self.bank.InsufficientBalance:
-            await self.bot.say("You do not have enough credits to buy that item.")
-        except self.bank.NoAccount:
-            await self.bot.say("You do not have a bank account. Please create one before buying")
         except NoAccount:
             await self.bot.say("You do not have a stash register. Please do so before buying.")
         except ItemNotFound:
