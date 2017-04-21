@@ -8,12 +8,12 @@
     {
       "name": "Short Sword",
       "cost": 500,
-      "hit dice": "1d6"
+      "hit_dice": "1d6"
     },
     {
       "name": "Long Sword",
       "cost": 1200,
-      "hit dice": "1d12"
+      "hit_dice": "1d12"
     }
   ],
   "armor_list": [
