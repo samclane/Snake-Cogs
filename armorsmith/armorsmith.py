@@ -237,14 +237,14 @@ class Store:
             ))
 
     def list_items(self):
-        description = "Item shop's wares"
+        description = "What're ya buyin', traveler?"
         embed = discord.Embed(colour=0xFF0000, description=description)
-        embed.title = description
+        embed.title = "Item Shop"
         embed.set_author(name="Shopkeep", icon_url="http://imgur.com/zFYAFVg.jpg")
         embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapons"]]))
         embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
         embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potions"]]))
-        embed.set_footer(text="Buy using `[p]store buy \"<Item Name>\"`. USE QUOTES!")
+        embed.set_footer(text="Buy using [p]store buy <item name>")
         return embed
 
     def get_item_by_name(self, item_name):
@@ -317,7 +317,7 @@ class Armorsmith:
 
     @_inventory.command(name="give", pass_context=True)
     @checks.admin_or_permissions(manage_server=True)
-    async def _give(self, ctx, user: discord.Member, item_name: str):
+    async def _give(self, ctx, user: discord.Member, *, item_name: str):
         """Gives an item to a user."""
         author = ctx.message.author
         try:
@@ -353,7 +353,7 @@ class Armorsmith:
         await self.bot.whisper(embed=embed)
 
     @_store.command(pass_context=True, no_pm=True)
-    async def buy(self, ctx, item_name):
+    async def buy(self, ctx, *, item_name):
         """Buy an item for yourself"""
         author = ctx.message.author
         try:
@@ -366,6 +366,18 @@ class Armorsmith:
             await self.bot.say("The item specified does not exist.")
 
     # TODO: Add battles, battle-leaderboards, betting
+
+    @commands.group(name="fight", pass_context=True)
+    async def _fight(self, ctx):
+        """Dueling operations."""
+        if ctx.invoked_subcommand is None:
+            await send_cmd_help(ctx)
+
+    @_fight.command(pass_contex=True, no_pm=True)
+    async def duel(self, ctx, user: discord.User):
+        author = ctx.message.author
+        hp_author = 100
+        hp_user = 100
 
     def already_in_list(self, accounts, user):
         for acc in accounts:
