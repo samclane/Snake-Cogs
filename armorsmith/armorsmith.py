@@ -73,7 +73,7 @@ class Potion(namedtuple('Potion', Item._fields + ('type',)), Item):
 
 class HealPotion(namedtuple('Potion', Potion._fields + ('heal_dice',)), Potion):
     def __init__(self, *args, **kwargs):
-        super(self.__class__, self).__init__(*args, **kwargs)
+        super(Potion, self).__init__(*args, **kwargs)
         self.type = "healing"
 
     def _healing_roll(self):
