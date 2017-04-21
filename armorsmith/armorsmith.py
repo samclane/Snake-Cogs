@@ -10,7 +10,6 @@ from .utils import checks
 import logging
 import os
 
-# This comment forces an update
 
 class ArmorException(Exception):
     pass
@@ -239,7 +238,7 @@ class Store:
                 armor["damage_reduction"]
             ))
         for potion in item_list["potion_list"]:
-            self.inventory["potions"].append(Potion(
+            self.inventory["potions"].append(HealPotion(
                 potion["name"],
                 potion["cost"],
                 potion["type"],
