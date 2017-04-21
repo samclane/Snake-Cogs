@@ -6,6 +6,7 @@ from random import choice
 from collections import namedtuple, OrderedDict
 from copy import deepcopy
 from __main__ import send_cmd_help
+from .utils import checks
 import logging
 import os
 
