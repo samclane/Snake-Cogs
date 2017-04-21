@@ -48,8 +48,8 @@ class Item(namedtuple('Item', 'name cost')):
 
     def __str__(self):
         s = ""
-        for f in self._fields:
-            s += "{}: {}\n".format(f, self.f)
+        for name, value in self._asdict().items():
+            s += "{}: {}\n".format(name, value)
         s += ""
         return s
 
@@ -238,12 +238,12 @@ class Store:
 
     def list_items(self):
         description = "Item shop's wares"
-        embed = self.bot.Embed(colour=0xFF0000, description=description)
+        embed = discord.Embed(colour=0xFF0000, description=description)
         embed.title = description
         embed.set_author(name="Shopkeep", icon_url="http://imgur.com/zFYAFVg.jpg")
-        embed.add_field(name="Weapons", value=self.inventory["weapons"])
-        embed.add_field(name="Armor", value=self.inventory["armor"])
-        embed.add_field(name="Potions", value=self.inventory["potions"])
+        embed.add_field(name="Weapons", value='\n'.join(self.inventory["weapons"]))
+        embed.add_field(name="Armor", value='\n'.join(self.inventory["armor"]))
+        embed.add_field(name="Potions", value='\n'.join(self.inventory["potions"]))
         # TODO: Add buying instructions
         embed.set_footer(text="TODO: Add buying instructions here")
         return embed
@@ -288,7 +288,7 @@ class Armorsmith:
         if not user:
             user = ctx.message.author
             try:
-                await self.bot.say("{} Your stash contains: {}".format(user.mention, self.inventory.getstash(user)))
+                await self.bot.say("{} Your stash contains: {}".format(user.mention, self.inventory.get_stash(user)))
             except NoAccount:
                 await self.bot.say(
                     "{} You don't have a stash with the Armorsmith. Type `{}inventory register` to open one".format(
@@ -321,7 +321,7 @@ class Armorsmith:
         """Gives an item to a user."""
         author = ctx.message.author
         try:
-            item_obj = self.shopkeep.get_item_by_name(item_name)
+            item_obj = self.store.get_item_by_name(item_name)
             self.inventory.give_item(user, item_obj)
             logger.info("{}({}) gave {} to {}({})".format(author.name, author.id, item_obj.name, user.name, user.id))
             await self.bot.say("{} has been given to {}".format(item_obj.name, user.name))
