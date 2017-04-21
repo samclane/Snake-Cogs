@@ -241,9 +241,9 @@ class Store:
         embed = discord.Embed(colour=0xFF0000, description=description)
         embed.title = description
         embed.set_author(name="Shopkeep", icon_url="http://imgur.com/zFYAFVg.jpg")
-        embed.add_field(name="Weapons", value='\n'.join(self.inventory["weapons"]))
-        embed.add_field(name="Armor", value='\n'.join(self.inventory["armor"]))
-        embed.add_field(name="Potions", value='\n'.join(self.inventory["potions"]))
+        embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapons"]]))
+        embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
+        embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potions"]]))
         # TODO: Add buying instructions
         embed.set_footer(text="TODO: Add buying instructions here")
         return embed
