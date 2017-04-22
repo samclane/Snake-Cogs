@@ -58,17 +58,17 @@ class Item(namedtuple('Item', 'name cost')):
 
 
 class Weapon(namedtuple('Weapon', Item._fields + ('hit_dice',)), Item):
-    def _damage_roll(self):
+    def damage_roll(self):
         return self._roll_dice(self.hit_dice)
 
 
 class Armor(namedtuple('Armor', Item._fields + ('damage_reduction',)), Item):
-    def _block_damage(self, damage):
+    def block_damage(self, damage):
         return damage - self.damage_reduction
 
 
 class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
-    def _healing_roll(self):
+    def healing_roll(self):
         return self._roll_dice(self.heal_dice)
 
 
@@ -415,10 +415,39 @@ class Armorsmith:
             await send_cmd_help(ctx)
 
     @_fight.command(pass_contex=True, no_pm=True)
-    async def duel(self, ctx, user: discord.User):
+    async def duel(self, ctx, user: discord.Member):
         author = ctx.message.author
+        account_author = self.inventory.get_account(author)
+        account_user = self.inventory.get_account(user)
         hp_author = 100
         hp_user = 100
+        weapon_author = account_author.equipment["weapon"]
+        weapon_user = account_user.equipment["weapon"]
+        armor_author = account_author.equipment["armor"]
+        armor_user = account_user.equipment["armor"]
+        potion_author = account_author.equipment["potion"]
+        potion_user = account_user.equipment["potion"]
+        while hp_author > 0 or hp_user > 0:
+            damage_to_user = weapon_author.damage_roll
+            damage_to_user = armor_user.block_damage(damage_to_user)
+            await self.bot.say("{} hit {} for {} damage!".format(author.mention, user.mention, damage_to_user))
+            if hp_user <= 0 and potion_user is not None:
+                hp_user += potion_user.healing_roll()
+                # del account_user.equipment["potion"]
+                await self.bot.say("{} used a potion".format(user.mention))
+            damage_to_author = weapon_user.damage_roll
+            damage_to_author = armor_author.block_damage(damage_to_author)
+            await self.bot.say("{} hit {} for {} damage".format(author.metnion, user.mention, damage_to_author))
+            if hp_author <= 0 and potion_author is not None:
+                hp_author += potion_author.healing_roll()
+                # del account_author.equipment["potion"]
+                await self.bot.say("{} used a potion".format(author.mention))
+        if hp_user <= 0:
+            await self.bot.say("{} beat {} in a duel with {} hp remaining!".format(author.mention, user.mention, hp_author))
+        else:
+            await self.bot.say(
+                "{} beat {} in a duel with {} hp remaining!".format(user.mention, author.mention, hp_user))
+
 
     def already_in_list(self, accounts, user):
         for acc in accounts:
