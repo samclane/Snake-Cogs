@@ -74,18 +74,14 @@ class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
 
 # TODO: Implement this
 class Account:
-    def __init__(self, id, name, stash, created_at, server, member):
+    def __init__(self, id, name, stash, equipment, created_at, server, member):
         self.id = id
         self.name = name
         self.stash = stash
         self.created_at = created_at
         self.server = server
         self.member = member
-        self.equipment = {
-            "weapon": None,
-            "armor": None,
-            "potion": None
-        }
+        self.equipment = equipment
         self.hp = 100
 
     def get_equipment(self):
@@ -93,6 +89,9 @@ class Account:
         armor = self.equipment["armor"]
         potion = self.equipment["potion"]
         return weapon, armor, potion
+
+    def __getitem__(self, key):
+        return self.__getattribute__(key)
 
 
 class Inventory:
@@ -107,12 +106,19 @@ class Inventory:
                 self.accounts[server.id] = {}
             if user.id in self.accounts:  # Legacy account
                 stash = self.accounts[user.id]["stash"]
+                equipment = self.accounts[user.id]["equipment"]
             else:
                 stash = OrderedDict()
+                equipment = {
+                    "weapon": None,
+                    "armor": None,
+                    "potion": None
+                }
             timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             account = {"name": user.name,
                        "stash": stash,
-                       "created_at": timestamp
+                       "created_at": timestamp,
+                       "equipment": equipment
                        }
             self.accounts[server.id][user.id] = account
             self._save_inventory()
