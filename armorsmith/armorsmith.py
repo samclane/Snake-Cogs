@@ -209,7 +209,7 @@ class Inventory:
         return self._create_account_obj(acc)
 
     def equip(self, user, item: Item):
-        acc = self._get_account(user)
+        acc = self.get_account(user)
         if not self.has_item(user, item):
             raise ItemNotFound()
         if isinstance(item, Weapon):
