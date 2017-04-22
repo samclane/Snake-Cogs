@@ -86,6 +86,13 @@ class Account:
             "armor": None,
             "potion": None
         }
+        self.hp = 100
+
+    def get_equipment(self):
+        weapon = self.equipment["weapon"]
+        armor = self.equipment["armor"]
+        potion = self.equipment["potion"]
+        return weapon, armor, potion
 
 
 class Inventory:
@@ -201,6 +208,18 @@ class Inventory:
         acc["server"] = user.server
         return self._create_account_obj(acc)
 
+    def equip(self, user, item: Item):
+        acc = self._get_account(user)
+        if not self.has_item(user, item):
+            raise ItemNotFound()
+        if isinstance(item, Weapon):
+            acc.equipment["weapon"] = item
+        elif isinstance(item, Armor):
+            acc.equipment["armor"] = item
+        elif isinstance(item, HealPotion):
+            acc.equipment["potion"] = item
+        self._save_inventory()
+
     def _create_account_obj(self, account):
         account["member"] = account["server"].get_member(account["id"])
         account["created_at"] = datetime.strptime(account["created_at"],
@@ -267,13 +286,6 @@ class Store:
             for item in item_type:
                 if item.name == item_name:
                     return item
-        raise ItemNotFound
-
-    def get_item_type(self, item_name):
-        for item_type, item_list in self.inventory.items():
-            for item in item_list:
-                if item.name == item_name:
-                    return item_type
         raise ItemNotFound
 
 
@@ -343,12 +355,7 @@ class Armorsmith:
         author = ctx.message.author
         try:
             item = self.store.get_item_by_name(item_name)
-            if not self.inventory.has_item(author, item):
-                await self.bot.say("You don't have that item to equip. Try buying it first!")
-                return
-            type = self.store.get_item_type(item_name)
-            account = self.inventory.get_account(author)
-            account.equipment[type] = item
+            self.inventory.equip(author, item)
             await self.bot.say("{} equipped {} {}".format(author.mention, type, item_name))
         except ItemNotFound:
             await self.bot.say("Item name was not found.")
