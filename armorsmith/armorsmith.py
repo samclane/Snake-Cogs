@@ -349,6 +349,7 @@ class Armorsmith:
             type = self.store.get_item_type(item_name)
             account = self.inventory.get_account(author)
             account.equipment[type] = item
+            await self.bot.say("{} equipped {} {}".format(author.mention, type, item_name))
         except ItemNotFound:
             await self.bot.say("Item name was not found.")
         except NoAccount:
@@ -399,6 +400,7 @@ class Armorsmith:
             item = self.store.get_item_by_name(item_name)
             self.bank.withdraw_credits(author, item.cost)
             self.inventory.give_item(author, item)
+            await self.bot.say("{} bought {} for {} credits.".format(author.mention, item_name, item.cost))
         except NoAccount:
             await self.bot.say("You do not have a stash register. Please do so before buying.")
         except ItemNotFound:
