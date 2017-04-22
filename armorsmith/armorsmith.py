@@ -90,10 +90,6 @@ class Account:
         potion = self.equipment["potion"]
         return weapon, armor, potion
 
-    def __getitem__(self, key):
-        return self.__getattribute__(key)
-
-
 class Inventory:
     def __init__(self, bot, file_path):
         self.bot = bot
