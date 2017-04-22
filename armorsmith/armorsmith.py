@@ -362,7 +362,7 @@ class Armorsmith:
         try:
             item = self.store.get_item_by_name(item_name)
             self.inventory.equip(author, item)
-            await self.bot.say("{} equipped {} {}".format(author.mention, type, item_name))
+            await self.bot.say("{} equipped {}".format(author.mention, item_name))
         except ItemNotFound:
             await self.bot.say("Item name was not found.")
         except NoAccount:
@@ -374,7 +374,7 @@ class Armorsmith:
             user = ctx.message.author
         try:
             account = self.inventory.get_account(user)
-            await self.bot.say("{} has equipped: {}".format(user.mention, account.equipment))
+            await self.bot.say("{} has equipped: {}".format(user.mention, ", ".join(account.get_equipment())))
         except NoAccount:
             await self.bot.say("Provided user has no stash account.")
 
