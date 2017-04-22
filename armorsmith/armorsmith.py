@@ -90,6 +90,7 @@ class Account:
         potion = self.equipment["potion"]
         return weapon, armor, potion
 
+
 class Inventory:
     def __init__(self, bot, file_path):
         self.bot = bot
@@ -373,7 +374,8 @@ class Armorsmith:
             user = ctx.message.author
         try:
             account = self.inventory.get_account(user)
-            await self.bot.say("{} has equipped: {}".format(user.mention, ", ".join(account.get_equipment())))
+            await self.bot.say(
+                "{} has equipped: {}".format(user.mention, ", ".join([item.name for item in account.get_equipment()])))
         except NoAccount:
             await self.bot.say("Provided user has no stash account.")
 
