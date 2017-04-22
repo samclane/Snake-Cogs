@@ -211,15 +211,18 @@ class Inventory:
         return self._create_account_obj(acc)
 
     def equip(self, user, item: Item):
-        acc = self.get_account(user)
+        server = user.server
+        account = self._get_account(user)
+        equipment = account["equipment"]
         if not self.has_item(user, item):
             raise ItemNotFound()
         if isinstance(item, Weapon):
-            acc.equipment["weapon"] = item
+            equipment["weapon"] = item
         elif isinstance(item, Armor):
-            acc.equipment["armor"] = item
+            equipment["armor"] = item
         elif isinstance(item, HealPotion):
-            acc.equipment["potion"] = item
+            equipment["potion"] = item
+        self.accounts[server.id][user.id] = account
         self._save_inventory()
 
     def _create_account_obj(self, account):
