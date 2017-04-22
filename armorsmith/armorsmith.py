@@ -72,6 +72,22 @@ class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
         return self._roll_dice(self.heal_dice)
 
 
+# TODO: Implement this
+class Account:
+    def __init__(self, id, name, stash, created_at, server, member):
+        self.id = id
+        self.name = name
+        self.stash = stash
+        self.created_at = created_at
+        self.server = server
+        self.member = member
+        self.equipment = {
+            "weapon": None,
+            "armor": None,
+            "potion": None
+        }
+
+
 class Inventory:
     def __init__(self, bot, file_path):
         self.bot = bot
@@ -189,9 +205,8 @@ class Inventory:
         account["member"] = account["server"].get_member(account["id"])
         account["created_at"] = datetime.strptime(account["created_at"],
                                                   "%Y-%m-%d %H:%M:%S")
-        Account = namedtuple("Account", "id name stash "
-                                        "created_at server member")
-        return Account(**account)
+        account_obj = Account(**account)
+        return account_obj
 
     def _save_inventory(self):
         dataIO.save_json("data/armorsmith/inventory.json", self.accounts)
@@ -210,15 +225,15 @@ class Store:
     def __init__(self, bot, file_path):
         self.bot = bot
         self.file_path = file_path
-        self.inventory = {"weapons": [],
+        self.inventory = {"weapon": [],
                           "armor": [],
-                          "potions": []}
+                          "potion": []}
         self._generate_inventory()
 
     def _generate_inventory(self):
         item_list = dataIO.load_json(self.file_path)
         for weapon in item_list["weapons_list"]:
-            self.inventory["weapons"].append(Weapon(
+            self.inventory["weapon"].append(Weapon(
                 weapon["name"],
                 weapon["cost"],
                 weapon["hit_dice"]
@@ -230,7 +245,7 @@ class Store:
                 armor["damage_reduction"]
             ))
         for potion in item_list["potion_list"]:
-            self.inventory["potions"].append(HealPotion(
+            self.inventory["potion"].append(HealPotion(
                 potion["name"],
                 potion["cost"],
                 potion["heal_dice"]
@@ -241,9 +256,9 @@ class Store:
         embed = discord.Embed(colour=0xFF0000, description=description)
         embed.title = "Item Shop"
         embed.set_author(name="Shopkeep", icon_url="http://imgur.com/zFYAFVg.jpg")
-        embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapons"]]))
+        embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapon"]]))
         embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
-        embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potions"]]))
+        embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potion"]]))
         embed.set_footer(text="Buy using [p]store buy <item name>")
         return embed
 
@@ -252,6 +267,13 @@ class Store:
             for item in item_type:
                 if item.name == item_name:
                     return item
+        raise ItemNotFound
+
+    def get_item_type(self, item_name):
+        for item_type in self.inventory.values():
+            for item in item_type:
+                if item.name == item_name:
+                    return item_type
         raise ItemNotFound
 
 
@@ -300,10 +322,11 @@ class Armorsmith:
                 await self.bot.say("That user has no inventory stash")
 
     @_inventory.command(pass_context=True)
-    async def transfer(self, ctx, user: discord.Member, item: Item):
+    async def transfer(self, ctx, user: discord.Member, item: str):
         """Transfers an item to other users."""
         author = ctx.message.author
         try:
+            item = self.store.get_item_by_name(item)
             self.inventory.transfer_item(author, user, item)
             logger.info(
                 "{} ({}) transferred {} to {}({})".format(author.name, author.id, item.name, user.name, user.id))
@@ -314,6 +337,22 @@ class Armorsmith:
             await self.bot.say("Item was not found in your stash.")
         except NoAccount:
             await self.bot.say("That user has no stash account.")
+
+    @_inventory.command(pass_context=True, no_pm=True)
+    async def equip(self, ctx, item_name: str):
+        author = ctx.message.author
+        try:
+            item = self.store.get_item_by_name(item_name)
+            if not self.inventory.has_item(author, item):
+                await self.bot.say("You don't have that item to equip. Try buying it first!")
+                return
+            type = self.store.get_item_type(item_name)
+            account = self.inventory.get_account(author)
+            account.equipment[type] = item
+        except ItemNotFound:
+            await self.bot.say("Item name was not found.")
+        except NoAccount:
+            await self.bot.say("Please register an account with the inventory before equipping.")
 
     @_inventory.command(name="give", pass_context=True)
     @checks.admin_or_permissions(manage_server=True)
