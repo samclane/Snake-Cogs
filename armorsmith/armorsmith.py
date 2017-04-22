@@ -355,6 +355,16 @@ class Armorsmith:
         except NoAccount:
             await self.bot.say("Please register an account with the inventory before equipping.")
 
+    @_inventory.command(pass_context=True, no_pm=True)
+    async def equipment(self, ctx, user: discord.Member):
+        if user is None:
+            user = ctx.message.author
+        try:
+            account = self.inventory.get_account(user)
+            await self.bot.say("{} has equipped: {}".format(user.mention, account.equipment))
+        except NoAccount:
+            await self.bot.say("Provided user has no stash account.")
+
     @_inventory.command(name="give", pass_context=True)
     @checks.admin_or_permissions(manage_server=True)
     async def _give(self, ctx, user: discord.Member, *, item_name: str):
@@ -443,11 +453,11 @@ class Armorsmith:
                 # del account_author.equipment["potion"]
                 await self.bot.say("{} used a potion".format(author.mention))
         if hp_user <= 0:
-            await self.bot.say("{} beat {} in a duel with {} hp remaining!".format(author.mention, user.mention, hp_author))
+            await self.bot.say(
+                "{} beat {} in a duel with {} hp remaining!".format(author.mention, user.mention, hp_author))
         else:
             await self.bot.say(
                 "{} beat {} in a duel with {} hp remaining!".format(user.mention, author.mention, hp_user))
-
 
     def already_in_list(self, accounts, user):
         for acc in accounts:
