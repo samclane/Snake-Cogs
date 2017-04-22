@@ -270,8 +270,8 @@ class Store:
         raise ItemNotFound
 
     def get_item_type(self, item_name):
-        for item_type in self.inventory.values():
-            for item in item_type:
+        for item_type, item_list in self.inventory.items():
+            for item in item_list:
                 if item.name == item_name:
                     return item_type
         raise ItemNotFound
@@ -339,7 +339,7 @@ class Armorsmith:
             await self.bot.say("That user has no stash account.")
 
     @_inventory.command(pass_context=True, no_pm=True)
-    async def equip(self, ctx, item_name: str):
+    async def equip(self, ctx, *, item_name: str):
         author = ctx.message.author
         try:
             item = self.store.get_item_by_name(item_name)
