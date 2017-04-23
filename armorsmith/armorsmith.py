@@ -441,7 +441,7 @@ class Armorsmith:
             await send_cmd_help(ctx)
 
     @_fight.command(pass_contex=True, no_pm=True)
-    async def duel(self, ctx, user: discord.Member = None):
+    async def duel(self, ctx, *, user: discord.Member = None):
         """Fight between two people"""
         if not user:
             await send_cmd_help(ctx)
