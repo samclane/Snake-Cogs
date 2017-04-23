@@ -64,7 +64,7 @@ class Weapon(namedtuple('Weapon', Item._fields + ('hit_dice',)), Item):
 
 class Armor(namedtuple('Armor', Item._fields + ('damage_reduction',)), Item):
     def block_damage(self, damage):
-        return damage - int(self.damage_reduction)
+        return max(damage - int(self.damage_reduction), 0)
 
 
 class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
@@ -463,7 +463,7 @@ class Armorsmith:
                 await self.bot.say("{} used a potion".format(user.mention))
             damage_to_author = u_weapon.damage_roll()
             damage_to_author = a_armor.block_damage(damage_to_author)
-            await self.bot.say("{} hit {} for {} damage".format(author.metnion, user.mention, damage_to_author))
+            await self.bot.say("{} hit {} for {} damage".format(author.mention, user.mention, damage_to_author))
             if hp_author <= 0 and a_potion is not None:
                 hp_author += a_potion.healing_roll()
                 # del account_author.equipment["potion"]
