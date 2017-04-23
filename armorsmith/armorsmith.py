@@ -456,24 +456,26 @@ class Armorsmith:
         while hp_author > 0 or hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
             damage_to_user = u_armor.block_damage(damage_to_user)
-            await self.bot.say("{} hit {} for {} damage!".format(author.mention, user.mention, damage_to_user))
+            hp_user -= damage_to_user
+            await self.bot.say("{} hit {} for {} damage!".format(author.name, user.name, damage_to_user))
             if hp_user <= 0 and u_potion is not None:
                 hp_user += u_potion.healing_roll()
                 del account_user.equipment["potion"]
-                await self.bot.say("{} used a potion".format(user.mention))
+                await self.bot.say("{} used a potion".format(user.name))
             damage_to_author = u_weapon.damage_roll()
             damage_to_author = a_armor.block_damage(damage_to_author)
-            await self.bot.say("{} hit {} for {} damage".format(user.mention, author.mention, damage_to_author))
+            hp_author -= damage_to_author
+            await self.bot.say("{} hit {} for {} damage".format(user.name, author.name, damage_to_author))
             if hp_author <= 0 and a_potion is not None:
                 hp_author += a_potion.healing_roll()
                 del account_author.equipment["potion"]
-                await self.bot.say("{} used a potion".format(author.mention))
+                await self.bot.say("{} used a potion".format(author.name))
         if hp_user <= 0:
             await self.bot.say(
-                "{} beat {} in a duel with {} hp remaining!".format(author.mention, user.mention, hp_author))
+                "{} beat {} in a duel with {} hp remaining!".format(author.name, user.name, hp_author))
         else:
             await self.bot.say(
-                "{} beat {} in a duel with {} hp remaining!".format(user.mention, author.mention, hp_user))
+                "{} beat {} in a duel with {} hp remaining!".format(user.name, author.name, hp_user))
 
     def already_in_list(self, accounts, user):
         for acc in accounts:
