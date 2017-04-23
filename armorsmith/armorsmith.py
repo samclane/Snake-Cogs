@@ -92,9 +92,18 @@ class Account:
         self.hp = 100
 
     def get_equipment(self):
-        weapon = Weapon(*self.equipment["weapon"])
-        armor = Armor(*self.equipment["armor"])
-        potion = HealPotion(*self.equipment["potion"])
+        if self.equipment["weapon"]:
+            weapon = Weapon(*self.equipment["weapon"])
+        else:
+            weapon = None
+        if self.equipment["armor"]:
+            armor = Armor(*self.equipment["armor"])
+        else:
+            armor = None
+        if self.equipment["potion"]:
+            potion = HealPotion(*self.equipment["potion"])
+        else:
+            potion = None
         return (weapon, armor, potion)
 
 
@@ -158,10 +167,10 @@ class Inventory:
         stash = account["stash"]
         equipment = account["equipment"]
         if self.has_item(user, item):
-            stash[item.name] = None
+            del stash[item.name]
             # TODO: Make this work
             if self.equipped_item(user, item):
-                equipment[item.get_type()] = None
+               del equipment[item.get_type()]
             self.accounts[server.id][user.id] = account
             self._save_inventory()
         else:
@@ -489,9 +498,13 @@ class Armorsmith:
         hp_user = 50
         a_weapon, a_armor, a_potion = account_author.get_equipment()
         u_weapon, u_armor, u_potion = account_user.get_equipment()
+        if not a_weapon or not u_weapon:
+            await self.bot.say("Both parties must have a weapon equipped!")
+            return
         while hp_author > 0 or hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
-            damage_to_user = u_armor.block_damage(damage_to_user)
+            if u_armor:
+                damage_to_user = u_armor.block_damage(damage_to_user)
             hp_user -= damage_to_user
             await self.bot.say("{} hit {} for {} damage!".format(author.name, user.name, damage_to_user))
             if hp_user <= 0 and u_potion is not None:
@@ -499,7 +512,8 @@ class Armorsmith:
                 self.inventory.remove_item(user, u_potion)
                 await self.bot.say("{} used a potion".format(user.name))
             damage_to_author = u_weapon.damage_roll()
-            damage_to_author = a_armor.block_damage(damage_to_author)
+            if a_armor:
+                damage_to_author = a_armor.block_damage(damage_to_author)
             hp_author -= damage_to_author
             await self.bot.say("{} hit {} for {} damage".format(user.name, author.name, damage_to_author))
             if hp_author <= 0 and a_potion is not None:
