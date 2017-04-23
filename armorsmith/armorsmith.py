@@ -505,7 +505,7 @@ class Armorsmith:
         if not a_weapon or not u_weapon:
             await self.bot.say("Both parties must have a weapon equipped!")
             return
-        while hp_author > 0 or hp_user > 0:
+        while hp_author > 0 and hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
             if u_armor:
                 damage_to_user = u_armor.block_damage(damage_to_user)
