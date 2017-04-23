@@ -514,6 +514,7 @@ class Armorsmith:
             if hp_user <= 0 and u_potion is not None:
                 hp_user += u_potion.healing_roll()
                 self.inventory.remove_item(user, u_potion)
+                u_potion = None
                 await self.bot.say("{} used a potion".format(user.name))
             damage_to_author = u_weapon.damage_roll()
             if a_armor:
@@ -523,6 +524,7 @@ class Armorsmith:
             if hp_author <= 0 and a_potion is not None:
                 hp_author += a_potion.healing_roll()
                 self.inventory.remove_item(author, a_potion)
+                a_potion = None
                 await self.bot.say("{} used a potion".format(author.name))
         if hp_user <= 0:
             await self.bot.say(
