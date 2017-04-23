@@ -143,7 +143,7 @@ class Inventory:
         equipment = account["equipment"]
         for item_type in equipment:
             if item.name in item_type:
-                return True
+                return item_type
         return False
 
     def remove_item(self, user, item):
@@ -154,9 +154,7 @@ class Inventory:
         if self.has_item(user, item):
             stash[item.name] = None
             if self.equipped_item(user, item):
-                for item_type in equipment:
-                    if item.name in item_type:
-                        item_type.remove(item)
+                equipment[self.equipped_item(user, item)] = None
             self.accounts[server.id][user.id] = account
             self._save_inventory()
         else:
