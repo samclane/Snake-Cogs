@@ -148,9 +148,8 @@ class Inventory:
     def equipped_item(self, user, item):
         account = self._get_account(user)
         equipment = account["equipment"]
-        for equip_item in equipment[item.get_type()]:
-            if equip_item[0] == item.name:
-                return True
+        if equipment[item.get_type()][0] == item.name:
+            return True
         return False
 
     def remove_item(self, user, item):
