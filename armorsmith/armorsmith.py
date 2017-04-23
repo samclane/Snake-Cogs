@@ -370,7 +370,7 @@ class Armorsmith:
             await self.bot.say("Please register an account with the inventory before equipping.")
 
     @_inventory.command(pass_context=True, no_pm=True)
-    async def equipment(self, ctx, user: discord.Member):
+    async def equipment(self, ctx, user: discord.Member = None):
         """View currently equipped items"""
         if not user:
             user = ctx.message.author
@@ -441,8 +441,11 @@ class Armorsmith:
             await send_cmd_help(ctx)
 
     @_fight.command(pass_contex=True, no_pm=True)
-    async def duel(self, ctx, user: discord.Member):
+    async def duel(self, ctx, user: discord.Member = None):
         """Fight between two people"""
+        if not user:
+            await send_cmd_help(ctx)
+            return
         author = ctx.message.author
         account_author = self.inventory.get_account(author)
         account_user = self.inventory.get_account(user)
