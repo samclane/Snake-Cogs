@@ -170,7 +170,7 @@ class Inventory:
             del stash[item.name]
             # TODO: Make this work
             if self.equipped_item(user, item):
-               del equipment[item.get_type()]
+               equipment[item.get_type()] = None
             self.accounts[server.id][user.id] = account
             self._save_inventory()
         else:
@@ -415,6 +415,7 @@ class Armorsmith:
         try:
             item = self.store.get_item_by_name(item_name)
             self.inventory.remove_item(user, item)
+            await self.bot.say("Removed item {} fom inventory".format(item_name))
         except ItemNotFound:
             await self.bot.say("Item was not found.")
 
