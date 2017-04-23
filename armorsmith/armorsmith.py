@@ -451,25 +451,21 @@ class Armorsmith:
         account_user = self.inventory.get_account(user)
         hp_author = 100
         hp_user = 100
-        weapon_author = account_author.equipment["weapon"]
-        weapon_user = account_user.equipment["weapon"]
-        armor_author = account_author.equipment["armor"]
-        armor_user = account_user.equipment["armor"]
-        potion_author = account_author.equipment["potion"]
-        potion_user = account_user.equipment["potion"]
+        a_weapon, a_armor, a_potion = account_author.get_equipment()
+        u_weapon, u_armor, u_potion = account_user.get_equipment()
         while hp_author > 0 or hp_user > 0:
-            damage_to_user = weapon_author.damage_roll
-            damage_to_user = armor_user.block_damage(damage_to_user)
+            damage_to_user = a_weapon.damage_roll
+            damage_to_user = u_armor.block_damage(damage_to_user)
             await self.bot.say("{} hit {} for {} damage!".format(author.mention, user.mention, damage_to_user))
-            if hp_user <= 0 and potion_user is not None:
-                hp_user += potion_user.healing_roll()
+            if hp_user <= 0 and u_potion is not None:
+                hp_user += u_potion.healing_roll()
                 # del account_user.equipment["potion"]
                 await self.bot.say("{} used a potion".format(user.mention))
-            damage_to_author = weapon_user.damage_roll
-            damage_to_author = armor_author.block_damage(damage_to_author)
+            damage_to_author = u_weapon.damage_roll
+            damage_to_author = a_armor.block_damage(damage_to_author)
             await self.bot.say("{} hit {} for {} damage".format(author.metnion, user.mention, damage_to_author))
-            if hp_author <= 0 and potion_author is not None:
-                hp_author += potion_author.healing_roll()
+            if hp_author <= 0 and a_potion is not None:
+                hp_author += a_potion.healing_roll()
                 # del account_author.equipment["potion"]
                 await self.bot.say("{} used a potion".format(author.mention))
         if hp_user <= 0:
