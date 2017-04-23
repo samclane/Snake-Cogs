@@ -442,6 +442,7 @@ class Armorsmith:
 
     @_fight.command(pass_contex=True, no_pm=True)
     async def duel(self, ctx, user: discord.Member):
+        """Fight between two people"""
         author = ctx.message.author
         account_author = self.inventory.get_account(author)
         account_user = self.inventory.get_account(user)
