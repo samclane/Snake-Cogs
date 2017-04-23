@@ -88,7 +88,7 @@ class Account:
         weapon = self.equipment["weapon"]
         armor = self.equipment["armor"]
         potion = self.equipment["potion"]
-        return weapon, armor, potion
+        return (weapon, armor, potion)
 
 
 class Inventory:
@@ -358,6 +358,7 @@ class Armorsmith:
 
     @_inventory.command(pass_context=True, no_pm=True)
     async def equip(self, ctx, *, item_name: str):
+        """Equip an item so you may use it in fights"""
         author = ctx.message.author
         try:
             item = self.store.get_item_by_name(item_name)
@@ -370,7 +371,8 @@ class Armorsmith:
 
     @_inventory.command(pass_context=True, no_pm=True)
     async def equipment(self, ctx, user: discord.Member):
-        if user is None:
+        """View currently equipped items"""
+        if not user:
             user = ctx.message.author
         try:
             account = self.inventory.get_account(user)
