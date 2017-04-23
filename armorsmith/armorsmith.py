@@ -85,9 +85,9 @@ class Account:
         self.hp = 100
 
     def get_equipment(self):
-        weapon = Weapon(**self.equipment["weapon"])
-        armor = Armor(**self.equipment["armor"])
-        potion = HealPotion(**self.equipment["potion"])
+        weapon = Weapon(*self.equipment["weapon"])
+        armor = Armor(*self.equipment["armor"])
+        potion = HealPotion(*self.equipment["potion"])
         return (weapon, armor, potion)
 
 
