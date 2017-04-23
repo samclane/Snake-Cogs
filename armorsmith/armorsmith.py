@@ -61,16 +61,23 @@ class Weapon(namedtuple('Weapon', Item._fields + ('hit_dice',)), Item):
     def damage_roll(self):
         return self._roll_dice(self.hit_dice)
 
+    def get_type(self):
+        return "weapon"
+
 
 class Armor(namedtuple('Armor', Item._fields + ('damage_reduction',)), Item):
     def block_damage(self, damage):
         return max(damage - int(self.damage_reduction), 0)
 
+    def get_type(self):
+        return "armor"
 
 class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
     def healing_roll(self):
         return self._roll_dice(self.heal_dice)
 
+    def get_type(self):
+        return "potion"
 
 # TODO: Implement this
 class Account:
@@ -143,7 +150,7 @@ class Inventory:
         equipment = account["equipment"]
         for item_type in equipment:
             if item.name in item_type:
-                return item_type
+                return True
         return False
 
     def remove_item(self, user, item):
@@ -153,8 +160,9 @@ class Inventory:
         equipment = account["equipment"]
         if self.has_item(user, item):
             stash[item.name] = None
+            # TODO: Make this work
             if self.equipped_item(user, item):
-                equipment[self.equipped_item(user, item)] = None
+                equipment[item.get_type()] = None
             self.accounts[server.id][user.id] = account
             self._save_inventory()
         else:
@@ -391,6 +399,16 @@ class Armorsmith:
                 "{} has equipped: {}".format(user.mention, ", ".join([item.name for item in account.get_equipment()])))
         except NoAccount:
             await self.bot.say("Provided user has no stash account.")
+
+    @_inventory.command(pass_context=True, no_pm=True)
+    async def remove(self, ctx, *, item_name):
+        """Removes an item from your inventory (and unequips it)"""
+        user = ctx.message.author
+        try:
+            item = self.store.get_item_by_name(item_name)
+            self.inventory.remove_item(user, item)
+        except ItemNotFound:
+            await self.bot.say("Item was not found.")
 
     @_inventory.command(name="give", pass_context=True)
     @checks.admin_or_permissions(manage_server=True)
