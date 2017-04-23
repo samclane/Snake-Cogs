@@ -143,7 +143,7 @@ class Inventory:
         account = self._get_account(user)
         stash = account["stash"]
         if self.has_item(user, item):
-            del stash[item.name]
+            stash[item.name] = None
             self.accounts[server.id][user.id] = account
             self._save_inventory()
         else:
@@ -449,8 +449,8 @@ class Armorsmith:
         author = ctx.message.author
         account_author = self.inventory.get_account(author)
         account_user = self.inventory.get_account(user)
-        hp_author = 100
-        hp_user = 100
+        hp_author = 50
+        hp_user = 50
         a_weapon, a_armor, a_potion = account_author.get_equipment()
         u_weapon, u_armor, u_potion = account_user.get_equipment()
         while hp_author > 0 or hp_user > 0:
@@ -460,7 +460,7 @@ class Armorsmith:
             await self.bot.say("{} hit {} for {} damage!".format(author.name, user.name, damage_to_user))
             if hp_user <= 0 and u_potion is not None:
                 hp_user += u_potion.healing_roll()
-                del account_user.equipment["potion"]
+                self.inventory.remove_item(user, u_potion)
                 await self.bot.say("{} used a potion".format(user.name))
             damage_to_author = u_weapon.damage_roll()
             damage_to_author = a_armor.block_damage(damage_to_author)
@@ -468,7 +468,7 @@ class Armorsmith:
             await self.bot.say("{} hit {} for {} damage".format(user.name, author.name, damage_to_author))
             if hp_author <= 0 and a_potion is not None:
                 hp_author += a_potion.healing_roll()
-                del account_author.equipment["potion"]
+                self.inventory.remove_item(author, a_potion)
                 await self.bot.say("{} used a potion".format(author.name))
         if hp_user <= 0:
             await self.bot.say(
