@@ -72,12 +72,14 @@ class Armor(namedtuple('Armor', Item._fields + ('damage_reduction',)), Item):
     def get_type(self):
         return "armor"
 
+
 class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
     def healing_roll(self):
         return self._roll_dice(self.heal_dice)
 
     def get_type(self):
         return "potion"
+
 
 # TODO: Implement this
 class Account:
@@ -170,7 +172,7 @@ class Inventory:
             del stash[item.name]
             # TODO: Make this work
             if self.equipped_item(user, item):
-               equipment[item.get_type()] = None
+                equipment[item.get_type()] = None
             self.accounts[server.id][user.id] = account
             self._save_inventory()
         else:
@@ -404,7 +406,8 @@ class Armorsmith:
         try:
             account = self.inventory.get_account(user)
             await self.bot.say(
-                "{} has equipped: {}".format(user.mention, ", ".join([item.name for item in account.get_equipment()])))
+                "{} has equipped: {}".format(user.mention,
+                                             ", ".join([item.name for item in account.get_equipment() if item])))
         except NoAccount:
             await self.bot.say("Provided user has no stash account.")
 
