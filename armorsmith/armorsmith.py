@@ -148,8 +148,8 @@ class Inventory:
     def equipped_item(self, user, item):
         account = self._get_account(user)
         equipment = account["equipment"]
-        for item_type in equipment:
-            if item.name in item_type:
+        for item in equipment[item.get_type()]:
+            if item[0] == item.name:
                 return True
         return False
 
@@ -476,8 +476,16 @@ class Armorsmith:
             await send_cmd_help(ctx)
             return
         author = ctx.message.author
-        account_author = self.inventory.get_account(author)
-        account_user = self.inventory.get_account(user)
+        try:
+            account_author = self.inventory.get_account(author)
+        except NoAccount:
+            await self.bot.say("You must have an account to duel. Make one with `!inventory register`")
+            return
+        try:
+            account_user = self.inventory.get_account(user)
+        except NoAccount:
+            await self.bot.say("Selected user does not have an account")
+            return
         hp_author = 50
         hp_user = 50
         a_weapon, a_armor, a_potion = account_author.get_equipment()
