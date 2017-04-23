@@ -138,12 +138,25 @@ class Inventory:
         else:
             return False
 
+    def equipped_item(self, user, item):
+        account = self._get_account(user)
+        equipment = account["equipment"]
+        for item_type in equipment:
+            if item.name in item_type:
+                return True
+        return False
+
     def remove_item(self, user, item):
         server = user.server
         account = self._get_account(user)
         stash = account["stash"]
+        equipment = account["equipment"]
         if self.has_item(user, item):
             stash[item.name] = None
+            if self.equipped_item(user, item):
+                for item_type in equipment:
+                    if item.name in item_type:
+                        item_type.remove(item)
             self.accounts[server.id][user.id] = account
             self._save_inventory()
         else:
