@@ -583,6 +583,9 @@ class Armorsmith:
             return
         try:
             self.arena.create_entry(author)
+        except AccountAlreadyExists:
+            pass
+        try:
             self.arena.create_entry(user)
         except AccountAlreadyExists:
             pass
@@ -636,7 +639,7 @@ class Armorsmith:
         if len(entries_sorted) < top:
             top = len(entries_sorted)
         topentries = entries_sorted[:top]
-        highscore = ""
+        highscore = "Wins Losses\n".rjust(23)
         place = 1
         for acc in topentries:
             highscore += str(place).ljust(len(str(top)) + 1)
