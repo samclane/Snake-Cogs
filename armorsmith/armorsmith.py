@@ -427,7 +427,6 @@ class Armorsmith:
         author = ctx.message.author
         try:
             account = self.inventory.create_account(author)
-            leaderboard = self.arena.create_entry(author)
             await self.bot.say("{} Stash opened.".format(author.mention))
         except AccountAlreadyExists:
             await self.bot.say("{} You already have a stash with the Armorsmith".format(author.mention))
@@ -581,6 +580,11 @@ class Armorsmith:
         except NoAccount:
             await self.bot.say("Selected user does not have an account")
             return
+        try:
+            self.arena.create_entry(author)
+            self.arena.create_entry(user)
+        except AccountAlreadyExists:
+            pass
         hp_author = 50
         hp_user = 50
         a_weapon, a_armor, a_potion = account_author.get_equipment()
@@ -588,7 +592,7 @@ class Armorsmith:
         if not a_weapon or not u_weapon:
             await self.bot.say("Both parties must have a weapon equipped!")
             return
-        while hp_author > 0 or hp_user > 0:
+        while hp_author > 0 and hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
             if u_armor:
                 damage_to_user = u_armor.block_damage(damage_to_user)
