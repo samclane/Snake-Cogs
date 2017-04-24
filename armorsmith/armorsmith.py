@@ -2,6 +2,7 @@ import discord
 from datetime import datetime
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
+from cogs.utils.chat_formatting import pagify, box
 from random import choice
 from collections import namedtuple, OrderedDict
 from copy import deepcopy
@@ -324,11 +325,92 @@ class Store:
         raise ItemNotFound
 
 
+class Arena:
+    def __init__(self, bot, file_path):
+        self.bot = bot
+        self.leaderboard = dataIO.load_json(file_path)
+
+    def create_entry(self, user):
+        server = user.server
+        if not self.score_exists(user):
+            if server.id not in self.leaderboard:
+                self.leaderboard[server.id] = {}
+            if user.id in self.leaderboard:
+                wins = self.leaderboard[user.id]["wins"]
+                losses = self.leaderboard[user.id]["losses"]
+            else:
+                wins = 0
+                losses = 0
+            timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            entry = {
+                "name": user.name,
+                "wins": wins,
+                "created_at": timestamp
+            }
+            self.leaderboard[server.id][user.id] = entry
+            self._save_leaderboard()
+        else:
+            raise AccountAlreadyExists()
+
+    def score_exists(self, user):
+        try:
+            self._get_entry(user)
+        except NoAccount:
+            return False
+        return True
+
+    def get_entry(self, user):
+        score = self._get_entry(user)
+        score["id"] = user.id
+        score["server"] = user.server
+        return self._create_entry_obj(score)
+
+    def get_entries(self, server):
+        if server.id in self.leaderboard:
+            raw_server_scores = deepcopy(self.leaderboard[server.id])
+            scores = []
+            for k, v in raw_server_scores:
+                v["id"] = k
+                v["server"] = server
+                score = self._get_entry(v)
+                scores.append(score)
+            return scores
+        else:
+            return []
+
+    def add_result(self, user, is_win):
+        server = user.server
+        entry = self._get_entry(user)
+        if is_win:
+            entry["wins"] += 1
+        else:
+            entry["losses"] += 1
+        self.leaderboard[server.id][user.id] = entry
+        self._save_leaderboard()
+
+    def _create_entry_obj(self, score):
+        score["member"] = score["server"].get_member(score["id"])
+        score["created_at"] = datetime.strptime(score["created_at"], "%Y-%m-%d %H:%M:%S")
+        Score = namedtuple("Score", "id name wins losses created_at server member")
+        return Score(**score)
+
+    def _save_leaderboard(self):
+        dataIO.save_json("data/armorsmith/leaderboard.json", self.leaderboard)
+
+    def _get_entry(self, user):
+        server = user.server
+        try:
+            return deepcopy(self.leaderboard[server.id][user.id])
+        except KeyError:
+            raise NoAccount()
+
+
 class Armorsmith:
     def __init__(self, bot):
         self.bot = bot
         self.inventory = Inventory(bot, "data/armorsmith/inventory.json")
         self.store = Store(bot, "data/armorsmith/items.json")
+        self.arena = Arena(bot, "data/armorsmith/leaderboard.json")
         self.bank = self.bot.get_cog("Economy").bank
         self.file_path = "data/armorsmith/settings.json"
         self.settings = dataIO.load_json(self.file_path)
@@ -345,6 +427,7 @@ class Armorsmith:
         author = ctx.message.author
         try:
             account = self.inventory.create_account(author)
+            leaderboard = self.arena.create_entry(author)
             await self.bot.say("{} Stash opened.".format(author.mention))
         except AccountAlreadyExists:
             await self.bot.say("{} You already have a stash with the Armorsmith".format(author.mention))
@@ -505,7 +588,7 @@ class Armorsmith:
         if not a_weapon or not u_weapon:
             await self.bot.say("Both parties must have a weapon equipped!")
             return
-        while hp_author > 0 and hp_user > 0:
+        while hp_author > 0 or hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
             if u_armor:
                 damage_to_user = u_armor.block_damage(damage_to_user)
@@ -529,9 +612,37 @@ class Armorsmith:
         if hp_user <= 0:
             await self.bot.say(
                 "{} beat {} in a duel with {} hp remaining!".format(author.name, user.name, hp_author))
+            self.arena.add_result(author, True)
+            self.arena.add_result(user, False)
         else:
             await self.bot.say(
                 "{} beat {} in a duel with {} hp remaining!".format(user.name, author.name, hp_user))
+            self.arena.add_result(user, True)
+            self.arena.add_result(author, False)
+
+    @_fight.command(pass_context=True, no_pm=True)
+    async def leaderboard(self, ctx, top=10):
+        """Displays the win/loss leaderboard"""
+        server = ctx.message.server
+        if top < 1:
+            top = 10
+        entries_sorted = sorted(self.arena.get_entries(server), key=lambda x: x.wins, reverse=True)
+        entries_sorted = [a for a in entries_sorted if a.member]
+        if len(entries_sorted) < top:
+            top = len(entries_sorted)
+        topentries = entries_sorted[:top]
+        highscore = ""
+        place = 1
+        for acc in topentries:
+            highscore += str(place).ljust(len(str(top)) + 1)
+            highscore += (str(acc.member.display_name) + " ").ljust(23 - len(str(acc.wins) + " " + str(acc.losses)))
+            highscore += str(acc.wins) + " " + str(acc.losses) + "\n"
+            place += 1
+        if highscore != "":
+            for page in pagify(highscore, shorten_by=12):
+                await self.bot.say(box(page, lang="py"))
+        else:
+            await self.bot.say("There are no accounts in the leaderboard")
 
     def already_in_list(self, accounts, user):
         for acc in accounts:
@@ -594,6 +705,11 @@ def check_files():
     f = "data/armorsmith/items.json"
     if not dataIO.is_valid_json(f):
         print("Item file not found/invalid. Creating blank item file")
+        dataIO.save_json(f, {})
+
+    f = "data/armorsmith/leaderboard.json"
+    if not dataIO.is_valid_json(f):
+        print("Leaderboard file not found/invalid. Creating blank leaderboard")
         dataIO.save_json(f, {})
 
 

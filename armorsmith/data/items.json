@@ -14,6 +14,11 @@
       "name": "Long Sword",
       "cost": 1200,
       "hit_dice": "1d12"
+    },
+    {
+      "name": "Excalibur",
+      "cost": 10000,
+      "hit_dice": "2d12"
     }
   ],
   "armor_list": [
@@ -43,6 +48,12 @@
     {
       "name": "Large Healing Potion",
       "cost": 1200,
+      "type": "healing",
+      "heal_dice": "1d12"
+    },
+    {
+      "name": "Giant Healing Potion",
+      "cost": 5000,
       "type": "healing",
       "heal_dice": "1d20"
     }
