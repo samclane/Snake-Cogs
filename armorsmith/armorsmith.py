@@ -345,6 +345,7 @@ class Arena:
             entry = {
                 "name": user.name,
                 "wins": wins,
+                "losses": losses,
                 "created_at": timestamp
             }
             self.leaderboard[server.id][user.id] = entry
@@ -369,7 +370,7 @@ class Arena:
         if server.id in self.leaderboard:
             raw_server_scores = deepcopy(self.leaderboard[server.id])
             scores = []
-            for k, v in raw_server_scores:
+            for k, v in raw_server_scores.items():
                 v["id"] = k
                 v["server"] = server
                 score = self._get_entry(v)
