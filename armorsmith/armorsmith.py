@@ -373,7 +373,7 @@ class Arena:
             for k, v in raw_server_scores.items():
                 v["id"] = k
                 v["server"] = server
-                score = self._get_entry(v)
+                score = self._create_entry_obj(v)
                 scores.append(score)
             return scores
         else:
