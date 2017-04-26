@@ -550,6 +550,9 @@ class Armorsmith:
         author = ctx.message.author
         try:
             item = self.store.get_item_by_name(item_name)
+            if not self.bank.can_spend(author, item.cost):
+                await self.bot.say("You have insufficient funds to purchase that item.")
+                return
             self.bank.withdraw_credits(author, item.cost)
             self.inventory.give_item(author, item)
             await self.bot.say("{} bought {} for {} credits.".format(author.mention, item_name, item.cost))
@@ -557,8 +560,6 @@ class Armorsmith:
             await self.bot.say("You do not have a stash register. Please do so before buying.")
         except ItemNotFound:
             await self.bot.say("The item specified does not exist.")
-        except InsufficientBalance:
-            await self.bot.say("You have insufficient funds to purchase that item.")
 
     # TODO: Add battles, battle-leaderboards, betting
 
