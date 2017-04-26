@@ -557,7 +557,7 @@ class Armorsmith:
             await self.bot.say("You do not have a stash register. Please do so before buying.")
         except ItemNotFound:
             await self.bot.say("The item specified does not exist.")
-        except self.bot.get_cog("Economy").InsufficientBalance:
+        except InsufficientBalance:
             await self.bot.say("You have insufficient funds to purchase that item.")
 
     # TODO: Add battles, battle-leaderboards, betting
