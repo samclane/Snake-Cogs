@@ -1,15 +1,17 @@
-import discord
-from datetime import datetime
-from discord.ext import commands
-from cogs.utils.dataIO import dataIO
-from cogs.utils.chat_formatting import pagify, box
-from random import choice
-from collections import namedtuple, OrderedDict
-from copy import deepcopy
-from __main__ import send_cmd_help
-from .utils import checks
 import logging
 import os
+from collections import namedtuple, OrderedDict
+from copy import deepcopy
+from datetime import datetime
+from random import choice
+
+import discord
+from __main__ import send_cmd_help
+from cogs.utils.chat_formatting import pagify, box
+from cogs.utils.dataIO import dataIO
+from discord.ext import commands
+
+from .utils import checks
 
 
 class ArmorException(Exception):
@@ -555,6 +557,8 @@ class Armorsmith:
             await self.bot.say("You do not have a stash register. Please do so before buying.")
         except ItemNotFound:
             await self.bot.say("The item specified does not exist.")
+        except self.bot.get_cog("Economy").InsufficientBalance:
+            await self.bot.say("You have insufficient funds to purchase that item.")
 
     # TODO: Add battles, battle-leaderboards, betting
 
@@ -652,11 +656,6 @@ class Armorsmith:
         else:
             await self.bot.say("There are no accounts in the leaderboard")
 
-    def already_in_list(self, accounts, user):
-        for acc in accounts:
-            if user.id == acc.id:
-                return True
-        return False
 
     @commands.group(pass_context=True, no_pm=True)
     @checks.admin_or_permissions(manage_server=True)
@@ -671,26 +670,6 @@ class Armorsmith:
             msg += "```"
             await send_cmd_help(ctx)
             await self.bot.say(msg)
-
-    def display_time(self, seconds, granularity=2):
-        intervals = (  # Source: http://stackoverflow.com/a/24542445
-            ('weeks', 604800),  # 60 * 60 * 24 * 7
-            ('days', 86400),  # 60 * 60 * 24
-            ('hours', 3600),  # 60 * 60
-            ('minutes', 60),
-            ('seconds', 1),
-        )
-
-        result = []
-
-        for name, count in intervals:
-            value = seconds // count
-            if value:
-                seconds -= value * count
-                if value == 1:
-                    name = name.rstrip('s')
-                result.append("{} {}".format(value, name))
-        return ', '.join(result[:granularity])
 
 
 def check_folders():
