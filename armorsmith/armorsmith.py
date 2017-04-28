@@ -309,18 +309,6 @@ class Store:
                 potion["heal_dice"]
             ))
 
-    def list_items(self):
-        description = "What're ya buyin', traveler?"
-        title = "Item Shop"
-        embed = discord.Embed(title=title, description=description)
-        embed.set_author(name="Shopkeep")
-        #embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapon"]]))
-        embed.add_field(name="weapons", value="Weapon1\nWeapon2\n")
-        embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
-        embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potion"]]))
-        embed.set_footer(text="Buy using [p]store buy <item name>")
-        return embed
-
     def get_item_by_name(self, item_name):
         for item_type in self.inventory.values():
             for item in item_type:
@@ -544,14 +532,14 @@ class Armorsmith:
     async def list(self, ctx):
         """Lists all available items for purchase"""
         message = "What're ya buyin', traveler?\n"
-        message += "Item Shop\n"
+        message += "Item Shop\n\n"
         for item_type in self.store.inventory.keys():
             message += item_type + "\n---------------\n"
             for item in self.store.inventory[item_type]:
                 message += str(item) + "\n"
             message += "\n\n"
         for page in pagify(message, shorten_by=12):
-            await self.bot.whisper(box(page, lang="py"))
+            await self.bot.whisper(box(page))
 
     @_store.command(pass_context=True, no_pm=True)
     async def buy(self, ctx, *, item_name):
