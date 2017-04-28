@@ -317,7 +317,7 @@ class Store:
         #embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapon"]]))
         embed.add_field(name="weapons", value="Weapon1\nWeapon2\n")
         embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
-        #embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potion"]]))
+        embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potion"]]))
         embed.set_footer(text="Buy using [p]store buy <item name>")
         return embed
 
