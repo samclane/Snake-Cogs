@@ -311,8 +311,8 @@ class Store:
 
     def list_items(self):
         description = "What're ya buyin', traveler?"
-        embed = discord.Embed(colour=0xFF0000, description=description)
-        embed.title = "Item Shop"
+        title = "Item Shop"
+        embed = discord.Embed(title=title, description=description)
         embed.set_author(name="Shopkeep")
         embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapon"]]))
         embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
