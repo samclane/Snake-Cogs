@@ -539,11 +539,11 @@ class Armorsmith:
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
-    @_store.command(pass_context=True, no_pm=False)
+    @_store.command(pass_context=True, no_pm=True)
     async def list(self, ctx):
         """Lists all available items for purchase"""
         embed = self.store.list_items()
-        await self.bot.whisper(embed=embed)
+        await self.bot.say(embed=embed)
 
     @_store.command(pass_context=True, no_pm=True)
     async def buy(self, ctx, *, item_name):
