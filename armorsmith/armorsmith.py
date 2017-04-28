@@ -543,8 +543,14 @@ class Armorsmith:
     @_store.command(pass_context=True, no_pm=False)
     async def list(self, ctx):
         """Lists all available items for purchase"""
-        embed = self.store.list_items()
-        await self.bot.whisper(embed=embed)
+        message = "What're ya buyin', traveler?\n"
+        message += "Item Shop\n"
+        for item_type in self.store.inventory.keys():
+            message += item_type + "\n\n"
+            for item in self.store.inventory[item_type]:
+                message += str(item)
+        for page in pagify(message, shorten_by=12):
+            await self.bot.whisper(box(page, lang="py"))
 
     @_store.command(pass_context=True, no_pm=True)
     async def buy(self, ctx, *, item_name):
