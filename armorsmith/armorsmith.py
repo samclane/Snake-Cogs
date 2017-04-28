@@ -313,7 +313,7 @@ class Store:
         description = "What're ya buyin', traveler?"
         embed = discord.Embed(colour=0xFF0000, description=description)
         embed.title = "Item Shop"
-        embed.set_author(name="Shopkeep", icon_url="http://imgur.com/zFYAFVg.jpg")
+        embed.set_author(name="Shopkeep")
         embed.add_field(name="Weapons", value='\n'.join([str(x) for x in self.inventory["weapon"]]))
         embed.add_field(name="Armor", value='\n'.join([str(x) for x in self.inventory["armor"]]))
         embed.add_field(name="Potions", value='\n'.join([str(x) for x in self.inventory["potion"]]))
@@ -539,11 +539,11 @@ class Armorsmith:
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
-    @_store.command(pass_context=True, no_pm=True)
+    @_store.command(pass_context=True, no_pm=False)
     async def list(self, ctx):
         """Lists all available items for purchase"""
         embed = self.store.list_items()
-        await self.bot.say(embed=embed)
+        await self.bot.whisper(embed=embed)
 
     @_store.command(pass_context=True, no_pm=True)
     async def buy(self, ctx, *, item_name):
