@@ -546,9 +546,10 @@ class Armorsmith:
         message = "What're ya buyin', traveler?\n"
         message += "Item Shop\n"
         for item_type in self.store.inventory.keys():
-            message += item_type + "\n\n"
+            message += item_type + "\n---------------\n"
             for item in self.store.inventory[item_type]:
-                message += str(item)
+                message += str(item) + "\n"
+            message += "\n\n"
         for page in pagify(message, shorten_by=12):
             await self.bot.whisper(box(page, lang="py"))
 
