@@ -1,23 +1,188 @@
 {
   "weapons_list": [
     {
-      "name": "Dagger",
-      "cost": 100,
+      "name": "Club",
+      "cost": 200,
       "hit_dice": "1d4"
     },
     {
-      "name": "Short Sword",
-      "cost": 500,
+      "name": "Dagger",
+      "cost": 400,
+      "hit_dice": "1d4"
+    },
+    {
+      "name": "Greatclub",
+      "cost": 400,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Handaxe",
+      "cost": 1000,
       "hit_dice": "1d6"
     },
     {
-      "name": "Long Sword",
-      "cost": 1200,
+      "name": "Javelin",
+      "cost": 1000,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Light Hammer",
+      "cost": 400,
+      "hit_dice": "1d4"
+    },
+    {
+      "name": "Mace",
+      "cost": 1000,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Quarterstaff",
+      "cost": 400,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Sickle",
+      "cost": 200,
+      "hit_dice": "1d4"
+    },
+    {
+      "name": "Spear",
+      "cost": 200,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Crossbow, light",
+      "cost": 5000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Dart",
+      "cost": 1000,
+      "hit_dice": "1d4"
+    },
+    {
+      "name": "Shortbow",
+      "cost": 5000,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Sling",
+      "cost": 200,
+      "hit_dice": "1d4"
+    },
+    {
+      "name": "Battleaxe",
+      "cost": 2000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Flail",
+      "cost": 2000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Glaive",
+      "cost": 4000,
+      "hit_dice": "1d10"
+    },
+    {
+      "name": "Greataxe",
+      "cost": 6000,
       "hit_dice": "1d12"
     },
     {
-      "name": "Excalibur",
+      "name": "Greatsword",
       "cost": 10000,
+      "hit_dice": "2d6"
+    },
+    {
+      "name": "Halberd",
+      "cost": 4000,
+      "hit_dice": "1d10"
+    },
+    {
+      "name": "Lance",
+      "cost": 2000,
+      "hit_dice": "1d12"
+    },
+    {
+      "name": "Longsword",
+      "cost": 3000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Maul",
+      "cost": 2000,
+      "hit_dice": "2d6"
+    },
+    {
+      "name": "Morningstar",
+      "cost": 3000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Pike",
+      "cost": 1000,
+      "hit_dice": "1d10"
+    },
+    {
+      "name": "Rapier",
+      "cost": 5000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Scimitar",
+      "cost": 5000,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Shortsword",
+      "cost": 2000,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Trident",
+      "cost": 1000,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "War Pick",
+      "cost": 1000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Warhammer",
+      "cost": 3000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Whip",
+      "cost": 400,
+      "hit_dice": "1d4"
+    },
+    {
+      "name": "Blowgun",
+      "cost": 2000,
+      "hit_dice": "1"
+    },
+    {
+      "name": "Crossbow, hand",
+      "cost": 15000,
+      "hit_dice": "1d6"
+    },
+    {
+      "name": "Crossbow, heavy",
+      "cost": 10000,
+      "hit_dice": "1d10"
+    },
+    {
+      "name": "Longbow",
+      "cost": 10000,
+      "hit_dice": "1d8"
+    },
+    {
+      "name": "Excalibur",
+      "cost": 20000,
       "hit_dice": "2d12"
     }
   ],

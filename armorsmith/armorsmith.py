@@ -13,6 +13,7 @@ from discord.ext import commands
 
 from .utils import checks
 
+# this comment forces a json update
 
 class ArmorException(Exception):
     pass
