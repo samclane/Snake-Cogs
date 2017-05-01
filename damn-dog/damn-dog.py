@@ -210,16 +210,18 @@ class DamnSession:
         img = self.path + "/{}".format(self.damn_data[self.correct_answer])
         self.answer_set.add(self.correct_answer)
         del self.damn_data[self.correct_answer]
-        for _ in range(4):
+        for _ in range(3):
             self.answer_set.add(choice(list(self.damn_data.keys())))
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
         await self.bot.send_file(destination=self.channel, fp=img)
+        msg = "Choices:\n"
         for idx, ans in enumerate(self.answer_set):
             idx = str(idx)
             self.answer_dict[ans] = idx
-            await self.bot.say("{}. {}".format(idx, ans))
+            msg += "{}. {}".format(idx, ans)
+        await self.bot.say(msg)
 
         while self.status != "correct answer" and (abs(self.timer - int(time.perf_counter()))) <= self.settings[
             "DELAY"]:
@@ -244,6 +246,8 @@ class DamnSession:
                 msg += " **+1** for me!"
                 self.scores[self.bot.user] += 1
             self.correct_answer = None
+            self.answer_dict = dict()
+            self.answer_set = set()
             await self.bot.say(msg)
             await self.bot.type()
             await asyncio.sleep(3)
@@ -272,6 +276,8 @@ class DamnSession:
 
         if has_guessed:
             self.correct_answer = None
+            self.answer_dict = dict()
+            self.answer_set = set()
             self.status = "correct answer"
             self.scores[message.author] += 1
             msg = "You got it {}! **+1** to you!".format(message.author.name)
