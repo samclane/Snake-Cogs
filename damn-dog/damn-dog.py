@@ -207,7 +207,7 @@ class DamnSession:
         self.answer = choice(list(self.damn_data.keys()))
         img = self.path + "/{}".format(self.damn_data[self.answer])
         answers = [self.answer]
-        self.damn_data.remove(self.answer)
+        del self.damn_data[self.answer]
         for wrong_answer in self.damn_data.keys():
             answers.append(wrong_answer)
         self.status = "waiting for answer"
