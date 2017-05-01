@@ -1,5 +1,5 @@
 from discord.ext import commands
-from random import choice
+from random import choice, shuffle
 from .utils.dataIO import dataIO
 from .utils import checks
 from .utils.chat_formatting import box
@@ -208,7 +208,7 @@ class DamnSession:
         img = self.path + "/{}".format(self.damn_data[self.answer])
         answers = {self.answer}
         del self.damn_data[self.answer]
-        for wrong_answer in self.damn_data.keys():
+        for wrong_answer in shuffle(list(self.damn_data.keys())):
             answers.add(wrong_answer)
             if len(answers) > 4: break
         self.status = "waiting for answer"
