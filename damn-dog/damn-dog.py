@@ -208,9 +208,8 @@ class DamnSession:
         img = self.path + "/{}".format(self.damn_data[self.answer])
         answers = {self.answer}
         del self.damn_data[self.answer]
-        for wrong_answer in self.damn_data.keys():
-            answers.add(wrong_answer)
-            if len(answers) > 4: break
+        for _ in range(4):
+            answers.add(choice(list(self.damn_data.keys())))
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
