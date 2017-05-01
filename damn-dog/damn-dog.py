@@ -210,10 +210,10 @@ class DamnSession:
         del self.damn_data[self.answer]
         for wrong_answer in self.damn_data.keys():
             answers.append(wrong_answer)
+            if len(answers) > 4: break
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
-        print(img)
         await self.bot.send_file(destination=self.channel, fp=img)
         await self.bot.say(str(answers))
 
