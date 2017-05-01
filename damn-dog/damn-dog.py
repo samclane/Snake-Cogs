@@ -277,7 +277,7 @@ class DamnSession:
         if has_guessed:
             self.status = "correct answer"
             self.scores[message.author] += 1
-            msg = "The correct answer was {}\n".format(self.correct_answer)
+            msg = "The correct answer was \"{}\"\n".format(self.correct_answer)
             msg += "You got it {}! **+1** to you!".format(message.author.name)
             await self.bot.send_message(message.channel, msg)
             self.correct_answer = None
