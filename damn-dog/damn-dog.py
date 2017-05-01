@@ -220,7 +220,7 @@ class DamnSession:
         for idx, ans in enumerate(self.answer_set):
             idx = str(idx)
             self.answer_dict[ans] = idx
-            msg += "{}. {}\n".format(idx, ans)
+            msg += "**{}.** {}\n".format(idx, ans)
         await self.bot.say(msg)
 
         while self.status != "correct answer" and (abs(self.timer - int(time.perf_counter()))) <= self.settings[
@@ -275,14 +275,14 @@ class DamnSession:
             has_guessed = True
 
         if has_guessed:
-            self.correct_answer = None
-            self.answer_dict = dict()
-            self.answer_set = set()
             self.status = "correct answer"
             self.scores[message.author] += 1
             msg = "The correct answer was {}\n".format(self.correct_answer)
             msg += "You got it {}! **+1** to you!".format(message.author.name)
             await self.bot.send_message(message.channel, msg)
+            self.correct_answer = None
+            self.answer_dict = dict()
+            self.answer_set = set()
 
 
 def check_folders():
