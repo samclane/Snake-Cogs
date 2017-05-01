@@ -213,7 +213,7 @@ class DamnSession:
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
-        await self.bot.send_file(destination=self.channel, fp=img, filename="the file", content=str(answers))
+        await self.bot.send_file(destination=self.channel, fp=img, content=str(answers))
 
         while self.status != "correct answer" and (abs(self.timer - int(time.perf_counter()))) <= self.settings[
             "DELAY"]:
