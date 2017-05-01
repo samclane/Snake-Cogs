@@ -22,6 +22,7 @@ DEFAULTS = {
     "REVEAL_ANSWER": True
 }
 
+# this comment forces an update
 
 class DamnDog:
     """General commands"""
