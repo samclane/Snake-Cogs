@@ -598,37 +598,37 @@ class Armorsmith:
         if not a_weapon or not u_weapon:
             await self.bot.say("Both parties must have a weapon equipped!")
             return
+        battle_text = ""
         while hp_author > 0 and hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
             if u_armor:
                 damage_to_user = u_armor.block_damage(damage_to_user)
             hp_user -= damage_to_user
-            await self.bot.say("{} hit {} for {} damage!".format(author.name, user.name, damage_to_user))
+            battle_text += "{} hit {} for {} damage!\n".format(author.name, user.name, damage_to_user)
             if hp_user <= 0 and u_potion is not None:
                 hp_user += u_potion.healing_roll()
                 self.inventory.remove_item(user, u_potion)
                 u_potion = None
-                await self.bot.say("{} used a potion".format(user.name))
+                battle_text += "{} used a potion\n".format(user.name)
             damage_to_author = u_weapon.damage_roll()
             if a_armor:
                 damage_to_author = a_armor.block_damage(damage_to_author)
             hp_author -= damage_to_author
-            await self.bot.say("{} hit {} for {} damage".format(user.name, author.name, damage_to_author))
+            battle_text += "{} hit {} for {} damage\n".format(user.name, author.name, damage_to_author)
             if hp_author <= 0 and a_potion is not None:
                 hp_author += a_potion.healing_roll()
                 self.inventory.remove_item(author, a_potion)
                 a_potion = None
-                await self.bot.say("{} used a potion".format(author.name))
+                battle_text += "{} used a potion".format(author.name)
         if hp_user <= 0:
-            await self.bot.say(
-                "{} beat {} in a duel with {} hp remaining!".format(author.name, user.name, hp_author))
+            battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(author.name, user.name, hp_author)
             self.arena.add_result(author, True)
             self.arena.add_result(user, False)
         else:
-            await self.bot.say(
-                "{} beat {} in a duel with {} hp remaining!".format(user.name, author.name, hp_user))
+            battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(user.name, author.name, hp_user)
             self.arena.add_result(user, True)
             self.arena.add_result(author, False)
+        await self.bot.say(pagify(box(battle_text)))
 
     @_fight.command(pass_context=True, no_pm=True)
     async def leaderboard(self, ctx, top=10):

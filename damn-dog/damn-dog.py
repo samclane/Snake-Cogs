@@ -3,14 +3,11 @@ from random import choice
 from .utils.dataIO import dataIO
 from .utils import checks
 from .utils.chat_formatting import box
-from collections import Counter, defaultdict, namedtuple
+from collections import Counter, defaultdict
 import discord
 import time
 import os
 import asyncio
-import chardet
-import requests
-from lxml import html
 from os.path import isfile, join
 from os import listdir
 
@@ -104,8 +101,6 @@ class DamnDog:
         if not session:
             try:
                 damn_questions = self.get_damn_data()
-            except requests.RequestException:
-                await self.bot.say("There was an error getting data from damn.dog")
             except Exception as e:
                 print(e)
                 await self.bot.say("There was an unknown error getting damn.dog data: {}".format(e))
