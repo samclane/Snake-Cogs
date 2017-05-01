@@ -1,0 +1,9 @@
+{
+    "AUTHOR" : "watersnake",
+    "SHORT" : "Play the damn.dog Wikihow trivia game right from your discord!",
+    "DESCRIPTION" : "Based on the trivia module, and the damn.dog browser game",
+    "DISABLED" : false,
+    "NAME" : "damn-dog",
+    "TAGS" : ["damn-dog", "wikihow"],
+    "INSTALL_MSG" : "Thank you for installing damn-dog. Have fun!"
+}
