@@ -174,7 +174,9 @@ class DamnSession:
         self.bot = bot
         self.reveal_message = "The answer is {}."
         self.fail_message = "On to the next one..."
-        self.answer = None
+        self.correct_answer = None
+        self.answer_set = set()
+        self.answer_dict = dict()
         self.damn_data = damn_data
         self.channel = message.channel
         self.starter = message.author
@@ -204,17 +206,20 @@ class DamnSession:
         if self.damn_data == {}:
             await self.end_game()
             return True
-        self.answer = choice(list(self.damn_data.keys()))
-        img = self.path + "/{}".format(self.damn_data[self.answer])
-        answers = {self.answer}
-        del self.damn_data[self.answer]
+        self.correct_answer = choice(list(self.damn_data.keys()))
+        img = self.path + "/{}".format(self.damn_data[self.correct_answer])
+        self.answer_set.add(self.correct_answer)
+        del self.damn_data[self.correct_answer]
         for _ in range(4):
-            answers.add(choice(list(self.damn_data.keys())))
+            self.answer_set.add(choice(list(self.damn_data.keys())))
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
         await self.bot.send_file(destination=self.channel, fp=img)
-        await self.bot.say(str(answers))
+        for idx, ans in enumerate(self.answer_set):
+            idx = str(idx)
+            self.answer_dict[ans] = idx
+            await self.bot.say("{}. {}".format(idx, ans))
 
         while self.status != "correct answer" and (abs(self.timer - int(time.perf_counter()))) <= self.settings[
             "DELAY"]:
@@ -232,13 +237,13 @@ class DamnSession:
             return True
         else:
             if self.settings["REVEAL_ANSWER"]:
-                msg = self.reveal_message.format(self.answer)
+                msg = self.reveal_message.format(self.correct_answer)
             else:
                 msg = self.fail_message
             if self.settings["BOT_PLAYS"]:
                 msg += " **+1** for me!"
                 self.scores[self.bot.user] += 1
-            self.answer = None
+            self.correct_answer = None
             await self.bot.say(msg)
             await self.bot.type()
             await asyncio.sleep(3)
@@ -254,19 +259,19 @@ class DamnSession:
     async def check_answer(self, message):
         if message.author == self.bot.user:
             return
-        elif self.answer is None:
+        elif self.correct_answer is None:
             return
 
         self.timeout = time.perf_counter()
         has_guessed = False
 
-        answer = self.answer.lower()
+        answer = self.correct_answer.lower()
         guess = message.content.lower()
-        if guess == answer:
+        if guess == self.answer_dict[answer]:
             has_guessed = True
 
         if has_guessed:
-            self.answer = None
+            self.correct_answer = None
             self.status = "correct answer"
             self.scores[message.author] += 1
             msg = "You got it {}! **+1** to you!".format(message.author.name)
