@@ -204,7 +204,7 @@ class DamnSession:
         if self.damn_data == {}:
             await self.end_game()
             return True
-        self.answer = choice(self.damn_data.keys())
+        self.answer = choice(list(self.damn_data.keys()))
         img = self.path + "/{}".format(self.damn_data[self.answer])
         answers = [self.answer]
         self.damn_data.remove(self.answer)
