@@ -628,7 +628,8 @@ class Armorsmith:
             battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(user.name, author.name, hp_user)
             self.arena.add_result(user, True)
             self.arena.add_result(author, False)
-        await self.bot.say(pagify(box(battle_text)))
+        for page in pagify(battle_text, shorten_by=12):
+            await self.bot.say(box(page, lang="py"))
 
     @_fight.command(pass_context=True, no_pm=True)
     async def leaderboard(self, ctx, top=10):
