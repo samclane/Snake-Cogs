@@ -206,10 +206,10 @@ class DamnSession:
             return True
         self.answer = choice(list(self.damn_data.keys()))
         img = self.path + "/{}".format(self.damn_data[self.answer])
-        answers = [self.answer]
+        answers = {self.answer}
         del self.damn_data[self.answer]
         for wrong_answer in self.damn_data.keys():
-            answers.append(wrong_answer)
+            answers.add(wrong_answer)
             if len(answers) > 4: break
         self.status = "waiting for answer"
         self.count += 1
