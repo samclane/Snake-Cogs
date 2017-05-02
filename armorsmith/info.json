@@ -4,6 +4,6 @@
     "DESCRIPTION" : "Buy persistent weapons, armor, and potions. Battle your friends!",
     "DISABLED" : false,
     "NAME" : "armorsmith",
-    "TAGS" : ["armorsmith", "weapons", "armor", "potions", "economy"],
+    "TAGS" : ["armorsmith", "games", "fun", "economy"],
     "INSTALL_MSG" : "Welcome to the Armorsmith! What're ya buyin'?"
 }

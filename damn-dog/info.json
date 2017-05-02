@@ -4,6 +4,6 @@
     "DESCRIPTION" : "Based on the trivia module, and the damn.dog browser game",
     "DISABLED" : false,
     "NAME" : "damn-dog",
-    "TAGS" : ["damn-dog", "wikihow", "game"],
+    "TAGS" : ["damn-dog", "wikihow", "games", "game", "fun"],
     "INSTALL_MSG" : "Thank you for installing damn-dog. Type `[p]damndog` to play!!"
 }
