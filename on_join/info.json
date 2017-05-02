@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "watersnake",
-    "SHORT" : "TTS Announce when user joins or leaves voice chat",
-    "DESCRIPTION" : "Uses gTTS, so only those in the voice chat are notified",
+    "SHORT" : "Announces when a user joins a channel",
+    "DESCRIPTION" : "Uses gTTS to announce when a user joins the channel, like Teamspeak or Ventrillo",
     "DISABLED" : false,
     "NAME" : "on_join",
     "TAGS" : ["on_join", "tts", "announce"],
