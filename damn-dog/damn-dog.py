@@ -19,6 +19,7 @@ DEFAULTS = {
     "REVEAL_ANSWER": True
 }
 
+
 # this comment forces an update
 
 class DamnDog:
@@ -38,7 +39,7 @@ class DamnDog:
         server = ctx.message.server
         if ctx.invoked_subcommand is None:
             settings = self.settings[server.id]
-            msg = box("Redbot gains points {BOT_PLAYS}\n"
+            msg = box("Redbot gains points: {BOT_PLAYS}\n"
                       "Seconds to answer: {DELAY}\n"
                       "Points to win: {MAX_SCORE}\n"
                       "Reveal answer on timeout: {REVEAL_ANSWER}\n"
@@ -172,6 +173,7 @@ class DamnSession:
         self.correct_answer = None
         self.answer_set = set()
         self.answer_dict = dict()
+        self.has_answered = set()
         self.damn_data = damn_data
         self.channel = message.channel
         self.starter = message.author
@@ -240,9 +242,7 @@ class DamnSession:
             if self.settings["BOT_PLAYS"]:
                 msg += " **+1** for me!"
                 self.scores[self.bot.user] += 1
-            self.correct_answer = None
-            self.answer_dict = dict()
-            self.answer_set = set()
+            self.reset_round()
             await self.bot.say(msg)
             await self.bot.type()
             await asyncio.sleep(3)
@@ -260,6 +260,8 @@ class DamnSession:
             return
         elif self.correct_answer is None:
             return
+        elif message.author in self.has_answered:
+            return
 
         self.timeout = time.perf_counter()
         has_guessed = False
@@ -275,9 +277,15 @@ class DamnSession:
             msg = "The correct answer was \"{}\"\n".format(self.correct_answer)
             msg += "You got it {}! **+1** to you!".format(message.author.name)
             await self.bot.send_message(message.channel, msg)
-            self.correct_answer = None
-            self.answer_dict = dict()
-            self.answer_set = set()
+            self.reset_round()
+        else:
+            self.has_answered.add(message.author)
+
+    def reset_round(self):
+        self.correct_answer = None
+        self.answer_dict = dict()
+        self.answer_set = set()
+        self.has_answered = set()
 
 
 def check_folders():
