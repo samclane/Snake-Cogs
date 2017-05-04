@@ -1,6 +1,6 @@
 import logging
 import os
-from collections import namedtuple, OrderedDict
+from collections import namedtuple, OrderedDict, defaultdict
 from copy import deepcopy
 from datetime import datetime
 from random import choice
@@ -13,6 +13,9 @@ from discord.ext import commands
 
 from .utils import checks
 
+DEFAULTS = {
+    "HP": 50
+}
 
 class ArmorException(Exception):
     pass
@@ -397,6 +400,7 @@ class Arena:
 
 class Armorsmith:
     def __init__(self, bot):
+        global DEFAULTS
         self.bot = bot
         self.inventory = Inventory(bot, "data/armorsmith/inventory.json")
         self.store = Store(bot, "data/armorsmith/items.json")
@@ -404,6 +408,7 @@ class Armorsmith:
         self.bank = self.bot.get_cog("Economy").bank
         self.file_path = "data/armorsmith/settings.json"
         self.settings = dataIO.load_json(self.file_path)
+        self.settings = defaultdict(lambda: DEFAULTS, self.settings)
 
     @commands.group(name="inventory", pass_context=True)
     async def _inventory(self, ctx):
@@ -566,6 +571,7 @@ class Armorsmith:
     @_fight.command(pass_context=True, no_pm=True)
     async def duel(self, ctx, *, user: discord.Member = None):
         """Fight between two people"""
+        settings = self.settings[ctx.message.server.id]
         if not user:
             await send_cmd_help(ctx)
             return
@@ -588,8 +594,8 @@ class Armorsmith:
             self.arena.create_entry(user)
         except AccountAlreadyExists:
             pass
-        hp_author = 50
-        hp_user = 50
+        hp_author = settings.get("HP", 50)
+        hp_user = settings.get("HP", 50)
         a_weapon, a_armor, a_potion = account_author.get_equipment()
         u_weapon, u_armor, u_potion = account_user.get_equipment()
         if not a_weapon or not u_weapon:
