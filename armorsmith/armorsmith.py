@@ -13,7 +13,6 @@ from discord.ext import commands
 
 from .utils import checks
 
-# this comment forces a json update
 
 class ArmorException(Exception):
     pass
@@ -85,7 +84,6 @@ class HealPotion(namedtuple('HealPotion', Item._fields + ('heal_dice',)), Item):
         return "potion"
 
 
-# TODO: Implement this
 class Account:
     def __init__(self, id, name, stash, equipment, created_at, server, member):
         self.id = id
@@ -95,7 +93,6 @@ class Account:
         self.server = server
         self.member = member
         self.equipment = equipment
-        self.hp = 100
 
     def get_equipment(self):
         if self.equipment["weapon"]:
@@ -558,7 +555,7 @@ class Armorsmith:
         except ItemNotFound:
             await self.bot.say("The item specified does not exist.")
 
-    # TODO: Add battles, battle-leaderboards, betting
+    # TODO: Add challenges, betting
 
     @commands.group(name="fight", pass_context=True)
     async def _fight(self, ctx):
@@ -624,12 +621,32 @@ class Armorsmith:
             battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(author.name, user.name, hp_author)
             self.arena.add_result(author, True)
             self.arena.add_result(user, False)
+            author_won = True
         else:
             battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(user.name, author.name, hp_user)
             self.arena.add_result(user, True)
             self.arena.add_result(author, False)
+            author_won = False
         for page in pagify(battle_text, shorten_by=12):
             await self.bot.say(box(page, lang="py"))
+        return author_won
+
+    @_fight.command(pass_context=True, no_pm=True)
+    async def challenge(self, ctx, user: discord.Member, wager=0):
+        author = ctx.message.author
+        if wager > 0 and not (self.bank.can_spend(author, wager) and self.bank.can_spend(user, wager)):
+            await self.bot.say("Someone can't spare the wagered amount. Please try again.")
+            return
+        await self.bot.say("{}, do you accept this challenge?".format(user.display_name))
+        msg = await self.bot.wait_for_message(timeout=15, author=user, content='yes')
+        if msg and msg.content == "yes":
+            result = self.duel(ctx, user)
+            if result:
+                self.bank.transfer_credits(user, author, wager)
+            else:
+                self.bank.transfer_credits(user, author, wager)
+        else:
+            await self.bot.say("Challenge declined.")
 
     @_fight.command(pass_context=True, no_pm=True)
     async def leaderboard(self, ctx, top=10):
@@ -655,8 +672,7 @@ class Armorsmith:
         else:
             await self.bot.say("There are no accounts in the leaderboard")
 
-
-    @commands.group(pass_context=True, no_pm=True)
+    @commands.group(name="armorsmithset", pass_context=True, no_pm=True)
     @checks.admin_or_permissions(manage_server=True)
     async def armorsmithset(self, ctx):
         """Changes Armorsmith module settings"""
