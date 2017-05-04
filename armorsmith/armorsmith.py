@@ -575,12 +575,12 @@ class Armorsmith:
             return
         author = ctx.message.author
         try:
-            account_author = self.inventory.get_account(author)
+            author.account = self.inventory.get_account(author)
         except NoAccount:
             await self.bot.say("You must have an account to duel. Make one with `!inventory register`")
             return
         try:
-            account_user = self.inventory.get_account(user)
+            user.account = self.inventory.get_account(user)
         except NoAccount:
             await self.bot.say("Selected user does not have an account")
             return
