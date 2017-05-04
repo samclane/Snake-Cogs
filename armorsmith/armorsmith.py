@@ -600,17 +600,17 @@ class Armorsmith:
         await self.bot.say("{}, do you accept this challenge?".format(user.mention))
         msg = await self.bot.wait_for_message(timeout=15, author=user, content='yes')
         if msg and msg.content == "yes":
-            battle_text, result = self.duel(author, user, settings)
+            battle_text, author_won = self.duel(author, user, settings)
             for page in pagify(battle_text, shorten_by=12):
                 await self.bot.say(box(page, lang="py"))
-            if result:
+            if author_won:
                 self.bank.transfer_credits(user, author, wager)
             else:
                 self.bank.transfer_credits(user, author, wager)
         else:
             await self.bot.say("Challenge declined.")
 
-    async def duel(self, author, user, settings):
+    def duel(self, author, user, settings):
         """Fight between two people"""
         hp_author = settings.get("HP", 50)
         hp_user = settings.get("HP", 50)
