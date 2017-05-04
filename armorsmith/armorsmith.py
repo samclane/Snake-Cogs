@@ -640,7 +640,7 @@ class Armorsmith:
         await self.bot.say("{}, do you accept this challenge?".format(user.mention))
         msg = await self.bot.wait_for_message(timeout=15, author=user, content='yes')
         if msg and msg.content == "yes":
-            result = self.duel(ctx, user)
+            result = self.bot.dispatch('command', self.duel, ctx)
             if result:
                 self.bank.transfer_credits(user, author, wager)
             else:
