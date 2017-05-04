@@ -569,13 +569,13 @@ class Armorsmith:
             await send_cmd_help(ctx)
 
     @_fight.command(pass_context=True, no_pm=True)
-    async def duel(self, ctx, *, user: discord.Member = None):
-        """Fight between two people"""
+    async def challenge(self, ctx, user: discord.Member, wager=0):
+        """Challenge a user to a duel they must accept, with optional wager."""
         settings = self.settings[ctx.message.server.id]
+        author = ctx.message.author
         if not user:
             await send_cmd_help(ctx)
             return
-        author = ctx.message.author
         try:
             account_author = self.inventory.get_account(author)
         except NoAccount:
@@ -594,13 +594,30 @@ class Armorsmith:
             self.arena.create_entry(user)
         except AccountAlreadyExists:
             pass
+        if wager > 0 and not (self.bank.can_spend(author, wager) and self.bank.can_spend(user, wager)):
+            await self.bot.say("Someone can't spare the wagered amount. Please try again.")
+            return
+        await self.bot.say("{}, do you accept this challenge?".format(user.mention))
+        msg = await self.bot.wait_for_message(timeout=15, author=user, content='yes')
+        if msg and msg.content == "yes":
+            battle_text, result = self.duel(author, user, settings)
+            for page in pagify(battle_text, shorten_by=12):
+                await self.bot.say(box(page, lang="py"))
+            if result:
+                self.bank.transfer_credits(user, author, wager)
+            else:
+                self.bank.transfer_credits(user, author, wager)
+        else:
+            await self.bot.say("Challenge declined.")
+
+    async def duel(self, author, user, settings):
+        """Fight between two people"""
         hp_author = settings.get("HP", 50)
         hp_user = settings.get("HP", 50)
-        a_weapon, a_armor, a_potion = account_author.get_equipment()
-        u_weapon, u_armor, u_potion = account_user.get_equipment()
+        a_weapon, a_armor, a_potion = self.inventory.get_account(author).get_equipment()
+        u_weapon, u_armor, u_potion = self.inventory.get_account(user).get_equipment()
         if not a_weapon or not u_weapon:
-            await self.bot.say("Both parties must have a weapon equipped!")
-            return
+            raise Exception
         battle_text = ""
         while hp_author > 0 and hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
@@ -633,26 +650,7 @@ class Armorsmith:
             self.arena.add_result(user, True)
             self.arena.add_result(author, False)
             author_won = False
-        for page in pagify(battle_text, shorten_by=12):
-            await self.bot.say(box(page, lang="py"))
-        return author_won
-
-    @_fight.command(pass_context=True, no_pm=True)
-    async def challenge(self, ctx, user: discord.Member, wager=0):
-        author = ctx.message.author
-        if wager > 0 and not (self.bank.can_spend(author, wager) and self.bank.can_spend(user, wager)):
-            await self.bot.say("Someone can't spare the wagered amount. Please try again.")
-            return
-        await self.bot.say("{}, do you accept this challenge?".format(user.mention))
-        msg = await self.bot.wait_for_message(timeout=15, author=user, content='yes')
-        if msg and msg.content == "yes":
-            result = self.bot.dispatch('command', self.duel, ctx)
-            if result:
-                self.bank.transfer_credits(user, author, wager)
-            else:
-                self.bank.transfer_credits(user, author, wager)
-        else:
-            await self.bot.say("Challenge declined.")
+        return battle_text, author_won
 
     @_fight.command(pass_context=True, no_pm=True)
     async def leaderboard(self, ctx, top=10):
