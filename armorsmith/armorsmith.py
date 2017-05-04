@@ -637,7 +637,7 @@ class Armorsmith:
         if wager > 0 and not (self.bank.can_spend(author, wager) and self.bank.can_spend(user, wager)):
             await self.bot.say("Someone can't spare the wagered amount. Please try again.")
             return
-        await self.bot.say("{}, do you accept this challenge?".format(user.display_name))
+        await self.bot.say("{}, do you accept this challenge?".format(user.mention))
         msg = await self.bot.wait_for_message(timeout=15, author=user, content='yes')
         if msg and msg.content == "yes":
             result = self.duel(ctx, user)
