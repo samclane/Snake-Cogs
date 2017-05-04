@@ -606,7 +606,7 @@ class Armorsmith:
             if author_won:
                 self.bank.transfer_credits(user, author, wager)
             else:
-                self.bank.transfer_credits(user, author, wager)
+                self.bank.transfer_credits(author, user, wager)
         else:
             await self.bot.say("Challenge declined.")
 
