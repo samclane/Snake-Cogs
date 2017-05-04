@@ -21,6 +21,8 @@ class ArmorException(Exception):
 class InventoryException(Exception):
     pass
 
+class FightException(Exception):
+    pass
 
 class AccountAlreadyExists(InventoryException):
     pass
@@ -37,6 +39,8 @@ class ItemNotFound(InventoryException):
 class SameSenderAndReceiver(InventoryException):
     pass
 
+class NoWeapon(FightException):
+    pass
 
 class Item(namedtuple('Item', 'name cost')):
     @staticmethod
@@ -588,48 +592,56 @@ class Armorsmith:
             self.arena.create_entry(user)
         except AccountAlreadyExists:
             pass
-        hp_author = 50
-        hp_user = 50
-        a_weapon, a_armor, a_potion = account_author.get_equipment()
-        u_weapon, u_armor, u_potion = account_user.get_equipment()
-        if not a_weapon or not u_weapon:
-            await self.bot.say("Both parties must have a weapon equipped!")
-            return
-        battle_text = ""
-        while hp_author > 0 and hp_user > 0:
-            damage_to_user = a_weapon.damage_roll()
-            if u_armor:
-                damage_to_user = u_armor.block_damage(damage_to_user)
-            hp_user -= damage_to_user
-            battle_text += "{} hit {} for {} damage!\n".format(author.name, user.name, damage_to_user)
-            if hp_user <= 0 and u_potion is not None:
-                hp_user += u_potion.healing_roll()
-                self.inventory.remove_item(user, u_potion)
-                u_potion = None
-                battle_text += "{} used a potion\n".format(user.name)
-            damage_to_author = u_weapon.damage_roll()
-            if a_armor:
-                damage_to_author = a_armor.block_damage(damage_to_author)
-            hp_author -= damage_to_author
-            battle_text += "{} hit {} for {} damage\n".format(user.name, author.name, damage_to_author)
-            if hp_author <= 0 and a_potion is not None:
-                hp_author += a_potion.healing_roll()
-                self.inventory.remove_item(author, a_potion)
-                a_potion = None
-                battle_text += "{} used a potion".format(author.name)
-        if hp_user <= 0:
-            battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(author.name, user.name, hp_author)
-            self.arena.add_result(author, True)
-            self.arena.add_result(user, False)
-            author_won = True
-        else:
-            battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(user.name, author.name, hp_user)
-            self.arena.add_result(user, True)
-            self.arena.add_result(author, False)
-            author_won = False
+        victor, battle_text = self.run_fight(author, user)
         for page in pagify(battle_text, shorten_by=12):
             await self.bot.say(box(page, lang="py"))
-        return author_won
+
+    def run_fight(self, author, user):
+        author.hp = 50
+        user.hp = 50
+        author.inventory = self.inventory.get_account(author)
+        user.inventory = self.inventory.get_account(user)
+        author.weapon, author.armor, author.potion = author.inventory.get_equipment()
+        user.weapon, user.armor, user.potion = user.inventory.get_equipment()
+        if not author.weapon or not user.weapon:
+            raise NoWeapon
+        battle_text = ""
+        while author.hp > 0 and user.hp > 0:
+            damage_to_user = author.weapon.damage_roll()
+            if user.armor:
+                damage_to_user = user.armor.block_damage(damage_to_user)
+            user.hp -= damage_to_user
+            battle_text += "{} hit {} for {} damage!\n".format(author.name, user.name, damage_to_user)
+            if user.hp <= 0 and user.potion is not None:
+                user.hp += user.potion.healing_roll()
+                self.inventory.remove_item(user, user.potion)
+                user.potion = None
+                battle_text += "{} used a potion\n".format(user.name)
+            damage_to_author = user.weapon.damage_roll()
+            if author.armor:
+                damage_to_author = author.armor.block_damage(damage_to_author)
+            author.hp -= damage_to_author
+            battle_text += "{} hit {} for {} damage\n".format(user.name, author.name, damage_to_author)
+            if author.hp <= 0 and author.potion is not None:
+                author.hp += author.potion.healing_roll()
+                self.inventory.remove_item(author, author.potion)
+                author.potion = None
+                battle_text += "{} used a potion".format(author.name)
+        if author.hp > 0:
+            victor = author
+        elif user.hp > 0:
+            victor = user
+        else:
+            victor = None
+        if victor == author:
+            battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(author.name, user.name, author.hp)
+            self.arena.add_result(author, True)
+            self.arena.add_result(user, False)
+        elif victor == user:
+            battle_text += "{} beat {} in a duel with {} hp remaining!\n".format(user.name, author.name, user.hp)
+            self.arena.add_result(user, True)
+            self.arena.add_result(author, False)
+        return victor, battle_text
 
     @_fight.command(pass_context=True, no_pm=True)
     async def challenge(self, ctx, user: discord.Member, wager=0):
@@ -637,13 +649,15 @@ class Armorsmith:
         if wager > 0 and not (self.bank.can_spend(author, wager) and self.bank.can_spend(user, wager)):
             await self.bot.say("Someone can't spare the wagered amount. Please try again.")
             return
-        await self.bot.say("{}, do you accept this challenge?".format(user.mention))
+        await self.bot.say("{}, do you accept this challenge? Type 'yes' to accept.".format(user.mention))
         msg = await self.bot.wait_for_message(timeout=15, author=user, content='yes')
         if msg and msg.content == "yes":
-            result = self.bot.dispatch('command', self.duel, ctx)
-            if result:
+            victor, battle_text = self.run_fight(author, user)
+            for page in pagify(battle_text, shorten_by=12):
+                await self.bot.say(box(page, lang="py"))
+            if victor == author:
                 self.bank.transfer_credits(user, author, wager)
-            else:
+            elif victor == user:
                 self.bank.transfer_credits(user, author, wager)
         else:
             await self.bot.say("Challenge declined.")
