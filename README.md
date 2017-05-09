@@ -6,6 +6,11 @@ To add cogs, use ```[p]cog repo add snake-cogs https://github.com/samclane/Snake
 
 Check if there are any dependancies, and install them using pip3
 
+## Wiki
+https://github.com/samclane/Snake-Cogs/wiki
+
+The wiki is up. I currently only have the command helps up, but I'll be adding more cog info as I see fit.  
+
 ## Credits
 Twentysix26 - Making the bot
 
