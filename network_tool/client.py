@@ -11,7 +11,7 @@ class Client:
             data = self.file.readline().rstrip()
             print("1::%s" % data)
 
-    def initListenerSocket(self, port=80):
+    def initListenerSocket(self, port=50008):
 
         sock = socket(AF_INET, SOCK_STREAM)
         sock.bind(('', port))
