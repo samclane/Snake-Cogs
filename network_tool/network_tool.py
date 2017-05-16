@@ -6,7 +6,7 @@ class NetworkTool:
         self.bot = bot
         self.redirectOut()
 
-    def redirectOut(port=80, host="localhost"):
+    def redirectOut(self, port=80, host="localhost"):
         """
         connect caller's standard output stream to a socket for GUI to listen
         start caller after listener started, else connect fails before accept
