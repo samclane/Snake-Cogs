@@ -1,37 +1,35 @@
 import discord
 import sys
-from socket import *
+import socket
+import select
 
 
 class NetworkTool:
     def __init__(self, bot):
         self.bot = bot
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.bind(('', 8888))
+        server_socket.listen(5)
 
-        serversocket = MySocket()
-        serversocket.bind(("192.168.1.69", 50008))
-        serversocket.listen(1)
-        conn, addr = serversocket.accept1()
-        sys.stdout = conn
-        sys.stdin = conn
-        sys.stderr = conn
+        file = server_socket.makefile('w', buffering=None)  # file interface: text, buffered
+        sys.stdout = file
 
-
-class MySocket(socket):
-    def __init__(self, family=AF_INET, type=SOCK_STREAM, proto=0):
-        socket.__init__(self, family=AF_INET, type=SOCK_STREAM, proto=0)
-
-    def write(self, text):
-        return self.send(text)
-
-    def readlines(self):
-        return self.recv(2048)
-
-    def read(self):
-        return self.recv(1024)
-
-    def accept1(self):
-        conn, addr = self.accept()
-        return (MySocket(), addr)
+        read_list = [server_socket]
+        while True:
+            readable, writable, errored = select.select(read_list, [], [])
+            for s in readable:
+                if s is server_socket:
+                    client_socket, address = server_socket.accept()
+                    read_list.append(client_socket)
+                    print("Connection from ", address)
+                else:
+                    data = s.recv(1024)
+                    if data:
+                        s.send(data)
+                    else:
+                        s.close()
+                        read_list.remove(s)
 
 
 def setup(bot):
