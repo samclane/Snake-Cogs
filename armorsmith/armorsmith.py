@@ -17,6 +17,7 @@ DEFAULTS = {
     "HP": 50
 }
 
+
 class ArmorException(Exception):
     pass
 
@@ -428,9 +429,7 @@ class Armorsmith:
 
     @_inventory.command(pass_context=True)
     async def stash(self, ctx, user: discord.Member = None):
-        """Shows stash of user,
-        
-        Defaults to yours."""
+        """Shows stash of user. Defaults to yours."""
         if not user:
             user = ctx.message.author
             try:
@@ -559,8 +558,6 @@ class Armorsmith:
             await self.bot.say("You do not have a stash register. Please do so before buying.")
         except ItemNotFound:
             await self.bot.say("The item specified does not exist.")
-
-    # TODO: Add challenges, betting
 
     @commands.group(name="fight", pass_context=True)
     async def _fight(self, ctx):
