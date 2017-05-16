@@ -2,7 +2,7 @@ from tkinter import *
 from socket import *
 
 
-class Client:
+class ToolClient:
     def __init__(self, remote_ip):
         self.conn = self.initListenerSocket()
         self.file = self.conn.makefile('r')
@@ -29,4 +29,4 @@ class Client:
 
 if __name__ == "__main__":
     remote_ip = "192.168.1.69"
-    cli = Client(remote_ip)
+    cli = ToolClient(remote_ip)
