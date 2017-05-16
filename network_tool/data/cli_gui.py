@@ -5,6 +5,7 @@ from socket import *
 class ToolClient:
     def __init__(self, remote_ip):
         self.conn = self.initListenerSocket()
+        self.sock = self.redirectIn()
         self.file = self.conn.makefile('r')
         self.remote_ip = remote_ip
         while True:
