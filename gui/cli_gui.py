@@ -9,6 +9,14 @@ class ToolClient:
     def __init__(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, port))
+        buffer = ''
+        while True:
+            data, addr = s.recv(1024)
+            if data:
+                buffer += data
+                print(buffer)
+            else:
+                break
 
 
 
