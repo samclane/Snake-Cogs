@@ -26,3 +26,7 @@ class Client:
         file = sock.makefile('r')
         sys.stdin = file
         return sock
+
+if __name__ == "__main__":
+    remote_ip = "192.168.1.69"
+    cli = Client(remote_ip)
