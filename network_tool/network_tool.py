@@ -12,7 +12,7 @@ class NetworkTool:
         start caller after listener started, else connect fails before accept
         """
         sock = socket(AF_INET, SOCK_STREAM)
-        sock.connect((host, port))  # caller operates in client mode
+        sock.connect((gethostname(), port))  # caller operates in client mode
         file = sock.makefile('w', buffering=None)  # file interface: text, buffered
         sys.stdout = file  # make prints go to sock.send
         return sock
