@@ -3,6 +3,7 @@ import sys
 import socket
 import select
 
+
 # force update
 
 class NetworkTool:
@@ -16,26 +17,30 @@ class NetworkTool:
         file = self.server_socket.makefile('w', buffering=None)  # file interface: text, buffered
         sys.stdout = file
 
+        self.read_list = [self.server_socket]
+
+        loop = self.bot.loop
+        loop.create_task(self.service_port())
 
 
     async def service_port(self):
-        read_list = [self.server_socket]
-        while True:
-            readable, writable, errored = select.select(read_list, [], [])
-            for s in readable:
-                if s is self.server_socket:
-                    client_socket, address = self.server_socket.accept()
-                    read_list.append(client_socket)
-                    print("Connection from ", address)
+        readable, writable, errored = select.select(self.read_list, [], [])
+        for s in readable:
+            if s is self.server_socket:
+                client_socket, address = self.server_socket.accept()
+                self.read_list.append(client_socket)
+                print("Connection from ", address)
+            else:
+                data = s.recv(1024)
+                if data:
+                    s.send(data)
                 else:
-                    data = s.recv(1024)
-                    if data:
-                        s.send(data)
-                    else:
-                        s.close()
-                        read_list.remove(s)
+                    s.close()
+                    self.read_list.remove(s)
 
 
 def setup(bot):
     n = NetworkTool(bot)
     bot.add_cog(n)
+
+
