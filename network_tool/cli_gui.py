@@ -12,14 +12,13 @@ class ToolClient:
             print("1::%s" % data)
 
     def initListenerSocket(self, port=50008):
-
         sock = socket(AF_INET, SOCK_STREAM)
         sock.bind(('', port))
         sock.listen(5)
         conn, addr = sock.accept()
         return conn
 
-    def redirectIn(self, port=80):
+    def redirectIn(self, port=50008):
         host = self.remote_ip
         sock = socket(AF_INET, SOCK_STREAM)
         sock.connect((host, port))
