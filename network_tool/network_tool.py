@@ -7,19 +7,32 @@ from socket import *
 class NetworkTool:
     def __init__(self, bot):
         self.bot = bot
-        self.sock = self.redirectOut()
 
-    def redirectOut(self, port=50008, host='localhost'):
-        """
-        connect caller's standard output stream to a socket for GUI to listen
-        start caller after listener started, else connect fails before accept
-        """
-        sock = socket(AF_INET, SOCK_STREAM)
-        sock.bind(('192.168.1.69', port))
-        sock.connect(('192.168.1.69', port))  # caller operates in client mode
-        file = sock.makefile('w', buffering=None)  # file interface: text, buffered
-        sys.stdout = file  # make prints go to sock.send
-        return sock
+        serversocket = MySocket()
+        serversocket.bind(("192.168.1.69", 50008))
+        serversocket.listen(1)
+        conn, addr = serversocket.accept1()
+        sys.stdout = conn
+        sys.stdin = conn
+        sys.stderr = conn
+
+
+class MySocket(socket):
+    def __init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None):
+        socket.__init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None)
+
+    def write(self, text):
+        return self.send(text)
+
+    def readlines(self):
+        return self.recv(2048)
+
+    def read(self):
+        return self.recv(1024)
+
+    def accept1(self):
+        conn, addr = self.accept()
+        return (MySocket(_sock=conn), addr)
 
 
 def setup(bot):

