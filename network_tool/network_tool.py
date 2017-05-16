@@ -2,7 +2,6 @@ import discord
 import sys
 from socket import *
 
-# forces an update
 
 class NetworkTool:
     def __init__(self, bot):
