@@ -1,4 +1,5 @@
 import discord
+import sys
 from socket import *
 
 class NetworkTool:
