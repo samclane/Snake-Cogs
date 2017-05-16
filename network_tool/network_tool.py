@@ -17,8 +17,8 @@ class NetworkTool:
 
 
 class MySocket(socket):
-    def __init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None):
-        socket.__init__(self, family=AF_INET, type=SOCK_STREAM, proto=0, _sock=None)
+    def __init__(self, family=AF_INET, type=SOCK_STREAM, proto=0):
+        socket.__init__(self, family=AF_INET, type=SOCK_STREAM, proto=0)
 
     def write(self, text):
         return self.send(text)
@@ -31,7 +31,7 @@ class MySocket(socket):
 
     def accept1(self):
         conn, addr = self.accept()
-        return (MySocket(_sock=conn), addr)
+        return (MySocket(), addr)
 
 
 def setup(bot):
