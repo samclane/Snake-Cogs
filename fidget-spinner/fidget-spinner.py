@@ -37,7 +37,7 @@ class FidgetSpinner:
 
     @commands.group(pass_context=False, no_pm=True)
     async def realspin(self):
-        msg = ""
+        msg = "```\n"
         im = Image.open("data\\fidget-spinner\\spinner.png")
         size = im.size
         for rownum in range(size[1]):
@@ -48,6 +48,7 @@ class FidgetSpinner:
                 else:
                     line.append('#'),
             msg += ''.join(line) + '\n'
+        msg += '```'
         await self.bot.say(msg)
 
 def setup(bot):
