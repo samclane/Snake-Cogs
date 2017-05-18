@@ -4,20 +4,6 @@ from .utils import checks
 import time
 from PIL import Image
 
-SPINNER_A = "  |  \n" \
-            " / \\"
-
-SPINNER_B = "  /\n" \
-            "- \n" \
-            "  \\"
-
-SPINNER_C = " \\ /\n" \
-            "  |"
-
-SPINNER_D = "  \\\n" \
-            "    -\n" \
-            "  /"
-
 
 class FidgetSpinner:
     def __init__(self, bot):
@@ -25,20 +11,12 @@ class FidgetSpinner:
 
     @commands.group(pass_context=False, no_pm=True)
     async def spin(self):
-        """Change DamnDog Settings"""
-        embed = discord.Embed()
-        embed.add_field(name="Spinner", value=SPINNER_A)
-        msg = await self.bot.say(embed=embed)
-        for state in [SPINNER_B, SPINNER_C, SPINNER_D, SPINNER_A]:
-            time.sleep(.5)
-            embed = discord.Embed()
-            embed.add_field(name="Spinner", value=state)
-            msg = await self.bot.edit_message(msg, embed=embed)
-
-    @commands.group(pass_context=False, no_pm=True)
-    async def realspin(self):
-        msg = "```\n"
         im = Image.open("data\\fidget-spinner\\spinner.png")
+        msg = self.pixelize(im)
+        await self.bot.say(msg)
+
+    def pixelize(self, im):
+        msg = "```\n"
         size = im.size
         for rownum in range(size[1]):
             line = []
@@ -49,10 +27,9 @@ class FidgetSpinner:
                     line.append('#'),
             msg += ''.join(line) + '\n'
         msg += '```'
-        await self.bot.say(msg)
+        return msg
+
 
 def setup(bot):
     n = FidgetSpinner(bot)
     bot.add_cog(n)
-
-
