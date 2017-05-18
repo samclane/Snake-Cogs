@@ -47,7 +47,7 @@ class FidgetSpinner:
                     line.append('.'),
                 else:
                     line.append('#'),
-            msg += ''.join(line)
+            msg += ''.join(line) + '\n'
         await self.bot.say(msg)
 
 def setup(bot):
