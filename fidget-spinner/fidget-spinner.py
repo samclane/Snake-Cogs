@@ -39,7 +39,7 @@ class FidgetSpinner:
     async def realspin(self):
         msg = ""
         im = Image.open("data\\fidget-spinner\\spinner.png")
-        size = im.getsize(im)
+        size = im.size
         for rownum in range(size[1]):
             line = []
             for colnum in range(size[0]):
