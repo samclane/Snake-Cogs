@@ -44,7 +44,7 @@ class FidgetSpinner:
             line = []
             for colnum in range(size[0]):
                 if im.getpixel((colnum, rownum)):
-                    line.append('.'),
+                    line.append('-'),
                 else:
                     line.append('#'),
             msg += ''.join(line) + '\n'
