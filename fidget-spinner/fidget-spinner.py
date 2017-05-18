@@ -14,6 +14,11 @@ class FidgetSpinner:
         im = Image.open("data\\fidget-spinner\\spinner.png")
         msg = self.pixelize(im)
         await self.bot.say(msg)
+        for deg in range(0, 360, 15):
+            im = im.rotate(deg)
+            txt = self.pixelize(im)
+            msg = self.bot.edit_message(msg, txt)
+            time.sleep(.5)
 
     def pixelize(self, im):
         msg = "```\n"
