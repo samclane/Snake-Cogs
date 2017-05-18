@@ -14,7 +14,7 @@ class FidgetSpinner:
         im = Image.open("data\\fidget-spinner\\spinner.png")
         txt = self.pixelize(im)
         msg = await self.bot.say(txt)
-        for deg in range(0, 360, 90):
+        for deg in range(0, 360+90, 90):
             im = im.rotate(deg)
             txt = self.pixelize(im)
             await self.bot.edit_message(msg, txt)
