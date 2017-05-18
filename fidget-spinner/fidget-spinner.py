@@ -22,11 +22,11 @@ class FidgetSpinner:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(pass_context=True, no_pm=True)
-    async def damnset(self, ctx):
+    @commands.group(pass_context=False, no_pm=True)
+    async def spin(self):
         """Change DamnDog Settings"""
         msg = await self.bot.say(SPINNER_A)
-        time.sleep(.5)
+        time.sleep(1)
         for state in [SPINNER_B, SPINNER_C, SPINNER_D, SPINNER_A]:
             msg = await self.bot.edit_message(msg, state)
 
