@@ -17,7 +17,7 @@ class FidgetSpinner:
         for deg in range(0, 360, 90):
             im = im.rotate(deg)
             txt = self.pixelize(im)
-            msg = await self.bot.edit_message(msg, txt)
+            await self.bot.edit_message(msg, txt)
             time.sleep(.5)
 
     def pixelize(self, im):
