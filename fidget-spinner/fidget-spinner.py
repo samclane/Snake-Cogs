@@ -3,20 +3,20 @@ from discord.ext import commands
 from .utils import checks
 import time
 
-SPINNER_A = "  |  \n" \
-          " / \\"
+SPINNER_A = "`  |  \n" \
+          " / \\`"
 
 
-SPINNER_B = "  /\n" \
+SPINNER_B = "`  /\n" \
             "- \n" \
-            "  \\"
+            "  \\`"
 
-SPINNER_C = " \\ /\n" \
-            "  |"
+SPINNER_C = "` \\ /\n" \
+            "  |`"
 
-SPINNER_D = "  \\\n" \
+SPINNER_D = "`  \\\n" \
             "    -\n" \
-            "  /"
+            "  /`"
 
 class FidgetSpinner:
     def __init__(self, bot):
