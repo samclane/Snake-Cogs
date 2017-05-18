@@ -19,9 +19,10 @@ class FidgetSpinner:
             txt = self.pixelize(im)
             t = time.time()
             await self.bot.edit_message(msg, txt)
-            time.sleep(max(.5 - (time.time() - t), 0))
+            time.sleep(max(.5 - (time.time() - t), 0))  # wait remainder of .5 seconds
 
-    def pixelize(self, im):
+    @staticmethod
+    def pixelize(im):
         msg = "```\n"
         size = im.size
         for rownum in range(size[1]):
