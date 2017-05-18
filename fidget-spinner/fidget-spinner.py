@@ -26,8 +26,8 @@ class FidgetSpinner:
     async def spin(self):
         """Change DamnDog Settings"""
         msg = await self.bot.say(SPINNER_A)
-        time.sleep(1)
         for state in [SPINNER_B, SPINNER_C, SPINNER_D, SPINNER_A]:
+            time.sleep(1)
             msg = await self.bot.edit_message(msg, state)
 
 def setup(bot):
