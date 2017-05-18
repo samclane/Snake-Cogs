@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from .utils import checks
 import time
+from PIL import Image
 
 SPINNER_A = "  |  \n" \
             " / \\"
@@ -34,6 +35,20 @@ class FidgetSpinner:
             embed.add_field(name="Spinner", value=state)
             msg = await self.bot.edit_message(msg, embed=embed)
 
+    @commands.group(pass_context=False, no_pm=True)
+    async def realspin(self):
+        msg = ""
+        im = Image.open("fidget-spinner\data\spinner.png")
+        size = im.getsize(im)
+        for rownum in range(size[1]):
+            line = []
+            for colnum in range(size[0]):
+                if im.getpixel((colnum, rownum)):
+                    line.append('.'),
+                else:
+                    line.append('#'),
+            msg += ''.join(line)
+        await self.bot.say(msg)
 
 def setup(bot):
     n = FidgetSpinner(bot)
