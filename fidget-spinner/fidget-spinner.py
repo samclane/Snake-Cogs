@@ -40,3 +40,5 @@ class FidgetSpinner:
 def setup(bot):
     n = FidgetSpinner(bot)
     bot.add_cog(n)
+
+# force update
