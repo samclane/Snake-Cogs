@@ -3,15 +3,22 @@ from discord.ext import commands
 from .utils import checks
 import time
 from PIL import Image
+import requests
+from io import BytesIO
 
 
 class FidgetSpinner:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(pass_context=False, no_pm=True)
-    async def spin(self):
-        im = Image.open("data/fidget-spinner/spinner.png")
+    @commands.group(pass_context=True, no_pm=True)
+    async def spin(self, ctx, url=None):
+        if ctx.invoked_subcommand is not None:
+            response = requests.get(url)
+            im = Image.open(BytesIO(response.content))
+            im = self.resize_and_binarize(im)
+        else:
+            im = Image.open("data/fidget-spinner/spinner.png")
         txt = self.pixelize(im)
         msg = await self.bot.say(txt)
         for deg in range(0, 720, 90):
@@ -36,9 +43,13 @@ class FidgetSpinner:
         msg += '```'
         return msg
 
+    @staticmethod
+    def resize_and_binarize(im: Image):
+        im = im.convert('1')
+        im = im.resize((25, 25))
+        return im
+
 
 def setup(bot):
     n = FidgetSpinner(bot)
     bot.add_cog(n)
-
-# force update
