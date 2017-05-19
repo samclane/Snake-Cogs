@@ -11,9 +11,9 @@ class FidgetSpinner:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(pass_context=True, no_pm=True)
-    async def spin(self, ctx, url=None):
-        if ctx.invoked_subcommand is not None:
+    @commands.group(pass_context=False, no_pm=True)
+    async def spin(self, url=None):
+        if url is not None:
             response = requests.get(url)
             im = Image.open(BytesIO(response.content))
             im = self.resize_and_binarize(im)
