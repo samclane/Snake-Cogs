@@ -23,6 +23,23 @@ class FidgetSpinner:
         msg = await self.bot.say(txt)
         for deg in range(0, 720, 90):
             im = im.rotate(deg)
+            txt = self.pixelize(im)
+            t = time.time()
+            await self.bot.edit_message(msg, txt)
+            time.sleep(max(.5 - (time.time() - t), 0))  # wait remainder of .5 seconds
+
+    @commands.group(pass_context=False, no_pm=True)
+    async def spinHD(self, url=None):
+        if url is not None:
+            response = requests.get(url)
+            im = Image.open(BytesIO(response.content))
+            im = self.resize_and_8b(im)
+        else:
+            im = Image.open("data/fidget-spinner/spinner.png")
+        txt = self.pixelize2(im)
+        msg = await self.bot.say(txt)
+        for deg in range(0, 720, 90):
+            im = im.rotate(deg)
             txt = self.pixelize2(im)
             t = time.time()
             await self.bot.edit_message(msg, txt)
@@ -68,6 +85,12 @@ class FidgetSpinner:
 
     @staticmethod
     def resize_and_binarize(im: Image):
+        im = im.convert('1')
+        im = im.resize((25, 25))
+        return im
+
+    @staticmethod
+    def resize_and_8b(im: Image):
         im = im.convert('L')
         im = im.resize((25, 25))
         return im
