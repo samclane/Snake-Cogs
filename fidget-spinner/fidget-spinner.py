@@ -68,7 +68,7 @@ class FidgetSpinner:
 
     @staticmethod
     def resize_and_binarize(im: Image):
-        im = im.convert('1')
+        im = im.convert('L')
         im = im.resize((25, 25))
         return im
 
