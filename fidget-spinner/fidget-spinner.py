@@ -62,7 +62,7 @@ class FidgetSpinner:
 
     @staticmethod
     def pixelize2(im):
-        sp = u"  "
+        sp = u" "
         lt = u"░"
         md = u"▒"
         dk = u"▓"
