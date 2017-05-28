@@ -13,9 +13,7 @@ class OnJoin:
         self.bot = bot
         self.audio_players = {}
 
-        # generate save_path
-        par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-        self.save_path = par_dir + '\\Red-DiscordBot\\data\\on_join'
+        self.save_path = "data/on_join/"
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
 
@@ -104,8 +102,8 @@ class OnJoin:
             else:
                 return
             tts = gTTS(text=text, lang='en')
-            tts.save(self.save_path + "\\temp_message.mp3")
-            await self.sound_play(server, channel, self.save_path + "\\temp_message.mp3")
+            tts.save(self.save_path + "/temp_message.mp3")
+            await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=True, no_pm=True, name='seals')
@@ -113,7 +111,7 @@ class OnJoin:
         server = ctx.message.author.server
         channel = ctx.message.author.voice_channel
         await self.sound_play(server, channel,
-                              self.save_path + "\\seals.mp3")
+                              self.save_path + "/seals.mp3")
 
 
 def setup(bot):
