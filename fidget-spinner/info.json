@@ -1,0 +1,9 @@
+{
+    "AUTHOR" : "watersnake",
+    "SHORT" : "Play with fidget-spinner ascii art on your server!",
+    "DESCRIPTION" : "Spins a small ascii art fidget spinner.",
+    "DISABLED" : false,
+    "NAME" : "fidget-spinner",
+    "TAGS" : ["fidget", "spinner", "games", "game", "fun"],
+    "INSTALL_MSG" : "Requires pillow to run. Type [p]spin to spin your fidget spinner."
+}
