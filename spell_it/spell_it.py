@@ -16,6 +16,8 @@ class SpellIt:
             meme_ref = 'bb'
         elif 'pp' in content:
             meme_ref = 'pp'
+        else:
+            return
         await self.bot.send_message(message.channel, "{} you said {}".format(user, meme_ref))
 
 
