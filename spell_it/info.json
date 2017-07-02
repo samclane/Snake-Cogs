@@ -1,0 +1,10 @@
+{
+    "AUTHOR" : "watersnake",
+    "SHORT" : "Let a user know if they said anything containing pp or bb",
+    "DESCRIPTION" : "Dumb meme purposes, don't use.",
+    "DISABLED" : false,
+    "NAME" : "spell_it",
+    "TAGS" : ["spell_it"],
+    "INSTALL_MSG" : "I'm so sorry",
+    "HIDDEN": true
+}
