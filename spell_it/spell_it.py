@@ -10,7 +10,6 @@ class SpellIt:
     async def on_message(self, message):
         content = message.content
         if message.author.bot:
-            await self.bot.send_message(message.channel, 'bot said something')
             return
         user = message.author.name
         if 'bb' in content:
