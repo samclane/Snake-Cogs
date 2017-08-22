@@ -214,7 +214,7 @@ class DamnSession:
         self.timer = int(time.perf_counter())
         await self.bot.send_file(destination=self.channel, fp=img)
         msg = "Choices:\n"
-        for idx, ans in enumerate(self.answer_set):
+        for idx, ans in enumerate(self.answer_set, 1):
             idx = str(idx)
             self.answer_dict[ans] = idx
             msg += "**{}.** {}\n".format(idx, ans)
