@@ -1,0 +1,1 @@
+I make many mistakes and am lazy. If you want to correct my code, please feel free to shoot a merge request. The larger the change, the longer it'll take for me to sort it out (of course), but I appriciate people kind enought to look through my work!
