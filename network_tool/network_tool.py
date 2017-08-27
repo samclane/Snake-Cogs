@@ -1,7 +1,4 @@
-import discord
-import sys
-import socket
-import select
+from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
 
 # force update
@@ -9,34 +6,7 @@ import select
 class NetworkTool:
     def __init__(self, bot):
         self.bot = bot
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server_socket.bind(('', 8888))
-        self.server_socket.listen(5)
-
-        file = self.server_socket.makefile('w', buffering=None)  # file interface: text, buffered
-        sys.stdout = file
-
-        self.read_list = [self.server_socket]
-
-        loop = self.bot.loop
-        loop.create_task(self.service_port())
-
-
-    async def service_port(self):
-        readable, writable, errored = select.select(self.read_list, [], [])
-        for s in readable:
-            if s is self.server_socket:
-                client_socket, address = self.server_socket.accept()
-                self.read_list.append(client_socket)
-                print("Connection from ", address)
-            else:
-                data = s.recv(1024)
-                if data:
-                    s.send(data)
-                else:
-                    s.close()
-                    self.read_list.remove(s)
+        self.websocket = SimpleChat(bot)
 
 
 def setup(bot):
@@ -44,3 +14,29 @@ def setup(bot):
     bot.add_cog(n)
 
 
+clients = []
+class SimpleChat(WebSocket):
+    def __init__(self, bot):
+        super(self, SimpleChat)
+        self.bot = bot
+        self.data = self.bot.__dict__
+
+    def handleMessage(self):
+       for client in clients:
+          if client != self:
+             client.sendMessage(self.address[0] + u' - ' + self.data)
+
+    def handleConnected(self):
+       print(self.address, 'connected')
+       for client in clients:
+          client.sendMessage(self.address[0] + u' - connected')
+       clients.append(self)
+
+    def handleClose(self):
+       clients.remove(self)
+       print(self.address, 'closed')
+       for client in clients:
+          client.sendMessage(self.address[0] + u' - disconnected')
+
+server = SimpleWebSocketServer('localhost', 8000, SimpleChat)
+server.serveforever()
