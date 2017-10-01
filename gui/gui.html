@@ -3,35 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script type="application/javascript">
-        var exampleSocket = new WebSocket("ws:localhost:8782");
+        var exampleSocket = new WebSocket("ws:localhost:8783");
         exampleSocket.onopen = function (event) {
             exampleSocket.send("hello");
         };
         exampleSocket.onmessage = function (event) {
             bot = JSON.parse(event.data);
+            console.log(bot);
         };
 
-        var headers = [""], rows = {};
-        $.each(bot, function (clientIdx, item) {
-            headers.push(item.label);
-            $.each(item.data, function (i, arr) {
-                if (!rows[arr[0]]) {
-                    rows[arr[0]] = [];
-                }
-                rows[arr[0]][clientIdx] = arr[1];
-            })
-        });
+
+        function waitForElement() {
+            if (typeof bot !== "undefined") {
+                document.write(JSON.stringify(bot, null, 2))
+            }
+            else {
+                setTimeout(waitForElement, 250);
+            }
+        }
+
+        $(document).ready(waitForElement());
 
 
-        var rowHtml = '<tr><th>' + headers.join('</th><th>') + '</th></tr>';
-        $.each(rows, function (key, arr) {
-            rowHtml += '<tr><td>' + key + '</td>';
-            rowHtml += '<td>' + arr.join('</td><td>') + '</td></tr>';
-
-        });
-
-        $('#table').html(rowHtml);
     </script>
 </head>
 Foobar:<h1 id="foobar">Placeholder</h1>
