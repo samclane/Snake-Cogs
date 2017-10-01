@@ -9,7 +9,6 @@ class NetworkTool:
 
     async def hello(self, websocket, path):
         msg = await websocket.recv()
-        print("< {}".format(msg))
         if msg == "hello":
             await websocket.send("hello")
             print("> {}".format("hello"))
