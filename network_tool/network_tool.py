@@ -3,14 +3,15 @@ import websockets
 import json
 import datetime
 
+
 def json_default(value):
-    if isinstance(value, datetime.date):
-        return dict(year=value.year, month=value.month, day=value.day)
-    else:
+    try:
         return value.__dict__
+    except AttributeError:
+        pass
+
 
 class NetworkTool:
-
     def __init__(self, bot):
         self.bot = bot
 
@@ -31,4 +32,3 @@ def setup(bot):
     asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8776))
 
     bot.add_cog(n)
-
