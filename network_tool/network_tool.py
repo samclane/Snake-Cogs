@@ -3,13 +3,11 @@ import websockets
 import json
 import datetime
 
-def json_default(item):
-
-    for key, value in item.__dict__:
-        if isinstance(value, datetime.date):
-            yield dict(year=value.year, month=value.month, day=value.day)
-        else:
-            yield value
+def json_default(value):
+    if isinstance(value, datetime.date):
+        return dict(year=value.year, month=value.month, day=value.day)
+    else:
+        return value.__dict__
 
 class NetworkTool:
 
