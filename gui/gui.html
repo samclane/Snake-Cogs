@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script type="application/javascript">
-        var exampleSocket  = new WebSocket("ws:localhost:8770");
+        var exampleSocket  = new WebSocket("ws:localhost:8772");
         exampleSocket.onopen = function (event) {
-            exampleSocket.send("hello");
+            exampleSocket.send("counter");
         };
         exampleSocket.onmessage = function (event) {
             console.log(event.data);
