@@ -4,18 +4,35 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script type="application/javascript">
-        var exampleSocket  = new WebSocket("ws:localhost:8780");
+        var exampleSocket = new WebSocket("ws:localhost:8782");
         exampleSocket.onopen = function (event) {
-            exampleSocket.send("bot");
+            exampleSocket.send("hello");
         };
         exampleSocket.onmessage = function (event) {
-            //console.log(event.data);
-            //var stuff = event.data;
-            //document.getElementById("userEmail").innerHTML = stuff;
-            var bot = JSON.parse(event.data);
-            document.getElementById("userEmail").innerHTML = bot
-        }
+            bot = JSON.parse(event.data);
+        };
+
+        var headers = [""], rows = {};
+        $.each(bot, function (clientIdx, item) {
+            headers.push(item.label);
+            $.each(item.data, function (i, arr) {
+                if (!rows[arr[0]]) {
+                    rows[arr[0]] = [];
+                }
+                rows[arr[0]][clientIdx] = arr[1];
+            })
+        });
+
+
+        var rowHtml = '<tr><th>' + headers.join('</th><th>') + '</th></tr>';
+        $.each(rows, function (key, arr) {
+            rowHtml += '<tr><td>' + key + '</td>';
+            rowHtml += '<td>' + arr.join('</td><td>') + '</td></tr>';
+
+        });
+
+        $('#table').html(rowHtml);
     </script>
 </head>
-Counter:<h1 id="userEmail">Placeholder</h1>
+Foobar:<h1 id="foobar">Placeholder</h1>
 </html>

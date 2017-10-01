@@ -1,15 +1,17 @@
-from discord.ext import commands
+import asyncio
+import os
+import time
+from collections import Counter, defaultdict
+from os import listdir
+from os.path import isfile, join
 from random import choice
-from .utils.dataIO import dataIO
+
+import discord
+from discord.ext import commands
+
 from .utils import checks
 from .utils.chat_formatting import box
-from collections import Counter, defaultdict
-import discord
-import time
-import os
-import asyncio
-from os.path import isfile, join
-from os import listdir
+from .utils.dataIO import dataIO
 
 DEFAULTS = {
     "MAX_SCORE": 10,

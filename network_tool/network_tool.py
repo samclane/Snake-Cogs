@@ -1,6 +1,7 @@
 import asyncio
-import websockets
+
 import jsonpickle
+import websockets
 
 
 class NetworkTool:
@@ -9,10 +10,7 @@ class NetworkTool:
 
     async def hello(self, websocket, path):
         msg = await websocket.recv()
-        if msg == "hello":
-            await websocket.send("hello")
-            print("> {}".format("hello"))
-        if msg == "bot":
+        if msg == "hello":  # first contact
             frozen = jsonpickle.encode(self.bot)
             await websocket.send(frozen)
             print(frozen)

@@ -1,16 +1,10 @@
+import asyncio
+
 import discord
+import speech_recognition as sr
 from discord.ext import commands
 from gtts import gTTS
-import os
-import asyncio
-import async_timeout
-import aiohttp
-from aiohttp import web
-import websockets
-import speech_recognition as sr
-from .utils import checks
-import json
-import sys
+
 
 class SoundPlayer:
     def __init__(self, bot):
@@ -124,4 +118,3 @@ class TalkBack:
 def setup(bot):
     n = TalkBack(bot)
     bot.add_cog(n)
-

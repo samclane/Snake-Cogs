@@ -1,8 +1,10 @@
+import asyncio
+import os
+
 import discord
 from discord.ext import commands
 from gtts import gTTS
-import os
-import asyncio
+
 from .utils import checks
 
 
