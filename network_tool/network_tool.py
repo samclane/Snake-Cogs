@@ -11,15 +11,15 @@ class NetworkTool:
         msg = await websocket.recv()
         print("< {}".format(msg))
         if msg == "hello":
-            await websocket.send(self.bot.__dict__)
-        print("> {}".format(self.bot.__dict__))
+            await websocket.send("RedBot")
+        print("> {}".format("RedBot"))
 
 
 
 def setup(bot):
     n = NetworkTool(bot)
 
-    asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8769))
+    asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8770))
 
     bot.add_cog(n)
 
