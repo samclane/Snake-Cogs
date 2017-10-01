@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="application/javascript">
+        var exampleSocket  = new WebSocket("ws:localhost:8768", "protocolOne");
+        exampleSocket.onopen = function (event) {
+            exampleSocket.send("hello");
+        };
+        exampleSocket.onmessage = function (event) {
+            console.log(event.data);
+            var wrapper = $('#wrapper'), container;
+            container = $('<div id="grocery_item" class="container"></div>');
+            wrapper.append(container);
+            container.append('<div class="item">' + event.data +'</div>');
+        }
+    </script>
+</head>
+<body>
+<div id="grocery_item" class="container">
+    <div class="item">Item Here</div>
+    <div class="category">Category Here</div>
+    <div class="price">Price Here</div>
+</div>
+</body>
+</html>

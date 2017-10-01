@@ -7,14 +7,12 @@ class NetworkTool:
     def __init__(self, bot):
         self.bot = bot
 
-
     async def hello(self, websocket, path):
-        name = await websocket.recv()
-        print("< {}".format(name))
-
-        greeting = "Hello {} {}!".format(name, self.bot.__name__)
-        await websocket.send(greeting)
-        print("> {}".format(greeting))
+        msg = await websocket.recv()
+        print("< {}".format(msg))
+        if msg == "hello":
+            await websocket.send(self.bot.__name__)
+        print("> {}".format(self.bot.__name__))
 
 
 
