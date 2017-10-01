@@ -14,7 +14,7 @@ class NetworkTool:
             print("> {}".format("hello"))
         elif msg == "counter":
             await websocket.send(self.bot.counter)
-            print("> {}".format(self.bot.counter))
+            print("> {}".format("{}".format(self.bot.counter)))
 
 
 
