@@ -16,7 +16,6 @@ class NetworkTool:
             print(frozen)
 
 
-# test
 def setup(bot):
     n = NetworkTool(bot)
 
