@@ -6,12 +6,14 @@
     <script type="application/javascript">
         var exampleSocket  = new WebSocket("ws:localhost:8774");
         exampleSocket.onopen = function (event) {
-            exampleSocket.send("counter");
+            exampleSocket.send("bot");
         };
         exampleSocket.onmessage = function (event) {
-            console.log(event.data);
-            var stuff = event.data;
-            document.getElementById("userEmail").innerHTML = stuff;
+            //console.log(event.data);
+            //var stuff = event.data;
+            //document.getElementById("userEmail").innerHTML = stuff;
+            var bot = JSON.parse(event.data);
+            document.getElementById("userEmail").innerHTML = bot
         }
     </script>
 </head>

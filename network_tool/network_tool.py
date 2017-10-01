@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+import json
 # force update
 
 class NetworkTool:
@@ -12,9 +13,9 @@ class NetworkTool:
         if msg == "hello":
             await websocket.send("hello")
             print("> {}".format("hello"))
-        elif msg == "counter":
-            await websocket.send("{}".format(str(self.bot.counter)))
-            print("> {}".format("{}".format(str(self.bot.counter))))
+        elif msg == "bot":
+            await websocket.send(json.dumps(self.bot, default=lambda o: o.__dict__))
+            print("> {}".format(json.dumps(self.bot, default=lambda o: o.__dict__)))
 
 
 # test
