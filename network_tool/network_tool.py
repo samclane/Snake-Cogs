@@ -11,8 +11,8 @@ class NetworkTool:
         msg = await websocket.recv()
         print("< {}".format(msg))
         if msg == "hello":
-            await websocket.send("RedBot")
-        print("> {}".format("RedBot"))
+            await websocket.send(self.bot.counter)
+        print("> {}".format(self.bot.counter))
 
 
 
