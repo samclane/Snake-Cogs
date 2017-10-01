@@ -8,7 +8,7 @@ def json_default(value):
     try:
         return value.__dict__
     except AttributeError:
-        pass
+        return None
 
 
 class NetworkTool:
@@ -29,6 +29,6 @@ class NetworkTool:
 def setup(bot):
     n = NetworkTool(bot)
 
-    asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8777))
+    asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8778))
 
     bot.add_cog(n)
