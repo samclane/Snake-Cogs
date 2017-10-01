@@ -29,6 +29,6 @@ class NetworkTool:
 def setup(bot):
     n = NetworkTool(bot)
 
-    asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8776))
+    asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8777))
 
     bot.add_cog(n)
