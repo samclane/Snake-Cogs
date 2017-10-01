@@ -12,7 +12,7 @@ class NetworkTool:
         name = await websocket.recv()
         print("< {}".format(name))
 
-        greeting = "Hello {} {}!".format(name, self.bot.__dict__)
+        greeting = "Hello {} {}!".format(name, self.bot.__name__)
         await websocket.send(greeting)
         print("> {}".format(greeting))
 
