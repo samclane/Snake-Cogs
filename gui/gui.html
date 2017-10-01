@@ -4,24 +4,31 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script type="application/javascript">
-        var exampleSocket  = new WebSocket("ws:localhost:8768", "protocolOne");
+        var exampleSocket  = new WebSocket("ws:localhost:8770");
         exampleSocket.onopen = function (event) {
             exampleSocket.send("hello");
         };
         exampleSocket.onmessage = function (event) {
             console.log(event.data);
-            var wrapper = $('#wrapper'), container;
-            container = $('<div id="grocery_item" class="container"></div>');
-            wrapper.append(container);
-            container.append('<div class="item">' + event.data +'</div>');
+            var stuff = event.data;
+            document.getElementById("userEmail").innerHTML = stuff;
         }
     </script>
+    <style type="text/css">
+        .container{
+            border-bottom: 1px solid gray;
+        }
+        .item{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .category{
+            font-size: 14px;
+        }
+        .price{
+            color: #0000ff;
+        }
+    </style>
 </head>
-<body>
-<div id="grocery_item" class="container">
-    <div class="item">Item Here</div>
-    <div class="category">Category Here</div>
-    <div class="price">Price Here</div>
-</div>
-</body>
+<h1 id="userEmail">Placeholder</h1>
 </html>
