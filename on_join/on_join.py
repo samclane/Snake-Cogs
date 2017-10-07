@@ -93,12 +93,12 @@ class OnJoin:
             # went from no channel to a channel
             if (bvchan is None and avchan is not None):
                 # came online
-                text = "{} has joined the channel".format(after.name)
+                text = "{} has joined the channel".format(after.display_name)
                 channel = avchan
                 server = aserver
             elif (bvchan is not None and avchan is None):
                 # went offline
-                text = "{} has left the channel".format(before.name)
+                text = "{} has left the channel".format(before.display_name)
                 channel = bvchan
                 server = bserver
             else:
