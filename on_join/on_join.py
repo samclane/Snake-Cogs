@@ -93,12 +93,12 @@ class OnJoin:
             # went from no channel to a channel
             if (bvchan is None and avchan is not None):
                 # came online
-                text = "{} has joined the channel".format(after.nick)
+                text = "{} has joined the channel".format(after.name)
                 channel = avchan
                 server = aserver
             elif (bvchan is not None and avchan is None):
                 # went offline
-                text = "{} has left the channel".format(before.nick)
+                text = "{} has left the channel".format(before.name)
                 channel = bvchan
                 server = bserver
             else:
@@ -116,6 +116,14 @@ class OnJoin:
         await self.sound_play(server, channel,
                               self.save_path + "/seals.mp3")
 
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=True, no_pm=True, name='say')
+    async def say(self, ctx: commands.Context, *, message):
+        server = ctx.message.author.server
+        channel = ctx.message.author.voice_channel
+        tts = gTTS(text=message, lang='en')
+        tts.save(self.save_path + "/temp_message.mp3")
+        await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
 def setup(bot):
     n = OnJoin(bot)

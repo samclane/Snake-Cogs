@@ -20,7 +20,7 @@ def setup(bot):
     n = NetworkTool(bot)
 
     try:
-        asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8783))
+        asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8784))
     except RuntimeError:
         pass
 
