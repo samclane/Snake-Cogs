@@ -1,9 +1,13 @@
 {
-    "AUTHOR" : "watersnake",
-    "SHORT" : "Tool for remote monitoring of bot",
-    "DESCRIPTION" : "Uses tk",
-    "DISABLED" : true,
-    "NAME" : "network_tool",
-    "TAGS" : ["network_tool", "utility", "tools"],
-    "INSTALL_MSG" : "Thanks for installing."
+  "AUTHOR": "watersnake",
+  "SHORT": "Tool for remote monitoring of bot.",
+  "DESCRIPTION": "Uses jsonpickle and hosts a local websocket.",
+  "DISABLED": false,
+  "NAME": "network_tool",
+  "TAGS": [
+    "network_tool",
+    "utility",
+    "tools"
+  ],
+  "INSTALL_MSG": "ATTENTION: Look in the data folder for 'gui.html', and open that to view the tool."
 }

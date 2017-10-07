@@ -1,10 +1,9 @@
-import discord
-from discord.ext import commands
-from .utils import checks
 import time
-from PIL import Image
-import requests
 from io import BytesIO
+
+import requests
+from PIL import Image
+from discord.ext import commands
 
 
 class FidgetSpinner:
@@ -71,11 +70,11 @@ class FidgetSpinner:
         for rownum in range(size[1]):
             line = []
             for colnum in range(size[0]):
-                if 255 >= im.getpixel((colnum, rownum)) >= 3*(255//4):
+                if 255 >= im.getpixel((colnum, rownum)) >= 3 * (255 // 4):
                     line.append(sp),
-                elif 3*(255//4) >= im.getpixel((colnum, rownum)) >= 2*(255//4):
+                elif 3 * (255 // 4) >= im.getpixel((colnum, rownum)) >= 2 * (255 // 4):
                     line.append(lt),
-                elif 2*(255//4) >= im.getpixel((colnum, rownum)) >= (255//4):
+                elif 2 * (255 // 4) >= im.getpixel((colnum, rownum)) >= (255 // 4):
                     line.append(md),
                 else:
                     line.append(dk)

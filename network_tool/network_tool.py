@@ -1,27 +1,27 @@
 import asyncio
+
+import jsonpickle
 import websockets
-# force update
+
 
 class NetworkTool:
-
     def __init__(self, bot):
         self.bot = bot
-        self.start_server = websockets.serve(hello, 'localhost', 8765)
 
-async def hello(websocket, path):
-    name = await websocket.recv()
-    print("< {}".format(name))
+    async def hello(self, websocket, path):
+        msg = await websocket.recv()
+        if msg == "hello":  # first contact
+            frozen = jsonpickle.encode(self.bot)
+            await websocket.send(frozen)
+            print(frozen)
 
-    greeting = "Hello {}!".format(name)
-    await websocket.send(greeting)
-    print("> {}".format(greeting))
-
-
+#test
 def setup(bot):
     n = NetworkTool(bot)
 
-    asyncio.get_event_loop().run_until_complete(n.start_server)
-    asyncio.get_event_loop().run_forever()
+    try:
+        asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8784))
+    except RuntimeError:
+        pass
 
     bot.add_cog(n)
-

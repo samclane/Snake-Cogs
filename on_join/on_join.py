@@ -1,13 +1,15 @@
+import asyncio
+import os
+
 import discord
 from discord.ext import commands
 from gtts import gTTS
-import os
-import asyncio
+
 from .utils import checks
 
 
 class OnJoin:
-    """My custom cog that does stuff!"""
+    """Uses gTTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -108,11 +110,20 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=True, no_pm=True, name='seals')
     async def seals(self, ctx: commands.Context):
+        """For when it's time to put someone in their place."""
         server = ctx.message.author.server
         channel = ctx.message.author.voice_channel
         await self.sound_play(server, channel,
                               self.save_path + "/seals.mp3")
 
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=True, no_pm=True, name='say')
+    async def say(self, ctx: commands.Context, *, message):
+        server = ctx.message.author.server
+        channel = ctx.message.author.voice_channel
+        tts = gTTS(text=message, lang='en')
+        tts.save(self.save_path + "/temp_message.mp3")
+        await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
 def setup(bot):
     n = OnJoin(bot)

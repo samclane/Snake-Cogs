@@ -1,9 +1,14 @@
 {
-    "AUTHOR" : "watersnake",
-    "SHORT" : "Buy weapons using credits",
-    "DESCRIPTION" : "Buy persistent weapons, armor, and potions. Battle your friends!",
-    "DISABLED" : false,
-    "NAME" : "armorsmith",
-    "TAGS" : ["armorsmith", "games", "fun", "economy"],
-    "INSTALL_MSG" : "Welcome to the Armorsmith! What're ya buyin'?"
+  "AUTHOR": "watersnake",
+  "SHORT": "Buy weapons using credits",
+  "DESCRIPTION": "Buy persistent weapons, armor, and potions. Battle your friends!",
+  "DISABLED": false,
+  "NAME": "armorsmith",
+  "TAGS": [
+    "armorsmith",
+    "games",
+    "fun",
+    "economy"
+  ],
+  "INSTALL_MSG": "Welcome to the Armorsmith! What're ya buyin'?"
 }

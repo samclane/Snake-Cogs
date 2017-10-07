@@ -1,0 +1,12 @@
+{
+  "AUTHOR": "watersnake",
+  "SHORT": "Say when a user says some dumb meme.",
+  "DESCRIPTION": "Announces when the user says 'bb' or 'pp'.",
+  "DISABLED": true,
+  "NAME": "spell_it",
+  "TAGS": [
+    "spell_it"
+  ],
+  "INSTALL_MSG": "I hope you know what you're getting into.",
+  "HIDDEN": true
+}
