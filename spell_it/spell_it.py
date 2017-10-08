@@ -13,7 +13,7 @@ class SpellIt:
         regex = r"^.*[i|I]'?[m|M](.+)$"
         matches = re.finditer(regex, content)
         for matchNum, match in enumerate(matches):
-            await self.bot.send_message(message.channel, "Hi {}, I'm dad!".format(content[match.start():match.end()]))
+            await self.bot.send_message(message.channel, "Hi {}, I'm dad!".format(match.group()))
 
         if 'bb' in content:
             meme_ref = 'bb'
