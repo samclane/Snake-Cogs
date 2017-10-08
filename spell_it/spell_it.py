@@ -15,9 +15,9 @@ class SpellIt:
         for matchNum, match in enumerate(matches):
             await self.bot.send_message(message.channel, "Hi{}, I'm dad!".format(match.group(1)))
 
-        if 'bb' in content:
+        if 'bb' in content or 'BB' in content or 'bB' in content or 'Bb' in content:
             meme_ref = 'bb'
-        elif 'pp' in content:
+        elif 'pp' in content or 'PP' in content or 'pP' in content or 'Pp' in content:
             meme_ref = 'pp'
         else:
             return
