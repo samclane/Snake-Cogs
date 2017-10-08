@@ -1,0 +1,14 @@
+{
+  "AUTHOR": "watersnake",
+  "SHORT": "Get the IP address of the machine your bot is running on.",
+  "DESCRIPTION": "Must be admin.",
+  "DISABLED": false,
+  "NAME": "ip-helper",
+  "TAGS": [
+    "ip",
+    "address",
+    "utility",
+    "tool"
+  ],
+  "INSTALL_MSG": "Type [p]iphelp to run! Must be admin."
+}
