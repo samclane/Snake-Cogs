@@ -1,3 +1,5 @@
+import re
+
 class SpellIt:
     def __init__(self, bot):
         self.bot = bot
@@ -7,6 +9,12 @@ class SpellIt:
         if message.author.bot:
             return
         user = message.author
+
+        regex = r"^.*[i|I]'?[m|M](.+)$"
+        matches = re.finditer(regex, content)
+        for matchNum, match in enumerate(matches):
+            await self.bot.send_message(message.channel, "Hi {}, I'm dad!".format(content[match.start():match.end()]))
+
         if 'bb' in content:
             meme_ref = 'bb'
         elif 'pp' in content:
