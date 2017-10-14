@@ -15,7 +15,8 @@ class NetworkTool:
             await websocket.send(frozen)
             print(frozen)
 
-#test
+
+# test
 def setup(bot):
     n = NetworkTool(bot)
 

@@ -2,10 +2,71 @@ import asyncio
 import os
 
 import discord
+from cogs.utils.dataIO import dataIO
 from discord.ext import commands
 from gtts import gTTS
 
 from .utils import checks
+
+dict = {
+    'x': 'y'
+}
+
+locales = {
+    'af': 'Afrikaans',
+    'sq': 'Albanian',
+    'ar': 'Arabic',
+    'hy': 'Armenian',
+    'bn': 'Bengali',
+    'ca': 'Catalan',
+    'zh': 'Chinese',
+    'zh-cn': 'Chinese (Mandarin/China)',
+    'zh-tw': 'Chinese (Mandarin/Taiwan)',
+    'zh-yue': 'Chinese (Cantonese)',
+    'hr': 'Croatian',
+    'cs': 'Czech',
+    'da': 'Danish',
+    'nl': 'Dutch',
+    'en': 'English',
+    'en-au': 'English (Australia)',
+    'en-uk': 'English (United Kingdom)',
+    'en-us': 'English (United States)',
+    'eo': 'Esperanto',
+    'fi': 'Finnish',
+    'fr': 'French',
+    'de': 'German',
+    'el': 'Greek',
+    'hi': 'Hindi',
+    'hu': 'Hungarian',
+    'is': 'Icelandic',
+    'id': 'Indonesian',
+    'it': 'Italian',
+    'ja': 'Japanese',
+    'km': 'Khmer (Cambodian)',
+    'ko': 'Korean',
+    'la': 'Latin',
+    'lv': 'Latvian',
+    'mk': 'Macedonian',
+    'no': 'Norwegian',
+    'pl': 'Polish',
+    'pt': 'Portuguese',
+    'ro': 'Romanian',
+    'ru': 'Russian',
+    'sr': 'Serbian',
+    'si': 'Sinhala',
+    'sk': 'Slovak',
+    'es': 'Spanish',
+    'es-es': 'Spanish (Spain)',
+    'es-us': 'Spanish (United States)',
+    'sw': 'Swahili',
+    'sv': 'Swedish',
+    'ta': 'Tamil',
+    'th': 'Thai',
+    'tr': 'Turkish',
+    'uk': 'Ukrainian',
+    'vi': 'Vietnamese',
+    'cy': 'Welsh'
+}
 
 
 class OnJoin:
@@ -14,10 +75,14 @@ class OnJoin:
     def __init__(self, bot):
         self.bot = bot
         self.audio_players = {}
+        self.settings = dataIO.load_json("data/on_join/settings.json")
 
         self.save_path = "data/on_join/"
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
+
+        if "locale" not in self.settings:
+            self.settings["locale"] = "en-us"
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
@@ -103,7 +168,7 @@ class OnJoin:
                 server = bserver
             else:
                 return
-            tts = gTTS(text=text, lang='en')
+            tts = gTTS(text=text, lang=self.settings["locale"])
             tts.save(self.save_path + "/temp_message.mp3")
             await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
@@ -119,14 +184,39 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=True, no_pm=True, name='say')
     async def say(self, ctx: commands.Context, *, message):
+        """Have the bot say a string"""
         server = ctx.message.author.server
         channel = ctx.message.author.voice_channel
-        tts = gTTS(text=message, lang='en')
+        tts = gTTS(text=message, lang=self.settings["locale"])
         tts.save(self.save_path + "/temp_message.mp3")
         await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=False, no_pm=True, name='set_locale')
+    async def set_locale(self, locale):
+        if locale not in locales.keys():
+            return
+        else:
+            self.settings["locale"] = locale
+            dataIO.save_json("data/on_join/settings.json", self.settings)
+
+
+def check_folders():
+    if not os.path.exists("data/on_join"):
+        print("Creating data/on_join folder...")
+        os.makedirs("data/on_join")
+
+
+def check_files():
+    f = "data/on_join/settings.json"
+    if not dataIO.is_valid_json(f):
+        print("Creating default on_join settings.json...")
+        dataIO.save_json(f, {})
+
+
 def setup(bot):
+    check_folders()
+    check_files()
     n = OnJoin(bot)
     bot.add_listener(n.voice_state_update, "on_voice_state_update")
     bot.add_cog(n)
-

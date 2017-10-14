@@ -34,8 +34,8 @@
                 }
                 $("#prefix").html('<dd>' + bot.settings.bot_settings.PREFIXES["0"] + '</dd>');
                 $("#admin-role").html('<dd>' + bot.settings.bot_settings.default.ADMIN_ROLE + '</dd>');
-                $("#mod-role").html('<dd>' + bot.settings.bot_settings.default.MOD_ROLE  + '</dd>');
-                $("#logged-in").html('<dd>' + bot._is_logged_in._value  + '</dd>')
+                $("#mod-role").html('<dd>' + bot.settings.bot_settings.default.MOD_ROLE + '</dd>');
+                $("#logged-in").html('<dd>' + bot._is_logged_in._value + '</dd>')
             }
             else {
                 setTimeout(waitForElement, 250);
@@ -49,35 +49,34 @@
         /* General styles */
 
         html {
-          font-family: Helvetica, Arial, sans-serif;
-          font-size: 10px;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 10px;
         }
 
         h2 {
-          font-size: 2rem;
+            font-size: 2rem;
         }
 
-        ul,ol,dl,p {
-          font-size: 1.5rem;
+        ul, ol, dl, p {
+            font-size: 1.5rem;
         }
 
         li, p {
-          line-height: 1.5;
+            line-height: 1.5;
         }
 
         /* Description list styles */
 
-
         dd, dt {
-          line-height: 1.5;
+            line-height: 1.5;
         }
 
         dt {
-          font-weight: bold;
+            font-weight: bold;
         }
 
         dd {
-            background:none no-repeat left top;
+            background: none no-repeat left top;
             padding-left: 50px;
             margin-bottom: 1.5rem;
         }
@@ -87,33 +86,33 @@
 
 <body>
 
-    <div id='bot-name' class='title'>
-    </div>
-    <div id='cogs'>
-        <h2 class='list-heading'>Cogs</h2>
-        <ul></ul>
-    </div>
-    <div id='commands'>
-        <h2 class='list-heading'>Commands</h2>
-        <dl></dl>
-    </div>
-    <div id='servers'>
-        <h2 class='list-heading'>Servers</h2>
-        <ul></ul>
-    </div>
-    <div id='Settings'>
-        <h2 class='list-heading'>Settings</h2>
-        <dl>
-            <dt>Prefix</dt>
-            <div id='prefix'></div>
-            <dt>Admin Role</dt>
-            <div id='admin-role'></div>
-            <dt>Mod Role</dt>
-            <div id='mod-role'></div>
-            <dt>Logged in?</dt>
-            <div id='logged-in'></div>
-        </dl>
-    </div>
+<div id='bot-name' class='title'>
+</div>
+<div id='cogs'>
+    <h2 class='list-heading'>Cogs</h2>
+    <ul></ul>
+</div>
+<div id='commands'>
+    <h2 class='list-heading'>Commands</h2>
+    <dl></dl>
+</div>
+<div id='servers'>
+    <h2 class='list-heading'>Servers</h2>
+    <ul></ul>
+</div>
+<div id='Settings'>
+    <h2 class='list-heading'>Settings</h2>
+    <dl>
+        <dt>Prefix</dt>
+        <div id='prefix'></div>
+        <dt>Admin Role</dt>
+        <div id='admin-role'></div>
+        <dt>Mod Role</dt>
+        <div id='mod-role'></div>
+        <dt>Logged in?</dt>
+        <div id='logged-in'></div>
+    </dl>
+</div>
 
 </body>
 
