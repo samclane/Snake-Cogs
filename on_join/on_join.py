@@ -195,7 +195,10 @@ class OnJoin:
     @commands.command(pass_context=False, no_pm=True, name='set_locale')
     async def set_locale(self, locale):
         if locale not in locales.keys():
-            await self.bot.say("{} was not found in the list of locales. ".format(locale))
+            await self.bot.say(
+                "{} was not found in the list of locales. Look at https://pypi.python.org/pypi/gTTS"
+                " for a list of valid codes.".format(
+                    locale))
             return
         else:
             self.settings["locale"] = locale

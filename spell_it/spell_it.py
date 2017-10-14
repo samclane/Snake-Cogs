@@ -11,7 +11,7 @@ class SpellIt:
             return
         user = message.author
 
-        regex = r"^.* [i|I]'?[m|M] (.+)$"
+        regex = r"^.* ?[i|I]'?[m|M] (.+)$"
         matches = re.finditer(regex, content)
         for matchNum, match in enumerate(matches):
             await self.bot.send_message(message.channel, "Hi{}, I'm dad!".format(match.group(1)))
