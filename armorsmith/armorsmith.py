@@ -313,7 +313,7 @@ class Store:
     def get_item_by_name(self, item_name):
         for item_type in self.inventory.values():
             for item in item_type:
-                if item.name == item_name:
+                if item.name.lower() == item_name.lower():
                     return item
         raise ItemNotFound
 
