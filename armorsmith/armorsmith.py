@@ -41,6 +41,9 @@ class ItemNotFound(InventoryException):
 class SameSenderAndReceiver(InventoryException):
     pass
 
+class ItemNotEquiped(InventoryException):
+    pass
+
 
 class Item(namedtuple('Item', 'name cost')):
     @staticmethod
@@ -614,7 +617,7 @@ class Armorsmith:
         a_weapon, a_armor, a_potion = self.inventory.get_account(author).get_equipment()
         u_weapon, u_armor, u_potion = self.inventory.get_account(user).get_equipment()
         if not a_weapon or not u_weapon:
-            raise Exception
+            raise ItemNotEquiped
         battle_text = ""
         while hp_author > 0 and hp_user > 0:
             damage_to_user = a_weapon.damage_roll()
