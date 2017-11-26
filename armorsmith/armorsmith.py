@@ -22,26 +22,27 @@ class ArmorException(Exception):
     pass
 
 
-class InventoryException(Exception):
+class ainventoryException(Exception):
     pass
 
 
-class AccountAlreadyExists(InventoryException):
+class AccountAlreadyExists(ainventoryException):
     pass
 
 
-class NoAccount(InventoryException):
+class NoAccount(ainventoryException):
     pass
 
 
-class ItemNotFound(InventoryException):
+class ItemNotFound(ainventoryException):
     pass
 
 
-class SameSenderAndReceiver(InventoryException):
+class SameSenderAndReceiver(ainventoryException):
     pass
 
-class ItemNotEquiped(InventoryException):
+
+class ItemNotEquiped(ainventoryException):
     pass
 
 
@@ -117,7 +118,7 @@ class Account:
         return (weapon, armor, potion)
 
 
-class Inventory:
+class ainventory:
     def __init__(self, bot, file_path):
         self.bot = bot
         self.accounts = dataIO.load_json(file_path)
@@ -144,7 +145,7 @@ class Inventory:
                        "equipment": equipment
                        }
             self.accounts[server.id][user.id] = account
-            self._save_inventory()
+            self._save_ainventory()
             return self.get_account(user)
         else:
             raise AccountAlreadyExists()
@@ -182,7 +183,7 @@ class Inventory:
             if self.equipped_item(user, item):
                 equipment[item.get_type()] = None
             self.accounts[server.id][user.id] = account
-            self._save_inventory()
+            self._save_ainventory()
         else:
             raise ItemNotFound()
 
@@ -192,7 +193,7 @@ class Inventory:
         stash = account["stash"]
         stash[item.name] = item
         self.accounts[server.id][user.id] = account
-        self._save_inventory()
+        self._save_ainventory()
 
     def transfer_item(self, sender, receiver, item):
         if sender is receiver:
@@ -207,7 +208,7 @@ class Inventory:
 
     def wipe_inventories(self, server):
         self.accounts[server.id] = {}
-        self._save_inventory()
+        self._save_ainventory()
 
     def get_server_accounts(self, server):
         if server.id in self.accounts:
@@ -261,7 +262,7 @@ class Inventory:
         elif isinstance(item, HealPotion):
             equipment["potion"] = item
         self.accounts[server.id][user.id] = account
-        self._save_inventory()
+        self._save_ainventory()
 
     def _create_account_obj(self, account):
         account["member"] = account["server"].get_member(account["id"])
@@ -270,8 +271,8 @@ class Inventory:
         account_obj = Account(**account)
         return account_obj
 
-    def _save_inventory(self):
-        dataIO.save_json("data/armorsmith/inventory.json", self.accounts)
+    def _save_ainventory(self):
+        dataIO.save_json("data/armorsmith/ainventory.json", self.accounts)
 
     def _get_account(self, user):
         server = user.server
@@ -287,34 +288,34 @@ class Store:
     def __init__(self, bot, file_path):
         self.bot = bot
         self.file_path = file_path
-        self.inventory = {"weapon": [],
+        self.ainventory = {"weapon": [],
                           "armor": [],
                           "potion": []}
-        self._generate_inventory()
+        self._generate_ainventory()
 
-    def _generate_inventory(self):
+    def _generate_ainventory(self):
         item_list = dataIO.load_json(self.file_path)
         for weapon in item_list["weapons_list"]:
-            self.inventory["weapon"].append(Weapon(
+            self.ainventory["weapon"].append(Weapon(
                 weapon["name"],
                 weapon["cost"],
                 weapon["hit_dice"]
             ))
         for armor in item_list["armor_list"]:
-            self.inventory["armor"].append(Armor(
+            self.ainventory["armor"].append(Armor(
                 armor["name"],
                 armor["cost"],
                 armor["damage_reduction"]
             ))
         for potion in item_list["potion_list"]:
-            self.inventory["potion"].append(HealPotion(
+            self.ainventory["potion"].append(HealPotion(
                 potion["name"],
                 potion["cost"],
                 potion["heal_dice"]
             ))
 
     def get_item_by_name(self, item_name):
-        for item_type in self.inventory.values():
+        for item_type in self.ainventory.values():
             for item in item_type:
                 if item.name.lower() == item_name.lower():
                     return item
@@ -406,7 +407,7 @@ class Armorsmith:
     def __init__(self, bot):
         global DEFAULTS
         self.bot = bot
-        self.inventory = Inventory(bot, "data/armorsmith/inventory.json")
+        self.ainventory = ainventory(bot, "data/armorsmith/ainventory.json")
         self.store = Store(bot, "data/armorsmith/items.json")
         self.arena = Arena(bot, "data/armorsmith/leaderboard.json")
         self.bank = self.bot.get_cog("Economy").bank
@@ -414,46 +415,46 @@ class Armorsmith:
         self.settings = dataIO.load_json(self.file_path)
         self.settings = defaultdict(lambda: DEFAULTS, self.settings)
 
-    @commands.group(name="inventory", pass_context=True)
-    async def _inventory(self, ctx):
-        """Inventory operations."""
+    @commands.group(name="ainventory", pass_context=True)
+    async def _ainventory(self, ctx):
+        """ainventory operations."""
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
-    @_inventory.command(pass_context=True, no_pm=True)
+    @_ainventory.command(pass_context=True, no_pm=True)
     async def register(self, ctx):
-        """Registers an inventory with the Armorsmith."""
+        """Registers an ainventory with the Armorsmith."""
         author = ctx.message.author
         try:
-            account = self.inventory.create_account(author)
+            account = self.ainventory.create_account(author)
             await self.bot.say("{} Stash opened.".format(author.mention))
         except AccountAlreadyExists:
             await self.bot.say("{} You already have a stash with the Armorsmith".format(author.mention))
 
-    @_inventory.command(pass_context=True)
+    @_ainventory.command(pass_context=True)
     async def stash(self, ctx, user: discord.Member = None):
         """Shows stash of user. Defaults to yours."""
         if not user:
             user = ctx.message.author
             try:
-                await self.bot.say("{} Your stash contains: {}".format(user.mention, self.inventory.get_stash(user)))
+                await self.bot.say("{} Your stash contains: {}".format(user.mention, self.ainventory.get_stash(user)))
             except NoAccount:
                 await self.bot.say(
-                    "{} You don't have a stash with the Armorsmith. Type `{}inventory register` to open one".format(
+                    "{} You don't have a stash with the Armorsmith. Type `{}ainventory register` to open one".format(
                         user.mention, ctx.prefix))
         else:
             try:
-                await self.bot.say("{}'s stash is {}".format(user.name, self.inventory.get_stash(user)))
+                await self.bot.say("{}'s stash is {}".format(user.name, self.ainventory.get_stash(user)))
             except NoAccount:
-                await self.bot.say("That user has no inventory stash")
+                await self.bot.say("That user has no ainventory stash")
 
-    @_inventory.command(pass_context=True)
+    @_ainventory.command(pass_context=True)
     async def transfer(self, ctx, user: discord.Member, item: str):
         """Transfers an item to other users."""
         author = ctx.message.author
         try:
             item = self.store.get_item_by_name(item)
-            self.inventory.transfer_item(author, user, item)
+            self.ainventory.transfer_item(author, user, item)
             logger.info(
                 "{} ({}) transferred {} to {}({})".format(author.name, author.id, item.name, user.name, user.id))
             await self.bot.say("{} has been transferred to {}'s stash.".format(item.name, user.name))
@@ -464,66 +465,66 @@ class Armorsmith:
         except NoAccount:
             await self.bot.say("That user has no stash account.")
 
-    @_inventory.command(pass_context=True, no_pm=True)
+    @_ainventory.command(pass_context=True, no_pm=True)
     async def equip(self, ctx, *, item_name: str):
         """Equip an item so you may use it in fights"""
         author = ctx.message.author
         try:
             item = self.store.get_item_by_name(item_name)
-            self.inventory.equip(author, item)
+            self.ainventory.equip(author, item)
             await self.bot.say("{} equipped {}".format(author.mention, item_name))
         except ItemNotFound:
             await self.bot.say("Item name was not found.")
         except NoAccount:
-            await self.bot.say("Please register an account with the inventory before equipping.")
+            await self.bot.say("Please register an account with the ainventory before equipping.")
 
-    @_inventory.command(pass_context=True, no_pm=True)
+    @_ainventory.command(pass_context=True, no_pm=True)
     async def equipment(self, ctx, user: discord.Member = None):
         """View currently equipped items"""
         if not user:
             user = ctx.message.author
         try:
-            account = self.inventory.get_account(user)
+            account = self.ainventory.get_account(user)
             await self.bot.say(
                 "{} has equipped: {}".format(user.mention,
                                              ", ".join([item.name for item in account.get_equipment() if item])))
         except NoAccount:
             await self.bot.say("Provided user has no stash account.")
 
-    @_inventory.command(pass_context=True, no_pm=True)
+    @_ainventory.command(pass_context=True, no_pm=True)
     async def remove(self, ctx, *, item_name):
-        """Removes an item from your inventory (and unequips it)"""
+        """Removes an item from your ainventory (and unequips it)"""
         user = ctx.message.author
         try:
             item = self.store.get_item_by_name(item_name)
-            self.inventory.remove_item(user, item)
-            await self.bot.say("Removed item {} fom inventory".format(item_name))
+            self.ainventory.remove_item(user, item)
+            await self.bot.say("Removed item {} fom ainventory".format(item_name))
         except ItemNotFound:
             await self.bot.say("Item was not found.")
 
-    @_inventory.command(name="give", pass_context=True)
+    @_ainventory.command(name="give", pass_context=True)
     @checks.admin_or_permissions(manage_server=True)
     async def _give(self, ctx, user: discord.Member, *, item_name: str):
         """Gives an item to a user."""
         author = ctx.message.author
         try:
             item_obj = self.store.get_item_by_name(item_name)
-            self.inventory.give_item(user, item_obj)
+            self.ainventory.give_item(user, item_obj)
             logger.info("{}({}) gave {} to {}({})".format(author.name, author.id, item_obj.name, user.name, user.id))
             await self.bot.say("{} has been given to {}".format(item_obj.name, user.name))
         except ItemNotFound:
             await self.bot.say("Item name does not exist")
 
-    @_inventory.command(pass_context=True, no_pm=True)
+    @_ainventory.command(pass_context=True, no_pm=True)
     @checks.serverowner_or_permissions(administrator=True)
     async def reset(self, ctx, confirmation: bool = False):
         """Deletes all server's stash accounts"""
         if confirmation is False:
             await self.bot.say(
-                "This will delete all stash accounts on this server.\nIf you're sure, type {}inventory reset yes".format(
+                "This will delete all stash accounts on this server.\nIf you're sure, type {}ainventory reset yes".format(
                     ctx.prefix))
         else:
-            self.inventory.wipe_inventories(ctx.message.server)
+            self.ainventory.wipe_inventories(ctx.message.server)
             await self.bot.say("All stash accounts on this server have been deleted.")
 
     @commands.group(name="store", pass_context=True)
@@ -537,9 +538,9 @@ class Armorsmith:
         """Lists all available items for purchase"""
         message = "What're ya buyin', traveler?\n"
         message += "Item Shop\n\n"
-        for item_type in self.store.inventory.keys():
+        for item_type in self.store.ainventory.keys():
             message += item_type + "\n---------------\n"
-            for item in self.store.inventory[item_type]:
+            for item in self.store.ainventory[item_type]:
                 message += str(item) + "\n"
             message += "\n\n"
         for page in pagify(message, shorten_by=12):
@@ -555,7 +556,7 @@ class Armorsmith:
                 await self.bot.say("You have insufficient funds to purchase that item.")
                 return
             self.bank.withdraw_credits(author, item.cost)
-            self.inventory.give_item(author, item)
+            self.ainventory.give_item(author, item)
             await self.bot.say("{} bought {} for {} credits.".format(author.mention, item_name, item.cost))
         except NoAccount:
             await self.bot.say("You do not have a stash register. Please do so before buying.")
@@ -577,12 +578,12 @@ class Armorsmith:
             await send_cmd_help(ctx)
             return
         try:
-            account_author = self.inventory.get_account(author)
+            account_author = self.ainventory.get_account(author)
         except NoAccount:
-            await self.bot.say("You must have an account to duel. Make one with `!inventory register`")
+            await self.bot.say("You must have an account to duel. Make one with `!ainventory register`")
             return
         try:
-            account_user = self.inventory.get_account(user)
+            account_user = self.ainventory.get_account(user)
         except NoAccount:
             await self.bot.say("Selected user does not have an account")
             return
@@ -614,8 +615,8 @@ class Armorsmith:
         """Fight between two people"""
         hp_author = settings.get("HP", 50)
         hp_user = settings.get("HP", 50)
-        a_weapon, a_armor, a_potion = self.inventory.get_account(author).get_equipment()
-        u_weapon, u_armor, u_potion = self.inventory.get_account(user).get_equipment()
+        a_weapon, a_armor, a_potion = self.ainventory.get_account(author).get_equipment()
+        u_weapon, u_armor, u_potion = self.ainventory.get_account(user).get_equipment()
         if not a_weapon or not u_weapon:
         	await self.bot.say("One or more players does not have a weapon equipped!".format(user.mention))
             return
@@ -628,7 +629,7 @@ class Armorsmith:
             battle_text += "{} hit {} for {} damage!\n".format(author.name, user.name, damage_to_user)
             if hp_user <= 0 and u_potion is not None:
                 hp_user += u_potion.healing_roll()
-                self.inventory.remove_item(user, u_potion)
+                self.ainventory.remove_item(user, u_potion)
                 u_potion = None
                 battle_text += "{} used a potion\n".format(user.name)
             damage_to_author = u_weapon.damage_roll()
@@ -638,7 +639,7 @@ class Armorsmith:
             battle_text += "{} hit {} for {} damage\n".format(user.name, author.name, damage_to_author)
             if hp_author <= 0 and a_potion is not None:
                 hp_author += a_potion.healing_roll()
-                self.inventory.remove_item(author, a_potion)
+                self.ainventory.remove_item(author, a_potion)
                 a_potion = None
                 battle_text += "{} used a potion".format(author.name)
         if hp_user <= 0:
@@ -704,9 +705,9 @@ def check_files():
         print("Creating default armorsmith settings.json...")
         dataIO.save_json(f, {})
 
-    f = "data/armorsmith/inventory.json"
+    f = "data/armorsmith/ainventory.json"
     if not dataIO.is_valid_json(f):
-        print("Creating empty inventory.json...")
+        print("Creating empty ainventory.json...")
         dataIO.save_json(f, {})
 
     f = "data/armorsmith/items.json"
@@ -728,7 +729,7 @@ def setup(bot):
     if logger.level == 0:
         # Prevents the logger from being loaded again in case of module reload
         logger.setLevel(logging.INFO)
-        handler = logging.FileHandler(filename='data/armorsmith/inventory.log', encoding='utf-8', mode='a')
+        handler = logging.FileHandler(filename='data/armorsmith/ainventory.log', encoding='utf-8', mode='a')
         handler.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt="[%d/%m/%Y %H:%M]"))
         logger.addHandler(handler)
     bot.add_cog(Armorsmith(bot))
