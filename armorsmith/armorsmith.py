@@ -617,7 +617,7 @@ class Armorsmith:
         a_weapon, a_armor, a_potion = self.inventory.get_account(author).get_equipment()
         u_weapon, u_armor, u_potion = self.inventory.get_account(user).get_equipment()
         if not a_weapon or not u_weapon:
-        	await self.bot.say("One or more players does not have a weapon equipped!".format(user.mention))
+            await self.bot.say("One or more players does not have a weapon equipped!".format(user.mention))
             return
         battle_text = ""
         while hp_author > 0 and hp_user > 0:
