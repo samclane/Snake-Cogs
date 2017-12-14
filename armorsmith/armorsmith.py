@@ -41,6 +41,7 @@ class ItemNotFound(InventoryException):
 class SameSenderAndReceiver(InventoryException):
     pass
 
+
 class ItemNotEquiped(InventoryException):
     pass
 
@@ -610,7 +611,7 @@ class Armorsmith:
         else:
             await self.bot.say("Challenge declined.")
 
-    def duel(self, author, user, settings):
+    async def duel(self, author, user, settings):
         """Fight between two people"""
         hp_author = settings.get("HP", 50)
         hp_user = settings.get("HP", 50)
