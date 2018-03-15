@@ -41,6 +41,7 @@ class ItemNotFound(InventoryException):
 class SameSenderAndReceiver(InventoryException):
     pass
 
+
 class ItemNotEquiped(InventoryException):
     pass
 
