@@ -217,7 +217,7 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name='allow_emoji')
     async def allow_emoji(self, setting):
-        """Change if emojis will be pronounced in names"""
+        """Change if emojis will be pronounced in names (IN PROGRESS)."""
         setting = setting.lower()
         if setting not in ["on", "off"]:
             await self.bot.say("Please specify if you want emojis 'on' or 'off'")
