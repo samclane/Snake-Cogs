@@ -1,5 +1,7 @@
 import asyncio
 import os
+import sys
+import re
 
 import discord
 from cogs.utils.dataIO import dataIO
@@ -8,9 +10,16 @@ from gtts import gTTS
 
 from .utils import checks
 
-dict = {
-    'x': 'y'
-}
+sys.maxunicode
+
+emoji_pattern = re.compile("["
+                           u"\U0001F600-\U0001F64F"  
+                           u"\U0001F300-\U0001F5FF"
+                           u"\U0001F680-\U0001F6FF"
+                           u"\U0001F1E0-\U0001F1FF"
+                           "]+", flags=re.UNICODE)
+
+
 
 locales = {
     'af': 'Afrikaans',
@@ -168,6 +177,8 @@ class OnJoin:
                 server = bserver
             else:
                 return
+            if not self.settings["allow_emoji"]:
+                text = emoji_pattern.sub(r'', text)
             tts = gTTS(text=text, lang=self.settings["locale"])
             tts.save(self.save_path + "/temp_message.mp3")
             await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
@@ -184,7 +195,7 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=True, no_pm=True, name='say')
     async def say(self, ctx: commands.Context, *, message):
-        """Have the bot say a string"""
+        """Have the bot use TTS say a string in the current voice channel."""
         server = ctx.message.author.server
         channel = ctx.message.author.voice_channel
         tts = gTTS(text=message, lang=self.settings["locale"])
@@ -194,6 +205,7 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name='set_locale')
     async def set_locale(self, locale):
+        """Change the TTS speech locale region."""
         if locale not in locales.keys():
             await self.bot.say(
                 "{} was not found in the list of locales. Look at https://pypi.python.org/pypi/gTTS"
@@ -203,8 +215,23 @@ class OnJoin:
         else:
             self.settings["locale"] = locale
             dataIO.save_json("data/on_join/settings.json", self.settings)
-            await self.bot.say("Locale was successfully changed to {}.".format(locale))
+            await self.bot.say("Locale was successfully changed to {}.".format(locales[locale]))
 
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=False, no_pm=True, name='allow_emoji')
+    async def allow_emoji(self, setting):
+        """Change if emojis will be pronounced in names"""
+        setting = setting.lower()
+        if setting not in ["on", "off"]:
+            await self.bot.say("Please specify if you want emojis 'on' or 'off'")
+            return
+        else:
+            if setting is "on":
+                self.settings["allow_emoji"] = True
+            elif setting is "off":
+                self.settings["allow_emoji"] = False
+            dataIO.save_json("data/on_join.settings.json", self.settings)
+            await self.bot.say("Emoji speech is now {}.", setting)
 
 def check_folders():
     if not os.path.exists("data/on_join"):
