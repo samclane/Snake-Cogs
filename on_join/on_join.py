@@ -90,8 +90,10 @@ class OnJoin:
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
 
-        if "locale" not in self.settings:
+        if "locale" not in self.settings.keys():
             self.settings["locale"] = "en-us"
+        if "allow_emoji" not in self.settings.keys():
+            self.settings["allow_emoji"] = True
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
