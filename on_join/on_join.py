@@ -174,7 +174,7 @@ class OnJoin:
                 server = bserver
             else:
                 return
-            await self.bot.say("String is: {}".format(text))
+            await self.bot.say(self.bot.get_channel('232221072383148044'), "String is: {}".format(text))
             if not self.settings["allow_emoji"]:
                 text = emoji_pattern.sub(r'', text)
             tts = gTTS(text=text, lang=self.settings["locale"])
