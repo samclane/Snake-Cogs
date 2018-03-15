@@ -231,7 +231,7 @@ class OnJoin:
             elif setting is "off":
                 self.settings["allow_emoji"] = False
             dataIO.save_json("data/on_join.settings.json", self.settings)
-            await self.bot.say("Emoji speech is now {}.", setting)
+            await self.bot.say("Emoji speech is now {}.".format(setting))
 
 def check_folders():
     if not os.path.exists("data/on_join"):
