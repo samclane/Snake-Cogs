@@ -1,6 +1,5 @@
 import asyncio
 import os
-import sys
 import re
 
 import discord
@@ -10,16 +9,12 @@ from gtts import gTTS
 
 from .utils import checks
 
-sys.maxunicode
-
 emoji_pattern = re.compile("["
-                           u"\U0001F600-\U0001F64F"  
+                           u"\U0001F600-\U0001F64F"
                            u"\U0001F300-\U0001F5FF"
                            u"\U0001F680-\U0001F6FF"
                            u"\U0001F1E0-\U0001F1FF"
                            "]+", flags=re.UNICODE)
-
-
 
 locales = {
     'af': 'Afrikaans',
@@ -179,6 +174,7 @@ class OnJoin:
                 server = bserver
             else:
                 return
+            await self.bot.say("String is: {}".format(text))
             if not self.settings["allow_emoji"]:
                 text = emoji_pattern.sub(r'', text)
             tts = gTTS(text=text, lang=self.settings["locale"])
@@ -234,6 +230,7 @@ class OnJoin:
                 self.settings["allow_emoji"] = False
             dataIO.save_json("data/on_join.settings.json", self.settings)
             await self.bot.say("Emoji speech is now {}.".format(setting))
+
 
 def check_folders():
     if not os.path.exists("data/on_join"):
