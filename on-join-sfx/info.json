@@ -1,0 +1,12 @@
+{
+  "AUTHOR": "watersnake",
+  "SHORT": "Experimental port of on_join to sfx module.",
+  "DESCRIPTION": "",
+  "DISABLED": true,
+  "NAME": "on-join-sfx",
+  "TAGS": [
+    "on-join-sfx"
+  ],
+  "INSTALL_MSG": "",
+  "HIDDEN": true
+}
