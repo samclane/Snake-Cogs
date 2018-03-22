@@ -1,4 +1,4 @@
-from sfx import Sfx
+from .sfx import Sfx
 
 import discord
 import os
