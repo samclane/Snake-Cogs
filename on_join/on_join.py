@@ -10,10 +10,10 @@ from gtts import gTTS
 from .utils import checks
 
 emoji_pattern = re.compile("["
-                           u"\U0001F600-\U0001F64F"
-                           u"\U0001F300-\U0001F5FF"
-                           u"\U0001F680-\U0001F6FF"
-                           u"\U0001F1E0-\U0001F1FF"
+        u"\U0001F600-\U0001F64F"  # emoticons
+        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
                            "]+", flags=re.UNICODE)
 
 locales = {
@@ -176,6 +176,7 @@ class OnJoin:
                 return
             if not self.settings["allow_emoji"]:
                 text = emoji_pattern.sub(r'', text)
+            text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
             tts = gTTS(text=text, lang=self.settings["locale"])
             tts.save(self.save_path + "/temp_message.mp3")
             await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
