@@ -174,9 +174,11 @@ class OnJoin:
                 server = bserver
             else:
                 return
+            await self.bot.say("Original text is: {}".format(text))
             if not self.settings["allow_emoji"]:
                 text = emoji_pattern.sub(r'', text)
             text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
+            await self.bot.say("New text is: {}".format(text))
             tts = gTTS(text=text, lang=self.settings["locale"])
             tts.save(self.save_path + "/temp_message.mp3")
             await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
