@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+import random
 
 import discord
 from cogs.utils.dataIO import dataIO
@@ -15,11 +16,6 @@ Module that provides a class that filters profanities
 
 """
 
-__author__ = "leoluk"
-__version__ = '0.0.1'
-
-import random
-import re
 
 class ProfanitiesFilter(object):
     def __init__(self, filterlist, ignore_case=True, replacements="$@%-?!",
@@ -249,7 +245,7 @@ class OnJoin:
             if not self.settings["allow_emoji"]:
                 text = emoji_pattern.sub(r'', text)
             if self.settings["profanity_filter"]:
-                f = ProfanitiesFilter(SLURS, replacements="")
+                f = ProfanitiesFilter(SLURS, replacements="*")
                 f.inside_words = True
                 text = f.clean(text)
             text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
