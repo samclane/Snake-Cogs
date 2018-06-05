@@ -158,9 +158,9 @@ class OnJoin:
         if "locale" not in self.settings.keys():
             self.settings["locale"] = "en-us"
         if "allow_emoji" not in self.settings.keys():
-            self.settings["allow_emoji"] = True
+            self.settings["allow_emoji"] = 'true'
         if "profanity_filter" not in self.settings.keys():
-            self.settings["profanity_filter"] = False
+            self.settings["profanity_filter"] = 'false'
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
