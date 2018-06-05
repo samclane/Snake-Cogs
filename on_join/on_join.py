@@ -151,11 +151,11 @@ class OnJoin:
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
 
-        if "locale" not in self.settings.keys():
+        if "locale" not in self.settings.keys() or self.settings["locale"] not in locales.keys():
             self.settings["locale"] = "en-us"
-        if "allow_emoji" not in self.settings.keys():
+        if "allow_emoji" not in self.settings.keys() or self.settings["allow_emoji"] not in ['on', 'off']:
             self.settings["allow_emoji"] = 'on'
-        if "profanity_filter" not in self.settings.keys():
+        if "profanity_filter" not in self.settings.keys() or self.settings["profanity_filter"] not in ['on', 'off']:
             self.settings["profanity_filter"] = 'off'
         dataIO.save_json("data/on_join/settings.json", self.settings)
 
@@ -244,14 +244,11 @@ class OnJoin:
             else:
                 return
             if self.settings["allow_emoji"] == 'off':
-                print('stripping emoji')
                 text = emoji_pattern.sub(r'', text)
             if self.settings["profanity_filter"] == 'on':
-                print('stripping profanity')
-                f = ProfanitiesFilter(SLURS, replacements="*")
+                f = ProfanitiesFilter(SLURS, replacements=" ")
                 f.inside_words = True
                 text = f.clean(text)
-            print(self.settings)
             text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
             tts = gTTS(text=text, lang=self.settings["locale"])
             tts.save(self.save_path + "/temp_message.mp3")
