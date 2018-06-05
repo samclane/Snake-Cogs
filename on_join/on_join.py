@@ -251,6 +251,7 @@ class OnJoin:
                 f = ProfanitiesFilter(SLURS, replacements="*")
                 f.inside_words = True
                 text = f.clean(text)
+            print(self.settings)
             text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
             tts = gTTS(text=text, lang=self.settings["locale"])
             tts.save(self.save_path + "/temp_message.mp3")
