@@ -243,8 +243,10 @@ class OnJoin:
             else:
                 return
             if not self.settings["allow_emoji"]:
+                print('stripping emoji')
                 text = emoji_pattern.sub(r'', text)
             if self.settings["profanity_filter"]:
+                print('stripping profanity')
                 f = ProfanitiesFilter(SLURS, replacements="*")
                 f.inside_words = True
                 text = f.clean(text)
