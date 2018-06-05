@@ -9,6 +9,8 @@ from gtts import gTTS
 
 from .utils import checks
 
+from .profanity_filter import ProfanitiesFilter, SLURS
+
 emoji_pattern = re.compile("["
         u"\U0001F600-\U0001F64F"  # emoticons
         u"\U0001F300-\U0001F5FF"  # symbols & pictographs
@@ -89,6 +91,8 @@ class OnJoin:
             self.settings["locale"] = "en-us"
         if "allow_emoji" not in self.settings.keys():
             self.settings["allow_emoji"] = True
+        if "profanity_filter" not in self.settings.keys():
+            self.settings["profanity_filter"] = False
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
@@ -176,6 +180,10 @@ class OnJoin:
                 return
             if not self.settings["allow_emoji"]:
                 text = emoji_pattern.sub(r'', text)
+            if self.settings["profanity_filter"]:
+                f = ProfanitiesFilter(SLURS, replacements="")
+                f.inside_words = True
+                text = f.clean(text)
             text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
             tts = gTTS(text=text, lang=self.settings["locale"])
             tts.save(self.save_path + "/temp_message.mp3")
@@ -230,6 +238,23 @@ class OnJoin:
                 self.settings["allow_emoji"] = False
             dataIO.save_json("data/on_join.settings.json", self.settings)
             await self.bot.say("Emoji speech is now {}.".format(setting))
+
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=False, no_pm=True, name='set_filter')
+    async def set_filter(self, setting):
+        """Change slurs will be pronounced in names (IN PROGRESS)."""
+        setting = setting.lower()
+        if setting not in ["on", "off"]:
+            await self.bot.say("Please specify if you want the profanity filter 'on' or 'off'")
+            return
+        else:
+            if setting is "on":
+                self.settings["profanity_filter"] = True
+            elif setting is "off":
+                self.settings["profanity_filter"] = False
+            dataIO.save_json("data/on_join.settings.json", self.settings)
+            await self.bot.say("Profanity filter is now {}.".format(setting))
+
 
 
 def check_folders():
