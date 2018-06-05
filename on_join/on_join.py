@@ -300,7 +300,7 @@ class OnJoin:
                 self.settings["allow_emoji"] = True
             elif setting is "off":
                 self.settings["allow_emoji"] = False
-            dataIO.save_json("data/on_join.settings.json", self.settings)
+            dataIO.save_json("data/on_join/settings.json", self.settings)
             await self.bot.say("Emoji speech is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_server=True)
@@ -316,7 +316,7 @@ class OnJoin:
                 self.settings["profanity_filter"] = True
             elif setting is "off":
                 self.settings["profanity_filter"] = False
-            dataIO.save_json("data/on_join.settings.json", self.settings)
+            dataIO.save_json("data/on_join/settings.json", self.settings)
             await self.bot.say("Profanity filter is now {}.".format(setting))
 
 
