@@ -154,9 +154,9 @@ class OnJoin:
         if "locale" not in self.settings.keys():
             self.settings["locale"] = "en-us"
         if "allow_emoji" not in self.settings.keys():
-            self.settings["allow_emoji"] = True
+            self.settings["allow_emoji"] = 'on'
         if "profanity_filter" not in self.settings.keys():
-            self.settings["profanity_filter"] = False
+            self.settings["profanity_filter"] = 'off'
         dataIO.save_json("data/on_join/settings.json", self.settings)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
@@ -243,10 +243,10 @@ class OnJoin:
                 server = bserver
             else:
                 return
-            if not self.settings["allow_emoji"]:
+            if self.settings["allow_emoji"] == 'off':
                 print('stripping emoji')
                 text = emoji_pattern.sub(r'', text)
-            if self.settings["profanity_filter"]:
+            if self.settings["profanity_filter"] == 'on':
                 print('stripping profanity')
                 f = ProfanitiesFilter(SLURS, replacements="*")
                 f.inside_words = True
@@ -300,10 +300,10 @@ class OnJoin:
             await self.bot.say("Please specify if you want emojis 'on' or 'off'")
             return
         else:
-            if setting is "on":
-                self.settings["allow_emoji"] = True
-            elif setting is "off":
-                self.settings["allow_emoji"] = False
+            if setting == "on":
+                self.settings["allow_emoji"] = 'on'
+            elif setting == "off":
+                self.settings["allow_emoji"] = 'off'
             dataIO.save_json("data/on_join/settings.json", self.settings)
             await self.bot.say("Emoji speech is now {}.".format(setting))
 
@@ -316,10 +316,10 @@ class OnJoin:
             await self.bot.say("Please specify if you want the profanity filter 'on' or 'off'")
             return
         else:
-            if setting is "on":
-                self.settings["profanity_filter"] = True
-            elif setting is "off":
-                self.settings["profanity_filter"] = False
+            if setting == "on":
+                self.settings["profanity_filter"] = 'on'
+            elif setting == "off":
+                self.settings["profanity_filter"] = 'off'
             dataIO.save_json("data/on_join/settings.json", self.settings)
             await self.bot.say("Profanity filter is now {}.".format(setting))
 
