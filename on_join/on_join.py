@@ -157,7 +157,7 @@ class OnJoin:
             self.settings["allow_emoji"] = True
         if "profanity_filter" not in self.settings.keys():
             self.settings["profanity_filter"] = False
-        dataIO.save_json("data/on_join/settings.json")
+        dataIO.save_json("data/on_join/settings.json", self.settings)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
