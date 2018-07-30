@@ -186,7 +186,16 @@ class OnJoin:
     async def sound_init(self, server: discord.Server, path: str):
         options = "-filter \"volume=volume=1.00\""
         voice_client = self.voice_client(server)
-        use_avconv = os.name == 'nt'
+        use_avconv = False
+        if os.name == 'posix':
+            try:
+                with open(r'/etc/os-release') as f:
+                    line = f.readlines()[0]
+                    m = re.match(r'.*\((.*)\).*', line)
+                    if m.group(1) == 'jessie':
+                        use_avconv = True
+            except Exception:
+                use_avconv = False
         self.audio_players[server.id] = voice_client.create_ffmpeg_player(
             path, options=options, use_avconv=use_avconv)
 
