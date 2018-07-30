@@ -186,8 +186,9 @@ class OnJoin:
     async def sound_init(self, server: discord.Server, path: str):
         options = "-filter \"volume=volume=1.00\""
         voice_client = self.voice_client(server)
+        use_avconv = os.name == 'nt'
         self.audio_players[server.id] = voice_client.create_ffmpeg_player(
-            path, options=options, use_avconv=True)
+            path, options=options, use_avconv=use_avconv)
 
     async def sound_play(self, server: discord.Server,
                          channel: discord.Channel, p: str):
