@@ -69,11 +69,6 @@ class ProfanitiesFilter(object):
 
         return r.sub(self.__replacer, text)
 
-SLURS = [
-    'nigger',
-    'faggot',
-    'cunt'
-]
 
 emoji_pattern = re.compile("["
         u"\U0001F600-\U0001F64F"  # emoticons
@@ -157,6 +152,8 @@ class OnJoin:
             self.settings["allow_emoji"] = 'on'
         if "profanity_filter" not in self.settings.keys() or self.settings["profanity_filter"] not in ['on', 'off']:
             self.settings["profanity_filter"] = 'off'
+        if "profanity_list" not in self.settings.keys():
+            self.settings["profanity_list"] = []
         dataIO.save_json("data/on_join/settings.json", self.settings)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
@@ -250,7 +247,7 @@ class OnJoin:
             if self.settings["allow_emoji"] == 'off':
                 text = emoji_pattern.sub(r'', text)
             if self.settings["profanity_filter"] == 'on':
-                f = ProfanitiesFilter(SLURS, replacements=" ")
+                f = ProfanitiesFilter(self.settings["profanity_list"], replacements=" ")
                 f.inside_words = True
                 text = f.clean(text)
             text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
@@ -324,7 +321,16 @@ class OnJoin:
             dataIO.save_json("data/on_join/settings.json", self.settings)
             await self.bot.say("Profanity filter is now {}.".format(setting))
 
-
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=False, no_pm=True, name='add_filter')
+    async def add_filter(self, word):
+        word = word.lower()
+        if word not in self.settings["profanity_list"]:
+            self.settings["profanity_list"].append(word)
+            dataIO.save_json("data/on_join/settings.json", self.settings)
+            await self.bot.say("{} has been added to the profanity filter.".format(word.capitalize()))
+        else:
+            await self.bot.say("{} is already in the profanity dictionary.".format(word.capitalize()))
 
 def check_folders():
     if not os.path.exists("data/on_join"):
