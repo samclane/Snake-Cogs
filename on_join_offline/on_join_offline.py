@@ -161,7 +161,7 @@ class OnJoin:
         text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
         with open(self.save_path + "temp_text", "w+") as file:
             file.write(text)
-        call(['espeak -f {} --stdout > {}'.format(self.save_path + "temp_text",
+        call(['espeak -v{} -f {} --stdout > {}'.format(self.settings["locale"], self.save_path + "temp_text",
                                                   self.save_path + "temp_message.mp3")], shell=True)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
