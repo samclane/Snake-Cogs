@@ -159,9 +159,8 @@ class OnJoin:
     def string_to_speech(self, text):
         """ Create TTS mp3 file temp_message.mp3 """
         text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
-        file = open(self.save_path + "temp_text", "w+")
-        file.write(text)
-        file.close()
+        with open(self.save_path + "temp_text", "w+") as file:
+            file.write(text)
         call(['espeak -f {} --stdout > {}'.format(self.save_path + "temp_text",
                                                   self.save_path + "temp_message.mp3")])
 
