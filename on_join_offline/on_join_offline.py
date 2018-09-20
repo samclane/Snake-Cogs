@@ -162,7 +162,7 @@ class OnJoin:
         with open(self.save_path + "temp_text", "w+") as file:
             file.write(text)
         call(['espeak -f {} --stdout > {}'.format(self.save_path + "temp_text",
-                                                  self.save_path + "temp_message.mp3")])
+                                                  self.save_path + "temp_message.mp3")], shell=True)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
