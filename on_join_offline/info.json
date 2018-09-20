@@ -1,0 +1,17 @@
+{
+  "AUTHOR": "watersnake",
+  "SHORT": "Announces when a user joins a channel, using local TTS",
+  "DESCRIPTION": "Uses espeak to announce when a user joins the channel, like Teamspeak or Ventrillo",
+  "DISABLED": false,
+  "NAME": "on_join_offline",
+  "TAGS": [
+    "on_join_offline",
+    "tts",
+    "announce",
+    "utility",
+    "tools",
+    "voice",
+    "espeak"
+  ],
+  "INSTALL_MSG": "Requires espeak be installed on your Linux platform."
+}
