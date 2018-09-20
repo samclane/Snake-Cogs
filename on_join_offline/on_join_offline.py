@@ -161,11 +161,9 @@ class OnJoin:
         text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
         file = open(self.save_path + "temp_text", "w+")
         file.write(text)
-        try:
-            call(['espeak -f {} --stdout > {}'.format(self.save_path + "temp_text",
-                                                      self.save_path + "temp_message.mp3")])
-        except Exception:
-            print(os.getcwd())
+        file.close()
+        call(['espeak -f {} --stdout > {}'.format(self.save_path + "temp_text",
+                                                  self.save_path + "temp_message.mp3")])
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
