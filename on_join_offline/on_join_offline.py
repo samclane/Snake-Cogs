@@ -159,10 +159,10 @@ class OnJoin:
     def string_to_speech(self, text):
         """ Create TTS mp3 file temp_message.mp3 """
         text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
-        file = open(self.save_path + "/temp_text", "w+")
+        file = open(self.save_path + "temp_text", "w+")
         file.write(text)
-        call(['espeak -f {} --stdout > {}'.format(self.save_path + "/temp_text",
-                                                  self.save_path + "/temp_message.mp3")])
+        call(['espeak -f {} --stdout > {}'.format(self.save_path + "temp_text",
+                                                  self.save_path + "temp_message.mp3")])
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
@@ -259,7 +259,7 @@ class OnJoin:
                 f.inside_words = True
                 text = f.clean(text)
             self.string_to_speech(text)
-            await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
+            await self.sound_play(server, channel, self.save_path + "temp_message.mp3")
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=True, no_pm=True, name='seals')
@@ -277,7 +277,7 @@ class OnJoin:
         server = ctx.message.author.server
         channel = ctx.message.author.voice_channel
         self.string_to_speech(message)
-        await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
+        await self.sound_play(server, channel, self.save_path + "temp_message.mp3")
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name='set_locale')
