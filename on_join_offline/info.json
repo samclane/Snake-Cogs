@@ -2,7 +2,7 @@
   "AUTHOR": "watersnake",
   "SHORT": "Announces when a user joins a channel, using a local TTS engine.",
   "DESCRIPTION": "Uses espeak to announce when a user joins the channel, like Teamspeak or Ventrillo. Requires Linux with espeak installed.",
-  "DISABLED": false,
+  "DISABLED": true,
   "NAME": "on_join_offline",
   "TAGS": [
     "on_join_offline",
