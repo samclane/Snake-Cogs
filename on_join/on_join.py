@@ -182,13 +182,13 @@ class OnJoin:
         """ Create TTS mp3 file `temp_message.mp3` """
         use_espeak = self.settings["use_espeak"]
         text = text.lower()
-        if not use_espeak:
+        if use_espeak == "off":
             try:
                 tts = gTTS(text=text, lang=self.settings["locale"])
                 tts.save(self.save_path + "/temp_message.mp3")
             except AttributeError:  # If there's a problem with gTTS, use espeak instead
-                use_espeak = True
-        if use_espeak:
+                use_espeak = "on"
+        if use_espeak == "on":
             call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(self.settings["locale"], self.settings["voice"],
                                                                   self.settings["speed"], text,
                                                                   self.save_path + "temp_message.mp3")], shell=True)
