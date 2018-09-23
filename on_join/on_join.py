@@ -1,7 +1,8 @@
 import asyncio
 import os
-import re
 import random
+import re
+from subprocess import call
 
 import discord
 from cogs.utils.dataIO import dataIO
@@ -9,7 +10,6 @@ from discord.ext import commands
 from gtts import gTTS
 
 from .utils import checks
-
 
 """
 Module that provides a class that filters profanities
@@ -45,14 +45,14 @@ class ProfanitiesFilter(object):
 
         """
         return ''.join([random.choice(self.replacements) for i in
-                  range(length)])
+                        range(length)])
 
     def __replacer(self, match):
         value = match.group()
         if self.complete:
             return self._make_clean_word(len(value))
         else:
-            return value[0]+self._make_clean_word(len(value)-2)+value[-1]
+            return value[0] + self._make_clean_word(len(value) - 2) + value[-1]
 
     def clean(self, text):
         """Cleans a string from profanity."""
@@ -60,7 +60,7 @@ class ProfanitiesFilter(object):
         regexp_insidewords = {
             True: r'(%s)',
             False: r'\b(%s)\b',
-            }
+        }
 
         regexp = (regexp_insidewords[self.inside_words] %
                   '|'.join(self.badwords))
@@ -71,10 +71,10 @@ class ProfanitiesFilter(object):
 
 
 emoji_pattern = re.compile("["
-        u"\U0001F600-\U0001F64F"  # emoticons
-        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-        u"\U0001F680-\U0001F6FF"  # transport & map symbols
-        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                           u"\U0001F600-\U0001F64F"  # emoticons
+                           u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                           u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                           u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
                            "]+", flags=re.UNICODE)
 
 locales = {
@@ -133,9 +133,25 @@ locales = {
     'cy': 'Welsh'
 }
 
+voices = [
+    'm1',
+    'm2',
+    'm3',
+    'm4',
+    'm5',
+    'm6',
+    'm7',
+    'f1',
+    'f2',
+    'f3',
+    'f4',
+    'croak',
+    'whisper'
+]
+
 
 class OnJoin:
-    """Uses gTTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
+    """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -148,13 +164,34 @@ class OnJoin:
 
         if "locale" not in self.settings.keys() or self.settings["locale"] not in locales.keys():
             self.settings["locale"] = "en-us"
+        if "voice" not in self.settings.keys() or self.settings["voice"] not in voices:
+            self.settings["voice"] = "m1"
+        if "speed" not in self.settings.keys() or not (80 < self.settings["speed"] < 500):
+            self.settings["speed"] = 175
         if "allow_emoji" not in self.settings.keys() or self.settings["allow_emoji"] not in ['on', 'off']:
             self.settings["allow_emoji"] = 'on'
         if "profanity_filter" not in self.settings.keys() or self.settings["profanity_filter"] not in ['on', 'off']:
             self.settings["profanity_filter"] = 'off'
         if "profanity_list" not in self.settings.keys():
             self.settings["profanity_list"] = []
+        if "use_espeak" not in self.settings.keys() or self.settings["use_espeak"] not in ['on', 'off']:
+            self.settings["use_espeak"] = 'off'
         dataIO.save_json("data/on_join/settings.json", self.settings)
+
+    def string_to_speech(self, text):
+        """ Create TTS mp3 file `temp_message.mp3` """
+        use_espeak = self.settings["use_espeak"]
+        text = text.lower()
+        if not use_espeak:
+            try:
+                tts = gTTS(text=text, lang=self.settings["locale"])
+                tts.save(self.save_path + "/temp_message.mp3")
+            except AttributeError:  # If there's a problem with gTTS, use espeak instead
+                use_espeak = True
+        if use_espeak:
+            call(['espeak -v{}+{} -s{} {} --stdout > {}'.format(self.settings["locale"], self.settings["voice"],
+                                                                self.settings["speed"], text,
+                                                                self.save_path + "temp_message.mp3")], shell=True)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
@@ -250,9 +287,7 @@ class OnJoin:
                 f = ProfanitiesFilter(self.settings["profanity_list"], replacements=" ")
                 f.inside_words = True
                 text = f.clean(text)
-            text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
-            tts = gTTS(text=text, lang=self.settings["locale"])
-            tts.save(self.save_path + "/temp_message.mp3")
+            self.string_to_speech(text)
             await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_server=True)
@@ -270,8 +305,7 @@ class OnJoin:
         """Have the bot use TTS say a string in the current voice channel."""
         server = ctx.message.author.server
         channel = ctx.message.author.voice_channel
-        tts = gTTS(text=message, lang=self.settings["locale"])
-        tts.save(self.save_path + "/temp_message.mp3")
+        self.string_to_speech(message)
         await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_server=True)
@@ -288,6 +322,30 @@ class OnJoin:
             self.settings["locale"] = locale
             dataIO.save_json("data/on_join/settings.json", self.settings)
             await self.bot.say("Locale was successfully changed to {}.".format(locales[locale]))
+
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=False, no_pm=True, name='set_voice')
+    async def set_voice(self, voice):
+        if voice not in voices:
+            await self.bot.say("{} is not a valid voice code."
+                               "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
+            return
+        else:
+            self.settings["voice"] = voice
+            dataIO.save_json("data/on_join/settings.json", self.settings)
+            await self.bot.say("Voice was successfully changed to {}.".format(voice))
+
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=False, no_pm=True, name='set_speed')
+    async def set_speed(self, speed):
+        speed = int(speed)
+        if not (80 < speed < 500):
+            await self.bot.say("{} is not between 80 and 500 WPM.".format(speed))
+            return
+        else:
+            self.settings["speed"] = speed
+            dataIO.save_json("data/on_join/settings.json", self.settings)
+            await self.bot.say("Speed was successfully changed to {}.".format(speed))
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name='allow_emoji')
@@ -331,6 +389,22 @@ class OnJoin:
             await self.bot.say("{} has been added to the profanity filter.".format(word.capitalize()))
         else:
             await self.bot.say("{} is already in the profanity dictionary.".format(word.capitalize()))
+
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(pass_context=False, no_pm=True, name="use_espeak")
+    async def use_espeak(self, setting):
+        setting = setting.lower()
+        if setting not in ["on", "off"]:
+            await self.bot.say("Please specify if you want to use espeak (yes) or gTTS( no).")
+            return
+        else:
+            if setting == "on":
+                self.settings["use_espeak"] = 'on'
+            elif setting == "off":
+                self.settings["use_espeak"] = 'off'
+        dataIO.save_json("data/on_join/settings.json", self.settings)
+        await self.bot.say("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
+
 
 def check_folders():
     if not os.path.exists("data/on_join"):
