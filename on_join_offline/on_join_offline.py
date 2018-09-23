@@ -178,9 +178,9 @@ class OnJoin:
     def string_to_speech(self, text):
         """ Create TTS mp3 file temp_message.mp3 """
         text = text.lower()  # uppercases are spelled out as acronyms, not helpful.
-        call(['espeak -v{}+{} -s{} {} --stdout > {}'.format(self.settings["locale"], self.settings["voice"],
-                                                            self.settings["speed"], text,
-                                                            self.save_path + "temp_message.mp3")], shell=True)
+        call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(self.settings["locale"], self.settings["voice"],
+                                                              self.settings["speed"], text,
+                                                              self.save_path + "temp_message.mp3")], shell=True)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and

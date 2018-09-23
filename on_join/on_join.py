@@ -189,9 +189,9 @@ class OnJoin:
             except AttributeError:  # If there's a problem with gTTS, use espeak instead
                 use_espeak = True
         if use_espeak:
-            call(['espeak -v{}+{} -s{} {} --stdout > {}'.format(self.settings["locale"], self.settings["voice"],
-                                                                self.settings["speed"], text,
-                                                                self.save_path + "temp_message.mp3")], shell=True)
+            call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(self.settings["locale"], self.settings["voice"],
+                                                                  self.settings["speed"], text,
+                                                                  self.save_path + "temp_message.mp3")], shell=True)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
