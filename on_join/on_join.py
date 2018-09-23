@@ -326,6 +326,7 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name='set_voice')
     async def set_voice(self, voice):
+        """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
         if voice not in voices:
             await self.bot.say("{} is not a valid voice code."
                                "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
@@ -338,6 +339,7 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name='set_speed')
     async def set_speed(self, speed):
+        """ Set the WPM speed of the espeak narrator. Range is 80-500. """
         speed = int(speed)
         if not (80 < speed < 500):
             await self.bot.say("{} is not between 80 and 500 WPM.".format(speed))
@@ -382,6 +384,7 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name='add_filter')
     async def add_filter(self, word):
+        """ Add a word to the censor filter. """
         word = word.lower()
         if word not in self.settings["profanity_list"]:
             self.settings["profanity_list"].append(word)
@@ -393,6 +396,7 @@ class OnJoin:
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(pass_context=False, no_pm=True, name="use_espeak")
     async def use_espeak(self, setting):
+        """ Manually toggle espeak 'on' or 'off'. """
         setting = setting.lower()
         if setting not in ["on", "off"]:
             await self.bot.say("Please specify if you want to use espeak (yes) or gTTS( no).")
