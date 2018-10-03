@@ -32,12 +32,13 @@ class MemberLogger:
         if message.author.bot:
             return
         entry = pandas.Series(
-            {"datetime": datetime.datetime.now(), "member": message.author, "present": message.mentions},
+            {"datetime": datetime.datetime.now(), "member": message.author.id,
+             "present": [m.id for m in message.mentions if not m.bot]},
             name=datetime.datetime.now())
         self.data = self.data.append(entry, ignore_index=True)
         self.data.to_csv(self.settings["datapath"])
 
-    async def on_voice_state_update_(self, before, after):
+    async def on_voice_state_update_(self, before, after: discord.Member):
         if before.bot or after.bot:
             return
 
@@ -49,7 +50,8 @@ class MemberLogger:
             if bvchan is None and avchan is not None:
                 # came online
                 entry = pandas.Series(
-                    {"datetime": datetime.datetime.now(), "member": after, "present": avchan.voice_members},
+                    {"datetime": datetime.datetime.now(), "member": after.id,
+                     "present": [m.id for m in avchan.voice_members if not m.bot]},
                     name=datetime.datetime.now())
                 self.data = self.data.append(entry, ignore_index=True)
                 self.data.to_csv(self.settings["datapath"])
