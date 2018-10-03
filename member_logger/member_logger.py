@@ -71,4 +71,4 @@ def setup(bot):
     n = MemberLogger(bot)
     bot.add_listener(n.on_message_, "on_message")
     bot.add_listener(n.on_voice_state_update_, "on_voice_state_update")
-    bot.add_cog()
+    bot.add_cog(n)
