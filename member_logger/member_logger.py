@@ -30,7 +30,7 @@ class MemberLogger:
         self.data = pandas.read_csv(self.settings["datapath"])
 
     async def on_message_(self, message: discord.Message):
-        if message.author.bot:
+        if message.author.bot or len(message.mentions == 0) or message.mention_everyone:
             return
         entry = pandas.Series(
             {"datetime": datetime.datetime.now(), "member": message.author.id,
