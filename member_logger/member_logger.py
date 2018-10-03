@@ -38,6 +38,7 @@ class MemberLogger:
             name=datetime.datetime.now())
         self.data = self.data.append(entry, ignore_index=True)
         self.data.to_csv(self.settings["datapath"])
+        print("saved csv")
 
     async def on_voice_state_update_(self, before, after: discord.Member):
         if before.bot or after.bot:
@@ -56,6 +57,7 @@ class MemberLogger:
                     name=datetime.datetime.now())
                 self.data = self.data.append(entry, ignore_index=True)
                 self.data.to_csv(self.settings["datapath"])
+                print("saved csv")
 
 
 def check_folders():
