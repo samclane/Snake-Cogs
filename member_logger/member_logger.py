@@ -34,7 +34,7 @@ class MemberLogger:
             return
         entry = pandas.Series(
             {"datetime": datetime.datetime.now(), "member": message.author.id,
-             "present": [m.id for m in message.mentions if not m.bot and m != message.author]},
+             "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
             name=datetime.datetime.now())
         self.data = self.data.append(entry, ignore_index=True)
         self.data.to_csv(self.settings["datapath"])
@@ -53,7 +53,7 @@ class MemberLogger:
                 # came online
                 entry = pandas.Series(
                     {"datetime": datetime.datetime.now(), "member": after.id,
-                     "present": [m.id for m in avchan.voice_members if not m.bot and m != after]},
+                     "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
                     name=datetime.datetime.now())
                 self.data = self.data.append(entry, ignore_index=True)
                 self.data.to_csv(self.settings["datapath"])
