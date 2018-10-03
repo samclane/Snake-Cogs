@@ -27,7 +27,7 @@ class MemberLogger:
 
         self.data = pandas.read_csv(self.settings["datapath"])
 
-    def on_message_(self, message: discord.Message):
+    async def on_message_(self, message: discord.Message):
         if message.author.bot:
             return
         entry = pandas.Series(
@@ -35,7 +35,7 @@ class MemberLogger:
         self.data.append(entry)
         self.data.to_csv(self.settings["datapath"])
 
-    def on_voice_state_update_(self, before, after):
+    async def on_voice_state_update_(self, before, after):
         if before.bot or after.bot:
             return
 
