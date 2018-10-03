@@ -24,7 +24,7 @@ class MemberLogger:
         if not os.path.exists(self.settings["datapath"]):
             with open(self.settings["datapath"], "a"):
                 os.utime(self.settings["datapath"], None)
-                self.data = pandas.DataFrame({"datetime": [], "member": [], "present": []})
+                self.data = pandas.DataFrame()
 
         self.data = pandas.read_csv(self.settings["datapath"])
 
@@ -32,7 +32,8 @@ class MemberLogger:
         if message.author.bot:
             return
         entry = pandas.Series(
-            {"datetime": datetime.datetime.now(), "member": message.author, "present": message.mentions}, name=datetime.datetime.now())
+            {"datetime": datetime.datetime.now(), "member": message.author, "present": message.mentions},
+            name=datetime.datetime.now())
         self.data = self.data.append(entry, ignore_index=True)
         self.data.to_csv(self.settings["datapath"])
 
@@ -48,7 +49,8 @@ class MemberLogger:
             if bvchan is None and avchan is not None:
                 # came online
                 entry = pandas.Series(
-                    {"datetime": datetime.datetime.now(), "member": after, "present": avchan.voice_members}, name=datetime.datetime.now())
+                    {"datetime": datetime.datetime.now(), "member": after, "present": avchan.voice_members},
+                    name=datetime.datetime.now())
                 self.data = self.data.append(entry, ignore_index=True)
                 self.data.to_csv(self.settings["datapath"])
 
