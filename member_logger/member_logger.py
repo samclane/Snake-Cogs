@@ -31,7 +31,8 @@ class MemberLogger:
         if message.author.bot:
             return
         entry = pandas.Series(
-            {"datetime": datetime.datetime.now(), "member": message.author, "present": message.mentions})
+            {"datetime": datetime.datetime.now(), "member": message.author, "present": message.mentions},
+            name=datetime.datetime.now())
         self.data.append(entry)
         self.data.to_csv(self.settings["datapath"])
 
@@ -47,7 +48,8 @@ class MemberLogger:
             if bvchan is None and avchan is not None:
                 # came online
                 entry = pandas.Series(
-                    {"datetime": datetime.datetime.now(), "member": after, "present": avchan.voice_members})
+                    {"datetime": datetime.datetime.now(), "member": after, "present": avchan.voice_members},
+                    name=datetime.datetime.now())
                 self.data.append(entry)
                 self.data.to_csv(self.settings["datapath"])
 
