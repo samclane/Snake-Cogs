@@ -22,8 +22,9 @@ class MemberLogger:
 
         # Make the datafile if it does exist.
         if not os.path.exists(self.settings["datapath"]):
-            with open(self.settings["datapath"], "w+") as f:
-                f.write("datetime,member,present")
+            with open(self.settings["datapath"], "a"):
+                os.utime(self.settings["datapath"], None)
+                self.data = pandas.DataFrame({"datetime": [], "member": [], "present": []})
 
         self.data = pandas.read_csv(self.settings["datapath"])
 
