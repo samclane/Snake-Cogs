@@ -36,9 +36,8 @@ class MemberLogger:
             {"datetime": datetime.datetime.now(), "member": message.author.id,
              "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
             name=datetime.datetime.now())
-        self.data = self.data.append(entry, ignore_index=True)
+        self.data = self.data.append(entry)
         self.data.to_csv(self.settings["datapath"])
-        print("saved csv")
 
     async def on_voice_state_update_(self, before, after: discord.Member):
         if before.bot or after.bot:
@@ -55,9 +54,8 @@ class MemberLogger:
                     {"datetime": datetime.datetime.now(), "member": after.id,
                      "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
                     name=datetime.datetime.now())
-                self.data = self.data.append(entry, ignore_index=True)
+                self.data = self.data.append(entry)
                 self.data.to_csv(self.settings["datapath"])
-                print("saved csv")
 
 
 def check_folders():
