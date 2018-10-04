@@ -27,7 +27,7 @@ class MemberLogger:
                 self.data = pandas.DataFrame({"datetime": [], "member": [], "present": []})
                 self.data.to_csv(self.settings["datapath"])
 
-        self.data = pandas.read_csv(self.settings["datapath"])
+        self.data = pandas.read_csv(self.settings["datapath"], index_col=0)
 
     def update_data(self, entry: pandas.Series):
         self.data = self.data.append(entry)
