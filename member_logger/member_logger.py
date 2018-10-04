@@ -29,6 +29,10 @@ class MemberLogger:
 
         self.data = pandas.read_csv(self.settings["datapath"])
 
+    def update_data(self, entry: pandas.Series):
+        self.data = self.data.append(entry, index=entry["datetime"])
+        self.data.to_csv(self.settings["datapath"])
+
     async def on_message_(self, message: discord.Message):
         if message.author.bot or not message.mentions or message.mention_everyone:
             return
@@ -36,8 +40,7 @@ class MemberLogger:
             {"datetime": datetime.datetime.now(), "member": message.author.id,
              "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
             name=datetime.datetime.now())
-        self.data = self.data.append(entry, index=entry["datetime"])
-        self.data.to_csv(self.settings["datapath"])
+        self.update_data(entry)
 
     async def on_voice_state_update_(self, before, after: discord.Member):
         if before.bot or after.bot:
@@ -54,8 +57,7 @@ class MemberLogger:
                     {"datetime": datetime.datetime.now(), "member": after.id,
                      "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
                     name=datetime.datetime.now())
-                self.data = self.data.append(entry, index=entry["datetime"])
-                self.data.to_csv(self.settings["datapath"])
+                self.update_data(entry)
 
 
 def check_folders():
