@@ -37,7 +37,7 @@ class MemberLogger:
         if message.author.bot or not message.mentions or message.mention_everyone:
             return
         entry = pandas.Series(
-            {"datetime": datetime.datetime.now(), "member": message.author.id,
+            {"member": message.author.id,
              "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
             name=datetime.datetime.now())
         self.update_data(entry)
@@ -54,7 +54,7 @@ class MemberLogger:
             if bvchan is None and avchan is not None:
                 # came online
                 entry = pandas.Series(
-                    {"datetime": datetime.datetime.now(), "member": after.id,
+                    {"member": after.id,
                      "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
                     name=datetime.datetime.now())
                 self.update_data(entry)
