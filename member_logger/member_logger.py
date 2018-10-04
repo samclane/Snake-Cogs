@@ -1,5 +1,5 @@
-import datetime
 import os
+import time
 
 import discord
 import pandas
@@ -25,6 +25,7 @@ class MemberLogger:
             with open(self.settings["datapath"], "a"):
                 os.utime(self.settings["datapath"], None)
                 self.data = pandas.DataFrame({"member": [], "present": []})
+                self.data.index.name = "timestamp"
                 self.data.to_csv(self.settings["datapath"])
 
         self.data = pandas.read_csv(self.settings["datapath"], index_col=0)
@@ -39,7 +40,7 @@ class MemberLogger:
         entry = pandas.Series(
             {"member": message.author.id,
              "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
-            name=datetime.datetime.now())
+            name=int(time.time()))
         self.update_data(entry)
 
     async def on_voice_state_update_(self, before, after: discord.Member):
@@ -56,7 +57,7 @@ class MemberLogger:
                 entry = pandas.Series(
                     {"member": after.id,
                      "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
-                    name=datetime.datetime.now())
+                    name=int(time.time()))
                 self.update_data(entry)
 
 
