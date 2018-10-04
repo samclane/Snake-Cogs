@@ -30,7 +30,7 @@ class MemberLogger:
         self.data = pandas.read_csv(self.settings["datapath"])
 
     def update_data(self, entry: pandas.Series):
-        self.data = self.data.append(entry, index=entry["datetime"])
+        self.data = self.data.append(entry)
         self.data.to_csv(self.settings["datapath"])
 
     async def on_message_(self, message: discord.Message):
