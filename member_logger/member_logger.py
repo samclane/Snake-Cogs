@@ -6,6 +6,7 @@ import pandas
 from cogs.utils.dataIO import dataIO
 
 
+
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
 
