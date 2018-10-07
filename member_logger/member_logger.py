@@ -47,10 +47,11 @@ class MemberLogger:
         self.names = self.names.append(entry)
         self.names.to_csv(self.settings["namepath"])
 
-    async def on_resumed_(self):
+    async def on_ready_(self):
         for uid in self.data["member"]:
-            user: discord.User = await self.bot.get_user_info(uid)
-            self.update_names(pandas.Series({"member": uid, "username": user.name}))
+            if uid not in self.names["member"]:
+                user: discord.User = await self.bot.get_user_info(uid)
+                self.update_names(pandas.Series({"member": uid, "username": user.name}))
 
     async def on_message_(self, message: discord.Message):
         if message.author.bot or not message.mentions or message.mention_everyone:
@@ -60,7 +61,7 @@ class MemberLogger:
              "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
             name=int(time.time()))
         self.update_data(entry)
-        if message.author.id not in self.names:
+        if message.author.id not in self.names["member"]:
             self.update_names(pandas.Series({"member": message.author.id, "username": message.author.name}))
 
     async def on_voice_state_update_(self, before, after: discord.Member):
@@ -79,7 +80,7 @@ class MemberLogger:
                      "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
                     name=int(time.time()))
                 self.update_data(entry)
-                if after.author.id not in self.names:
+                if after.id not in self.names["member"]:
                     self.update_names(pandas.Series({"member": after.author.id, "username": after.author.name}))
 
 
@@ -100,7 +101,7 @@ def setup(bot):
     check_folders()
     check_files()
     n = MemberLogger(bot)
-    bot.add_listener(n.on_resumed_, "on_resumed")
+    bot.add_listener(n.on_ready_, "on_ready")
     bot.add_listener(n.on_message_, "on_message")
     bot.add_listener(n.on_voice_state_update_, "on_voice_state_update")
     bot.add_cog(n)
