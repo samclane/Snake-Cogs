@@ -24,4 +24,3 @@ class IpHelper:
 def setup(bot):
     n = IpHelper(bot)
     bot.add_cog(n)
-
