@@ -6,7 +6,6 @@ from discord.ext import commands
 import pandas
 from cogs.utils.dataIO import dataIO
 
-# Force update
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
 
