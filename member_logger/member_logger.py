@@ -81,7 +81,7 @@ class MemberLogger:
                     name=int(time.time()))
                 self.update_data(entry)
                 if after.id not in self.names["member"]:
-                    self.update_names(pandas.Series({"member": after.author.id, "username": after.author.name}))
+                    self.update_names(pandas.Series({"member": after.id, "username": after.name}))
 
 
 def check_folders():
