@@ -83,6 +83,7 @@ class MemberLogger:
         print('hi')
         server = ctx.message.server
         for uid in self.data["member"]:
+            uid = str(uid)
             if uid not in self.names["member"]:
                 user: discord.Member = server.get_member(uid)
                 self.update_names(pandas.Series({"member": uid, "username": user.name}))
