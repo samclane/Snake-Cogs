@@ -10,7 +10,7 @@ from cogs.utils.dataIO import dataIO
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
 
-    def __init__(self, bot: discord.Client):
+    def __init__(self, bot):
         self.bot = bot
         self.settings_path = "data/member_logger/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
@@ -41,15 +41,15 @@ class MemberLogger:
         self.data['present'] = self.data['present'].apply(literal_eval)
         self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
 
-    def update_data(self, entry: pandas.Series):
+    def update_data(self, entry):
         self.data = self.data.append(entry)
         self.data.to_csv(self.settings["datapath"])
 
-    def update_names(self, entry: pandas.Series):
+    def update_names(self, entry):
         self.names = self.names.append(entry, ignore_index=True)
         self.names.to_csv(self.settings["namepath"])
 
-    async def on_message_(self, message: discord.Message):
+    async def on_message_(self, message):
         if message.author.bot or not message.mentions or message.mention_everyone:
             return
         entry = pandas.Series(
@@ -60,7 +60,7 @@ class MemberLogger:
         if message.author.id not in self.names["member"].apply(str).values:
             self.update_names(pandas.Series({"member": message.author.id, "username": message.author.name}))
 
-    async def on_voice_state_update_(self, before, after: discord.Member):
+    async def on_voice_state_update_(self, before, after):
         if before.bot or after.bot:
             return
 
@@ -85,7 +85,7 @@ class MemberLogger:
         for uid in set(self.data["member"].append(pandas.Series([str(st) for row in self.data["present"] for st in row]))):
             uid = str(uid)
             if uid not in self.names["member"].apply(str).values:
-                user: discord.Member = server.get_member(uid)
+                user = server.get_member(uid)
                 self.update_names(pandas.Series({"member": uid, "username": user.name}))
 
 
