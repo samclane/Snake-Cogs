@@ -2,6 +2,7 @@ import os
 import time
 
 import discord
+from discord.ext import commands
 import pandas
 from cogs.utils.dataIO import dataIO
 
@@ -47,12 +48,6 @@ class MemberLogger:
         self.names = self.names.append(entry, ignore_index=True)
         self.names.to_csv(self.settings["namepath"])
 
-    async def on_ready_(self):
-        for uid in self.data["member"]:
-            if uid not in self.names["member"]:
-                user: discord.User = await self.bot.get_user_info(uid)
-                self.update_names(pandas.Series({"member": uid, "username": user.name}))
-
     async def on_message_(self, message: discord.Message):
         if message.author.bot or not message.mentions or message.mention_everyone:
             return
@@ -83,6 +78,14 @@ class MemberLogger:
                 if after.id not in self.names["member"]:
                     self.update_names(pandas.Series({"member": after.id, "username": after.name}))
 
+    @commands.command(pass_context=True)
+    async def update_namemap(self, ctx):
+        server = ctx.message.server
+        for uid in self.data["member"]:
+            if uid not in self.names["member"]:
+                user: discord.Member = server.get_member(uid)
+                self.update_names(pandas.Series({"member": uid, "username": user.name}))
+
 
 def check_folders():
     if not os.path.exists("data/member_logger"):
@@ -101,7 +104,6 @@ def setup(bot):
     check_folders()
     check_files()
     n = MemberLogger(bot)
-    bot.add_listener(n.on_ready_, "on_ready")
     bot.add_listener(n.on_message_, "on_message")
     bot.add_listener(n.on_voice_state_update_, "on_voice_state_update")
     bot.add_cog(n)
