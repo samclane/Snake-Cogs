@@ -6,7 +6,7 @@ from discord.ext import commands
 import pandas
 from cogs.utils.dataIO import dataIO
 
-
+# Force update
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
 
@@ -80,6 +80,7 @@ class MemberLogger:
 
     @commands.command(pass_context=True)
     async def update_namemap(self, ctx):
+        print('hi')
         server = ctx.message.server
         for uid in self.data["member"]:
             if uid not in self.names["member"]:
