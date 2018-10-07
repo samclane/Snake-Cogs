@@ -40,9 +40,6 @@ class MemberLogger:
         self.data = pandas.read_csv(self.settings["datapath"], index_col=0)
         self.data['present'] = self.data['present'].apply(literal_eval)
         self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
-        print('names:')
-        print('---')
-        print(self.names)
 
     def update_data(self, entry: pandas.Series):
         self.data = self.data.append(entry)
