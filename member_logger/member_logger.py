@@ -83,7 +83,7 @@ class MemberLogger:
     async def update_namemap(self, ctx):
         print('hi')
         server = ctx.message.server
-        for uid in set(self.data["member"] + [st for row in self.data["present"] for st in row]):
+        for uid in set(self.data["member"] + pandas.Series([str(st) for row in self.data["present"] for st in row])):
             uid = str(uid)
             if uid not in self.names["member"].apply(str):
                 user: discord.Member = server.get_member(uid)
