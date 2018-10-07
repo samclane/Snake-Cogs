@@ -60,7 +60,7 @@ class MemberLogger:
              "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
             name=int(time.time()))
         self.update_data(entry)
-        if message.author.id not in self.names["member"]:
+        if message.author.id not in self.names["member"].apply(str).values:
             self.update_names(pandas.Series({"member": message.author.id, "username": message.author.name}))
 
     async def on_voice_state_update_(self, before, after: discord.Member):
@@ -79,7 +79,7 @@ class MemberLogger:
                      "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
                     name=int(time.time()))
                 self.update_data(entry)
-                if after.id not in self.names["member"]:
+                if after.id not in self.names["member"].apply(str).values:
                     self.update_names(pandas.Series({"member": after.id, "username": after.name}))
 
     @commands.command(pass_context=True)
@@ -87,7 +87,7 @@ class MemberLogger:
         server = ctx.message.server
         for uid in set(self.data["member"].append(pandas.Series([str(st) for row in self.data["present"] for st in row]))):
             uid = str(uid)
-            if uid not in self.names["member"].apply(str):
+            if uid not in self.names["member"].apply(str).values:
                 user: discord.Member = server.get_member(uid)
                 self.update_names(pandas.Series({"member": uid, "username": user.name}))
 
