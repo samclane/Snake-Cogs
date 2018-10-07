@@ -6,7 +6,6 @@ import pandas
 from cogs.utils.dataIO import dataIO
 
 
-
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
 
@@ -18,6 +17,7 @@ class MemberLogger:
         # Ensure path is set. Use default path if not.
         if "path" not in self.settings.keys():
             self.settings["datapath"] = "data/member_logger/data.csv"
+            self.settings["namepath"] = "data/member_logger/names.csv"
 
         dataIO.save_json("data/on_join/settings.json", self.settings)
 
@@ -29,11 +29,28 @@ class MemberLogger:
                 self.data.index.name = "timestamp"
                 self.data.to_csv(self.settings["datapath"])
 
+        if not os.path.exists(self.settings["namepath"]):
+            with open(self.settings["namepath"], "a"):
+                os.utime(self.settings["namepath"], None)
+                self.names = pandas.DataFrame({"member": [], "username": []})
+                self.names.index.name = "index"
+                self.names.to_csv(self.settings["namepath"])
+
         self.data = pandas.read_csv(self.settings["datapath"], index_col=0)
+        self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
 
     def update_data(self, entry: pandas.Series):
         self.data = self.data.append(entry)
         self.data.to_csv(self.settings["datapath"])
+
+    def update_names(self, entry: pandas.Series):
+        self.names = self.names.append(entry)
+        self.names.to_csv(self.settings["namepath"])
+
+    async def on_resume_(self):
+        for uid in self.data["member"]:
+            user: discord.User = await self.bot.get_user_info(uid)
+            self.update_names(pandas.Series({"member": uid, "username": user.name}))
 
     async def on_message_(self, message: discord.Message):
         if message.author.bot or not message.mentions or message.mention_everyone:
@@ -43,6 +60,8 @@ class MemberLogger:
              "present": [m.id for m in message.mentions if not m.bot and m.id != message.author.id]},
             name=int(time.time()))
         self.update_data(entry)
+        if message.author.id not in self.names:
+            self.update_names(pandas.Series({"member": message.author.id, "username": message.author.name}))
 
     async def on_voice_state_update_(self, before, after: discord.Member):
         if before.bot or after.bot:
@@ -60,6 +79,8 @@ class MemberLogger:
                      "present": [m.id for m in avchan.voice_members if not m.bot and m.id != after.id]},
                     name=int(time.time()))
                 self.update_data(entry)
+                if after.author.id not in self.names:
+                    self.update_names(pandas.Series({"member": after.author.id, "username": after.author.name}))
 
 
 def check_folders():
@@ -79,6 +100,7 @@ def setup(bot):
     check_folders()
     check_files()
     n = MemberLogger(bot)
+    bot.add_listener(n.on_resume_, "on_resume")
     bot.add_listener(n.on_message_, "on_message")
     bot.add_listener(n.on_voice_state_update_, "on_voice_state_update")
     bot.add_cog(n)
