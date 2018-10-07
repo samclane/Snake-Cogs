@@ -1,5 +1,6 @@
 import os
 import time
+from ast import literal_eval
 
 import discord
 from discord.ext import commands
@@ -37,6 +38,7 @@ class MemberLogger:
                 self.names.to_csv(self.settings["namepath"])
 
         self.data = pandas.read_csv(self.settings["datapath"], index_col=0)
+        self.data['present'] = self.data['present'].apply(literal_eval)
         self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
 
     def update_data(self, entry: pandas.Series):
@@ -81,7 +83,7 @@ class MemberLogger:
     async def update_namemap(self, ctx):
         print('hi')
         server = ctx.message.server
-        for uid in set(self.data["member"]):
+        for uid in set(self.data["member"] + [st for row in self.data["present"] for st in row]):
             uid = str(uid)
             if uid not in self.names["member"].apply(str):
                 user: discord.Member = server.get_member(uid)
