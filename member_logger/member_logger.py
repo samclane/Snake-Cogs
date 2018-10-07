@@ -40,6 +40,9 @@ class MemberLogger:
         self.data = pandas.read_csv(self.settings["datapath"], index_col=0)
         self.data['present'] = self.data['present'].apply(literal_eval)
         self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
+        print('names:')
+        print('---')
+        print(self.names)
 
     def update_data(self, entry: pandas.Series):
         self.data = self.data.append(entry)
@@ -81,9 +84,7 @@ class MemberLogger:
 
     @commands.command(pass_context=True)
     async def update_namemap(self, ctx):
-        print('hi')
         server = ctx.message.server
-        print(set(self.data["member"].append(pandas.Series([str(st) for row in self.data["present"] for st in row]))))
         for uid in set(self.data["member"].append(pandas.Series([str(st) for row in self.data["present"] for st in row]))):
             uid = str(uid)
             if uid not in self.names["member"].apply(str):
