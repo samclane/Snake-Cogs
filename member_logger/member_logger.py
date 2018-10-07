@@ -45,7 +45,7 @@ class MemberLogger:
 
     def update_names(self, entry: pandas.Series):
         self.names = self.names.append(entry)
-        self.names.to_csv(self.settings["namepath"])
+        self.names.to_csv(self.settings["namepath"], ignore_index=True)
 
     async def on_ready_(self):
         for uid in self.data["member"]:
