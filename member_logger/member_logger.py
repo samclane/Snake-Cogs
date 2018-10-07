@@ -47,7 +47,7 @@ class MemberLogger:
         self.names = self.names.append(entry)
         self.names.to_csv(self.settings["namepath"])
 
-    async def on_resume_(self):
+    async def on_resumed_(self):
         for uid in self.data["member"]:
             user: discord.User = await self.bot.get_user_info(uid)
             self.update_names(pandas.Series({"member": uid, "username": user.name}))
@@ -100,7 +100,7 @@ def setup(bot):
     check_folders()
     check_files()
     n = MemberLogger(bot)
-    bot.add_listener(n.on_resume_, "on_resume")
+    bot.add_listener(n.on_resumed_, "on_resumed")
     bot.add_listener(n.on_message_, "on_message")
     bot.add_listener(n.on_voice_state_update_, "on_voice_state_update")
     bot.add_cog(n)
