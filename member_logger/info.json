@@ -1,7 +1,7 @@
 {
   "AUTHOR": "watersnake",
   "SHORT": "Gathers information on when users interact with each other.",
-  "DESCRIPTION": "Gathers information on when users interact with each other. Can be used for later statistical analysis",
+  "DESCRIPTION": "Gathers information on when users interact with each other. Code for analyzing collected data can be found here: https://github.com/samclane/DiscordSocialGraph",
   "DISABLED": false,
   "NAME": "member_logger",
   "TAGS": [
@@ -10,5 +10,5 @@
     "utility",
     "tools"
   ],
-  "INSTALL_MSG": "Requires pandas be installed in Python. Default save location is /data/member_logger/data.csv"
+  "INSTALL_MSG": "Requires package \"pandas\" be installed in Python. Default save location is /data/member_logger/data.csv. Run `[p]update_namemap` to generate names.csv. Check out https://github.com/samclane/DiscordSocialGraph for data analysis tools."
 }
