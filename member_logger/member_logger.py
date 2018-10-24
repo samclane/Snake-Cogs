@@ -49,6 +49,7 @@ class MemberLogger:
 
         self.engine = None
         self.scheduler = None
+        print("Database: {}".format(self.settings["database"]))
         if self.settings["database"]:
             print("Database info found...")
             self.engine = create_engine(self.settings["database"])
