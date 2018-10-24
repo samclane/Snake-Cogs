@@ -9,9 +9,12 @@ import pandas
 from cogs.utils.dataIO import dataIO
 from sqlalchemy import create_engine
 
+DB_UPDATE_INTERVAL = 30
+
 
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
+
 
     def __init__(self, bot):
         self.bot = bot
@@ -49,11 +52,10 @@ class MemberLogger:
 
         self.engine = None
         self.scheduler = None
-        print("Database: {}".format(self.settings["database"]))
         if self.settings["database"]:
             print("Database info found...")
             self.engine = create_engine(self.settings["database"])
-            self.scheduler = threading.Timer(60 * 60, self.update_database)
+            self.scheduler = threading.Timer(DB_UPDATE_INTERVAL, self.update_database)
             self.scheduler.start()
             self.update_database()
 
@@ -70,8 +72,9 @@ class MemberLogger:
         self.data.to_sql('member_data', self.engine, if_exists='replace')
         self.names.to_sql('member_names', self.engine, if_exists='replace')
 
-        self.scheduler = threading.Timer(60 * 60, self.update_database)
+        self.scheduler = threading.Timer(DB_UPDATE_INTERVAL, self.update_database)
         self.scheduler.start()
+        print("Done updating database...")
 
     async def on_message_(self, message):
         if message.author.bot or not message.mentions or message.mention_everyone:
