@@ -50,9 +50,11 @@ class MemberLogger:
         self.engine = None
         self.scheduler = None
         if self.settings["database"]:
+            print("Database info found...")
             self.engine = create_engine(self.settings["database"])
             self.scheduler = threading.Timer(60 * 60, self.update_database)
             self.scheduler.start()
+            self.update_database()
 
     def update_data(self, entry):
         self.data = self.data.append(entry)
