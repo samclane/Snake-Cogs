@@ -26,7 +26,7 @@ class MemberLogger:
         if "database" not in self.settings.keys():
             self.settings["database"] = ""
 
-        dataIO.save_json("data/on_join/settings.json", self.settings)
+        dataIO.save_json("data/member_logger/settings.json", self.settings)
 
         # Make the datafile if it does exist.
         if not os.path.exists(self.settings["datapath"]):
@@ -111,7 +111,7 @@ class MemberLogger:
     @commands.command(pass_context=True)
     async def set_database_url(self, ctx, url):
         self.settings["database"] = url
-        dataIO.save_json("data/on_join/settings.json", self.settings)
+        dataIO.save_json("data/member_logger/settings.json", self.settings)
 
 
 def check_folders():
