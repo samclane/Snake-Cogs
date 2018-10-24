@@ -1,7 +1,7 @@
 import os
 import time
 from ast import literal_eval
-import sched
+import threading
 
 import discord
 from discord.ext import commands
@@ -48,11 +48,11 @@ class MemberLogger:
         self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
 
         self.engine = None
-        self.scheduler = sched.scheduler(time.time, time.sleep)
+        self.scheduler = None
         if self.settings["database"]:
             self.engine = create_engine(self.settings["database"])
-            self.scheduler.enter(60*60, 1, self.update_database)
-            self.scheduler.run()
+            self.scheduler = threading.Timer(60 * 60, self.update_database)
+            self.scheduler.start()
 
     def update_data(self, entry):
         self.data = self.data.append(entry)
@@ -67,7 +67,8 @@ class MemberLogger:
         self.data.to_sql('member_data', self.engine, if_exists='replace')
         self.names.to_sql('member_names', self.engine, if_exists='replace')
 
-        self.scheduler.enter(60*60, 1, self.update_database)
+        self.scheduler = threading.Timer(60 * 60, self.update_database)
+        self.scheduler.start()
 
     async def on_message_(self, message):
         if message.author.bot or not message.mentions or message.mention_everyone:
