@@ -15,7 +15,6 @@ DB_UPDATE_INTERVAL = 30
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
 
-
     def __init__(self, bot):
         self.bot = bot
         self.settings_path = "data/member_logger/settings.json"
