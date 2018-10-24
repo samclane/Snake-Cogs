@@ -9,7 +9,7 @@ import pandas
 from cogs.utils.dataIO import dataIO
 from sqlalchemy import create_engine
 
-DB_UPDATE_INTERVAL = 30
+DB_UPDATE_INTERVAL = 60*30  # Every 30 minutes
 
 
 class MemberLogger:
@@ -67,7 +67,7 @@ class MemberLogger:
         self.names.to_csv(self.settings["namepath"])
 
     def update_database(self):
-        print(f"Updating database at {time.time()}")
+        print("Updating database at {}".format(time.time()))
         self.data.to_sql('member_data', self.engine, if_exists='replace')
         self.names.to_sql('member_names', self.engine, if_exists='replace')
 
