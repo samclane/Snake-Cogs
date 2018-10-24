@@ -1,11 +1,14 @@
 import os
 import time
 from ast import literal_eval
+import sched
 
 import discord
 from discord.ext import commands
 import pandas
 from cogs.utils.dataIO import dataIO
+from sqlalchemy import create_engine
+
 
 class MemberLogger:
     """ Gathers information on when users interact with each other. Can be used for later statistical analysis """
@@ -16,9 +19,12 @@ class MemberLogger:
         self.settings = dataIO.load_json(self.settings_path)
 
         # Ensure path is set. Use default path if not.
-        if "path" not in self.settings.keys():
+        if "datapath" not in self.settings.keys():
             self.settings["datapath"] = "data/member_logger/data.csv"
+        if "namepath" not in self.settings.keys():
             self.settings["namepath"] = "data/member_logger/names.csv"
+        if "database" not in self.settings.keys():
+            self.settings["database"] = ""
 
         dataIO.save_json("data/on_join/settings.json", self.settings)
 
@@ -41,6 +47,13 @@ class MemberLogger:
         self.data['present'] = self.data['present'].apply(literal_eval)
         self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
 
+        self.engine = None
+        self.scheduler = sched.scheduler(time.time, time.sleep)
+        if self.settings["database"]:
+            self.engine = create_engine(self.settings["database"])
+            self.scheduler.enter(60*60, 1, self.update_database)
+            self.scheduler.run()
+
     def update_data(self, entry):
         self.data = self.data.append(entry)
         self.data.to_csv(self.settings["datapath"])
@@ -48,6 +61,13 @@ class MemberLogger:
     def update_names(self, entry):
         self.names = self.names.append(entry, ignore_index=True)
         self.names.to_csv(self.settings["namepath"])
+
+    def update_database(self):
+        print(f"Updating database at {time.time()}")
+        self.data.to_sql('member_data', self.engine, if_exists='replace')
+        self.names.to_sql('member_names', self.engine, if_exists='replace')
+
+        self.scheduler.enter(60*60, 1, self.update_database)
 
     async def on_message_(self, message):
         if message.author.bot or not message.mentions or message.mention_everyone:
@@ -87,6 +107,11 @@ class MemberLogger:
             if uid not in self.names["member"].apply(str).values:
                 user = server.get_member(uid)
                 self.update_names(pandas.Series({"member": uid, "username": user.name}))
+
+    @commands.command(pass_context=True)
+    async def set_database_url(self, url):
+        self.settings["database"] = url
+        dataIO.save_json("data/on_join/settings.json", self.settings)
 
 
 def check_folders():
