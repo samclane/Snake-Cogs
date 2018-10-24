@@ -109,7 +109,7 @@ class MemberLogger:
                 self.update_names(pandas.Series({"member": uid, "username": user.name}))
 
     @commands.command(pass_context=True)
-    async def set_database_url(self, url):
+    async def set_database_url(self, ctx, url):
         self.settings["database"] = url
         dataIO.save_json("data/on_join/settings.json", self.settings)
 
