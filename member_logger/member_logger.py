@@ -54,7 +54,7 @@ class MemberLogger:
         if self.settings["database"]:
             print("Database info found...")
             self.engine = create_engine(self.settings["database"])
-            self.task = self.bot.loop.create_task(self.update_database)
+            self.task = self.bot.loop.create_task(self.update_database())
 
     def update_data(self, entry):
         self.data = self.data.append(entry)
