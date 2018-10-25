@@ -9,7 +9,7 @@ import pandas
 from cogs.utils.dataIO import dataIO
 from sqlalchemy import create_engine
 
-DB_UPDATE_INTERVAL = 60*60*30  # Every 30 minutes
+DB_UPDATE_INTERVAL = 60*30  # Every 30 minutes
 
 
 class MemberLogger:
