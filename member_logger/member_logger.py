@@ -1,7 +1,7 @@
 import os
 import time
 from ast import literal_eval
-import threading
+import asyncio
 
 import discord
 from discord.ext import commands
@@ -50,12 +50,11 @@ class MemberLogger:
         self.names = pandas.read_csv(self.settings["namepath"], index_col=0)
 
         self.engine = None
-        self.scheduler = None
+        self.task = None
         if self.settings["database"]:
             print("Database info found...")
             self.engine = create_engine(self.settings["database"])
-            self.scheduler = threading.Timer(1, self.update_database)
-            self.scheduler.start()
+            self.task = self.bot.loop.create_task(self.update_database)
 
     def update_data(self, entry):
         self.data = self.data.append(entry)
@@ -65,14 +64,17 @@ class MemberLogger:
         self.names = self.names.append(entry, ignore_index=True)
         self.names.to_csv(self.settings["namepath"])
 
-    def update_database(self):
-        print("Updating database at {}".format(time.time()))
-        self.data.to_sql('member_data', self.engine, if_exists='replace')
-        self.names.to_sql('member_names', self.engine, if_exists='replace')
+    async def update_database(self):
+        while True:
+            print("Updating database at {}".format(int(time.time())))
+            self.data.to_sql('member_data', self.engine, if_exists='replace')
+            self.names.to_sql('member_names', self.engine, if_exists='replace')
+            print("Done updating database...")
+            await asyncio.sleep(DB_UPDATE_INTERVAL)
 
-        self.scheduler = threading.Timer(DB_UPDATE_INTERVAL, self.update_database)
-        self.scheduler.start()
-        print("Done updating database...")
+    def __unload(self):
+        if self.task:
+            self.task.cancel()
 
     async def on_message_(self, message):
         if message.author.bot or not message.mentions or message.mention_everyone:
@@ -112,11 +114,13 @@ class MemberLogger:
             if uid not in self.names["member"].apply(str).values:
                 user = server.get_member(uid)
                 self.update_names(pandas.Series({"member": uid, "username": user.name}))
+        await self.bot.say("Namemap successfully updated!")
 
     @commands.command(pass_context=True)
     async def set_database_url(self, ctx, url):
         self.settings["database"] = url
         dataIO.save_json("data/member_logger/settings.json", self.settings)
+        await self.bot.say("Database URL successfully changed.")
 
 
 def check_folders():
