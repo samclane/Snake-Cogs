@@ -10,5 +10,5 @@
     "utility",
     "tools"
   ],
-  "INSTALL_MSG": "Requires package \"pandas\" be installed in Python. Default save location is /data/member_logger/data.csv. Run `[p]update_namemap` to generate names.csv. Check out https://github.com/samclane/DiscordSocialGraph for data analysis tools."
+  "INSTALL_MSG": "Requires package \"pandas\" be installed in Python. Default save location is /data/member_logger/data.csv. Run `[p]update_namemap` to generate `names.csv`. If you want to register a database to INSERT data, run `[p]set_database_url <URL>`. Updates will be pushed every 30 minutes. Databases requires package `sqlalchemy` as well as the relevant Python Driver. Check out https://github.com/samclane/DiscordSocialGraph for data analysis tools."
 }
