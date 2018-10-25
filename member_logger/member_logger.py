@@ -67,8 +67,8 @@ class MemberLogger:
     async def update_database(self):
         while True:
             print("Updating database at {}".format(int(time.time())))
-            self.data.to_sql('member_data', self.engine, if_exists='replace')
-            self.names.to_sql('member_names', self.engine, if_exists='replace')
+            await self.data.to_sql('member_data', self.engine, if_exists='replace')
+            await self.names.to_sql('member_names', self.engine, if_exists='replace')
             print("Done updating database...")
             await asyncio.sleep(DB_UPDATE_INTERVAL)
 
