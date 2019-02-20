@@ -148,7 +148,6 @@ voices = [
     'whisper'
 ]
 
-# force update
 
 class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
@@ -182,7 +181,8 @@ class OnJoin(commands.Cog):
         if use_espeak == "on":
             call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(await self.config.locale(), await self.config.voice(),
                                                                   await self.config.speed(), text,
-                                                                  str(self.save_path) + "temp_message.mp3")], shell=True)
+                                                                  str(self.save_path) + "temp_message.mp3")],
+                 shell=True)
 
     def voice_channel_full(self, voice_channel: discord.VoiceChannel) -> bool:
         return (voice_channel.user_limit != 0 and
@@ -289,7 +289,7 @@ class OnJoin(commands.Cog):
         """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
         if voice not in voices:
             await ctx("{} is not a valid voice code."
-                               "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
+                      "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
             return
         else:
             await self.config.voice.set(voice)
