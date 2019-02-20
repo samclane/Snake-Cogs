@@ -206,7 +206,7 @@ class OnJoin(commands.Cog):
         await voice_client.disconnect()
 
     async def wait_for_disconnect(self, server: discord.Guild):
-        while not self.audio_players[server.id].is_done():
+        while self.audio_players[server.id].is_playing():
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
@@ -238,6 +238,8 @@ class OnJoin(commands.Cog):
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
 
+        await self.wait_for_disconnect(server)
+
     async def voice_state_update(self, member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
             return
@@ -265,6 +267,7 @@ class OnJoin(commands.Cog):
 
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
+
 
 
     @checks.admin_or_permissions(manage_guild=True)
