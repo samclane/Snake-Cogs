@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 from gtts import gTTS
 # from cogs.utils.dataIO import dataIO
-from redbot.core import Config, data_manager
+from redbot.core import Config, data_manager, checks
 
 # from .utils import checks
 
