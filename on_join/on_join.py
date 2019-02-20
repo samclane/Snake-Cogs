@@ -266,15 +266,6 @@ class OnJoin:
         await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=True, no_pm=True, name='seals')
-    async def seals(self, ctx: commands.Context):
-        """For when it's time to put someone in their place."""
-        server = ctx.message.author.Guild
-        channel = ctx.message.author.voice_channel
-        await self.sound_play(server, channel,
-                              self.save_path + "/seals.mp3")
-
-    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=True, no_pm=True, name='say')
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
