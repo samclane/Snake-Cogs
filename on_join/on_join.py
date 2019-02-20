@@ -252,14 +252,14 @@ class OnJoin(commands.Cog):
                 f.inside_words = True
                 name = f.clean(name)
 
-            if before.channel:
+            if before:
                 text = "{} has left the channel".format(name)
                 channel = before.channel
 
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
-            if after.channel:
+            if after:
                 text = "{} has joined the channel".format(name)
                 channel = after.channel
 
