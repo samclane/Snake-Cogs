@@ -213,7 +213,8 @@ class OnJoin(commands.Cog):
     async def sound_init(self, server: discord.Guild, path: str):
         options = "-filter \"volume=volume=1.00\""
         voice_client = self.voice_client(server)
-        self.audio_players[server.id] = voice_client.play(discord.FFmpegPCMAudio(path, options=options))
+        voice_client.play(discord.FFmpegPCMAudio(path, options=options))
+        self.audio_players[server.id] = voice_client
 
     async def sound_play(self, server: discord.Guild,
                          channel: discord.VoiceChannel, p: str):
