@@ -225,26 +225,18 @@ class OnJoin(commands.Cog):
             if self.voice_connected(server):
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
-                    self.audio_players[server.id].start()
-                    # await self.wait_for_disconnect(server)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
-                    self.audio_players[server.id].start()
-                    # await self.wait_for_disconnect(server)
             else:
                 await channel.connect()
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
-                    self.audio_players[server.id].start()
-                    # await self.wait_for_disconnect(server)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
-                    self.audio_players[server.id].start()
-                    # await self.wait_for_disconnect(server)
 
     async def voice_state_update(self, member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
