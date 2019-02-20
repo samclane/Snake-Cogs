@@ -177,13 +177,13 @@ class OnJoin(commands.Cog):
         if use_espeak == "off":
             try:
                 tts = gTTS(text=text, lang=self.config.locale())
-                tts.save(self.save_path + "/temp_message.mp3")
+                tts.save(self.save_path / "/temp_message.mp3")
             except AttributeError:  # If there's a problem with gTTS, use espeak instead
                 use_espeak = "on"
         if use_espeak == "on":
             call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(self.config.locale(), self.config.voice(),
                                                                   self.config.speed(), text,
-                                                                  self.save_path + "temp_message.mp3")], shell=True)
+                                                                  self.save_path / "temp_message.mp3")], shell=True)
 
     def voice_channel_full(self, voice_channel: discord.VoiceChannel) -> bool:
         return (voice_channel.user_limit != 0 and
@@ -263,7 +263,7 @@ class OnJoin(commands.Cog):
             f.inside_words = True
             text = f.clean(text)
         self.string_to_speech(text)
-        await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
+        await self.sound_play(server, channel, self.save_path / "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=True, no_pm=True, name='say')
@@ -272,7 +272,7 @@ class OnJoin(commands.Cog):
         server = ctx.message.author.Guild
         channel = ctx.message.author.voice_channel
         self.string_to_speech(message)
-        await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
+        await self.sound_play(server, channel, self.save_path / "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name='set_locale')
