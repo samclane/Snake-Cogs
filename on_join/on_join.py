@@ -152,8 +152,8 @@ voices = [
 class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self):
+        self.bot = self
         self.audio_players = {}
         self.config = Config.get_conf(self, identifier=int(hash("on_join")))
         default_global = {
