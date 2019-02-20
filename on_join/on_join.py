@@ -152,8 +152,7 @@ voices = [
 class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
-    def __init__(self, bot):
-        self.bot = bot.user
+    def __init__(self):
         self.audio_players = {}
         self.config = Config.get_conf(self, identifier=int(hash("on_join")))
         default_global = {
@@ -189,10 +188,10 @@ class OnJoin(commands.Cog):
                 len(voice_channel.members) >= voice_channel.user_limit)
 
     def voice_connected(self, server: discord.Guild) -> bool:
-        return self.bot.is_voice_connected(server)
+        return server.me.voice.is_connected()
 
     def voice_client(self, server: discord.Guild) -> discord.VoiceClient:
-        return self.bot.voice_client_in(server)
+        return server.me.voice
 
     async def _leave_voice_channel(self, server: discord.Guild):
         if not self.voice_connected(server):
@@ -231,7 +230,7 @@ class OnJoin(commands.Cog):
                     self.audio_players[server.id].start()
                     # await self.wait_for_disconnect(server)
             else:
-                await self.bot.join_voice_channel(channel)
+                await channel.connect()
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
                     self.audio_players[server.id].start()
@@ -265,7 +264,7 @@ class OnJoin(commands.Cog):
         await self.sound_play(server, channel, self.save_path / "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=True, no_pm=True, name='say')
+    @commands.command(pass_context=True, name='say')
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
         server = ctx.message.author.Guild
@@ -274,96 +273,96 @@ class OnJoin(commands.Cog):
         await self.sound_play(server, channel, self.save_path / "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, no_pm=True, name='set_locale')
-    async def set_locale(self, locale):
+    @commands.command(pass_context=False, name='set_locale')
+    async def set_locale(self, ctx, locale):
         """Change the TTS speech locale region."""
         if locale not in locales.keys():
-            await self.bot.say(
+            await ctx(
                 "{} was not found in the list of locales. Look at https://pypi.python.org/pypi/gTTS"
                 " for a list of valid codes.".format(
                     locale))
             return
         else:
             self.config.locale.set(locale)
-            await self.bot.say("Locale was successfully changed to {}.".format(locales[locale]))
+            await ctx("Locale was successfully changed to {}.".format(locales[locale]))
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, no_pm=True, name='set_voice')
-    async def set_voice(self, voice):
+    @commands.command(pass_context=False, name='set_voice')
+    async def set_voice(self, ctx, voice):
         """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
         if voice not in voices:
-            await self.bot.say("{} is not a valid voice code."
+            await ctx("{} is not a valid voice code."
                                "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
             return
         else:
             self.config.voice.set(voice)
-            await self.bot.say("Voice was successfully changed to {}.".format(voice))
+            await ctx("Voice was successfully changed to {}.".format(voice))
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, no_pm=True, name='set_speed')
-    async def set_speed(self, speed):
+    @commands.command(name='set_speed')
+    async def set_speed(self, ctx, speed):
         """ Set the WPM speed of the espeak narrator. Range is 80-500. """
         speed = int(speed)
         if not (80 < speed < 500):
-            await self.bot.say("{} is not between 80 and 500 WPM.".format(speed))
+            await ctx("{} is not between 80 and 500 WPM.".format(speed))
             return
         else:
             self.config.speed.set(speed)
-            await self.bot.say("Speed was successfully changed to {}.".format(speed))
+            await ctx("Speed was successfully changed to {}.".format(speed))
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, no_pm=True, name='allow_emoji')
-    async def allow_emoji(self, setting):
+    @commands.command(pname='allow_emoji')
+    async def allow_emoji(self, ctx, setting):
         """Change if emojis will be pronounced in names (IN PROGRESS)."""
         setting = setting.lower()
         if setting not in ["on", "off"]:
-            await self.bot.say("Please specify if you want emojis 'on' or 'off'")
+            await ctx("Please specify if you want emojis 'on' or 'off'")
             return
         else:
             if setting == "on":
                 self.config.allow_emoji.set('on')
             elif setting == "off":
                 self.config.allow_emoji.set('off')
-            await self.bot.say("Emoji speech is now {}.".format(setting))
+            await ctx("Emoji speech is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, no_pm=True, name='set_filter')
-    async def set_filter(self, setting):
+    @commands.command(name='set_filter')
+    async def set_filter(self, ctx, setting):
         """Change slurs will be pronounced in names (IN PROGRESS)."""
         setting = setting.lower()
         if setting not in ["on", "off"]:
-            await self.bot.say("Please specify if you want the profanity filter 'on' or 'off'")
+            await ctx.send("Please specify if you want the profanity filter 'on' or 'off'")
             return
         else:
             if setting == "on":
                 self.config.profanity_filter.set('on')
             elif setting == "off":
                 self.config.profanity_filter.set('off')
-            await self.bot.say("Profanity filter is now {}.".format(setting))
+            await ctx.send("Profanity filter is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, no_pm=True, name='add_filter')
-    async def add_filter(self, word):
+    @commands.command(name='add_filter')
+    async def add_filter(self, ctx, word):
         """ Add a word to the censor filter. """
         word = word.lower()
         if word not in self.config.profanity_list():
             async with self.config.profanity_list() as p_list:
                 p_list.append(word)
-            await self.bot.say("{} has been added to the profanity filter.".format(word.capitalize()))
+            await ctx.send("{} has been added to the profanity filter.".format(word.capitalize()))
         else:
-            await self.bot.say("{} is already in the profanity dictionary.".format(word.capitalize()))
+            await ctx.send("{} is already in the profanity dictionary.".format(word.capitalize()))
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, no_pm=True, name="use_espeak")
-    async def use_espeak(self, setting):
+    @commands.command(name="use_espeak")
+    async def use_espeak(self, ctx, setting):
         """ Manually toggle espeak 'on' or 'off'. """
         setting = setting.lower()
         if setting not in ["on", "off"]:
-            await self.bot.say("Please specify if you want to use espeak (yes) or gTTS( no).")
+            await ctx.send("Please specify if you want to use espeak (yes) or gTTS( no).")
             return
         else:
             if setting == "on":
                 self.config.use_espeak.set('on')
             elif setting == "off":
                 self.config.use_espeak.set('off')
-        await self.bot.say("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
+        await ctx.send("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
