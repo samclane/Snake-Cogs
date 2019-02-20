@@ -165,11 +165,11 @@ class OnJoin(commands.Cog):
             "profanity_list": [],
             "use_espeak": "off"
         }
-        await self.config.register_global(**default_global)
-        await self.config.register_guild(**default_global)
+        self.config.register_global(**default_global)
+        self.config.register_guild(**default_global)
         self.save_path = data_manager.cog_data_path(self)
 
-    def string_to_speech(self, text):
+    async def string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
         use_espeak = await self.config.use_espeak()
         text = text.lower()
@@ -263,7 +263,7 @@ class OnJoin(commands.Cog):
             f = ProfanitiesFilter(await self.config.profanity_filter(), replacements=" ")
             f.inside_words = True
             text = f.clean(text)
-        self.string_to_speech(text)
+        await self.string_to_speech(text)
         await self.sound_play(server, channel, self.save_path / "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
@@ -272,7 +272,7 @@ class OnJoin(commands.Cog):
         """Have the bot use TTS say a string in the current voice channel."""
         server = ctx.message.author.Guild
         channel = ctx.message.author.voice_channel
-        self.string_to_speech(message)
+        await self.string_to_speech(message)
         await self.sound_play(server, channel, self.save_path / "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
