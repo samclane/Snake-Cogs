@@ -207,7 +207,7 @@ class OnJoin(commands.Cog):
 
     async def wait_for_disconnect(self, server: discord.Guild):
         while self.audio_players[server.id].is_playing():
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.1)
         await self._leave_voice_channel(server)
 
     async def sound_init(self, server: discord.Guild, path: str):
