@@ -227,7 +227,7 @@ class OnJoin(commands.Cog):
             return
 
         if isinstance(channel, discord.VoiceChannel):
-            if self.voice_connected_channel(server, channel):
+            if self.voice_connected_server(server):
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
                 else:
@@ -235,8 +235,6 @@ class OnJoin(commands.Cog):
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
             else:
-                if self.voice_connected_server(server):
-                    await self.wait_for_disconnect(server)
                 await channel.connect()
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
