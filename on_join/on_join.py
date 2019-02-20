@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 from gtts import gTTS
 # from cogs.utils.dataIO import dataIO
-from redbot.core import Config, data_manager, checks
+from redbot.core import Config, data_manager, checks, commands
 
 # from .utils import checks
 
@@ -150,7 +150,7 @@ voices = [
 ]
 
 
-class OnJoin:
+class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
     def __init__(self, bot):
