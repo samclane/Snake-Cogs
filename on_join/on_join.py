@@ -4,7 +4,6 @@ import re
 from subprocess import call
 
 import discord
-from discord.ext import commands
 from gtts import gTTS
 # from cogs.utils.dataIO import dataIO
 from redbot.core import Config, data_manager, checks, commands
@@ -190,10 +189,13 @@ class OnJoin(commands.Cog):
                 len(voice_channel.members) >= voice_channel.user_limit)
 
     def voice_connected(self, server: discord.Guild) -> bool:
-        return self.bot.is_voice_connected(server)
+        if self.bot.voice:
+            return True
+        else:
+            return False
 
     def voice_client(self, server: discord.Guild) -> discord.VoiceClient:
-        return self.bot.voice_client_in(server)
+        return self.bot.voice
 
     async def _leave_voice_channel(self, server: discord.Guild):
         if not self.voice_connected(server):
