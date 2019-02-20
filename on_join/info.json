@@ -14,5 +14,5 @@
   ],
   "INSTALL_MSG": "Requires gTTS be installed in Python. Optionally, install `espeak` on Linux to use the fallback TTS",
   "bot_version": [3, 0, 0],
-  "requirements": ["gTTS"]
+  "requirements": ["gTTS", "PyNaCl"]
 }
