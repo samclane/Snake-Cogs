@@ -5,11 +5,12 @@ import re
 from subprocess import call
 
 import discord
-from cogs.utils.dataIO import dataIO
+#from cogs.utils.dataIO import dataIO
+from redbot.core import Config, data_manager
 from discord.ext import commands
 from gtts import gTTS
 
-from .utils import checks
+#from .utils import checks
 
 """
 Module that provides a class that filters profanities
@@ -156,54 +157,46 @@ class OnJoin:
     def __init__(self, bot):
         self.bot = bot
         self.audio_players = {}
-        self.settings = dataIO.load_json("data/on_join/settings.json")
-
-        self.save_path = "data/on_join/"
-        if not os.path.exists(self.save_path):
-            os.makedirs(self.save_path)
-
-        if "locale" not in self.settings.keys() or self.settings["locale"] not in locales.keys():
-            self.settings["locale"] = "en-us"
-        if "voice" not in self.settings.keys() or self.settings["voice"] not in voices:
-            self.settings["voice"] = "m1"
-        if "speed" not in self.settings.keys() or not (80 < self.settings["speed"] < 500):
-            self.settings["speed"] = 175
-        if "allow_emoji" not in self.settings.keys() or self.settings["allow_emoji"] not in ['on', 'off']:
-            self.settings["allow_emoji"] = 'on'
-        if "profanity_filter" not in self.settings.keys() or self.settings["profanity_filter"] not in ['on', 'off']:
-            self.settings["profanity_filter"] = 'off'
-        if "profanity_list" not in self.settings.keys():
-            self.settings["profanity_list"] = []
-        if "use_espeak" not in self.settings.keys() or self.settings["use_espeak"] not in ['on', 'off']:
-            self.settings["use_espeak"] = 'off'
-        dataIO.save_json("data/on_join/settings.json", self.settings)
+        self.config = Config.get_conf(self, identifier=int(hash("on_join")))
+        default_global = {
+            "locale": "en-us",
+            "voice": "ml",
+            "speed": 175,
+            "allow_emoji": "on",
+            "profanity_filter": "off",
+            "profanity_list": [],
+            "use_espeak": "off"
+        }
+        self.config.register_global(**default_global)
+        self.config.register_guild(**default_global)
+        self.save_path = data_manager.cog_data_path(self)
 
     def string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
-        use_espeak = self.settings["use_espeak"]
+        use_espeak = self.config.use_espeak()
         text = text.lower()
         if use_espeak == "off":
             try:
-                tts = gTTS(text=text, lang=self.settings["locale"])
+                tts = gTTS(text=text, lang=self.config.locale())
                 tts.save(self.save_path + "/temp_message.mp3")
             except AttributeError:  # If there's a problem with gTTS, use espeak instead
                 use_espeak = "on"
         if use_espeak == "on":
-            call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(self.settings["locale"], self.settings["voice"],
-                                                                  self.settings["speed"], text,
+            call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(self.config.locale(), self.config.voice(),
+                                                                  self.config.speed(), text,
                                                                   self.save_path + "temp_message.mp3")], shell=True)
 
-    def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
+    def voice_channel_full(self, voice_channel: discord.VoiceChannel) -> bool:
         return (voice_channel.user_limit != 0 and
-                len(voice_channel.voice_members) >= voice_channel.user_limit)
+                len(voice_channel.members) >= voice_channel.user_limit)
 
-    def voice_connected(self, server: discord.Server) -> bool:
+    def voice_connected(self, server: discord.Guild) -> bool:
         return self.bot.is_voice_connected(server)
 
-    def voice_client(self, server: discord.Server) -> discord.VoiceClient:
+    def voice_client(self, server: discord.Guild) -> discord.VoiceClient:
         return self.bot.voice_client_in(server)
 
-    async def _leave_voice_channel(self, server: discord.Server):
+    async def _leave_voice_channel(self, server: discord.Guild):
         if not self.voice_connected(server):
             return
         voice_client = self.voice_client(server)
@@ -212,27 +205,22 @@ class OnJoin:
             self.audio_players[server.id].stop()
         await voice_client.disconnect()
 
-    async def wait_for_disconnect(self, server: discord.Server):
+    async def wait_for_disconnect(self, server: discord.Guild):
         while not self.audio_players[server.id].is_done():
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
-    async def sound_init(self, server: discord.Server, path: str):
+    async def sound_init(self, server: discord.Guild, path: str):
         options = "-filter \"volume=volume=1.00\""
         voice_client = self.voice_client(server)
-        try:
-            self.audio_players[server.id] = voice_client.create_ffmpeg_player(
-                path, options=options)
-        except discord.errors.ClientException:
-            self.audio_players[server.id] = voice_client.create_ffmpeg_player(
-                path, options=options, use_avconv=True)
+        self.audio_players[server.id] = voice_client.play(discord.FFmpegPCMAudio(path, options=options))
 
-    async def sound_play(self, server: discord.Server,
-                         channel: discord.Channel, p: str):
+    async def sound_play(self, server: discord.Guild,
+                         channel: discord.VoiceChannel, p: str):
         if self.voice_channel_full(channel):
             return
 
-        if not channel.is_private:
+        if isinstance(channel, discord.VoiceChannel):
             if self.voice_connected(server):
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
@@ -257,58 +245,46 @@ class OnJoin:
                     self.audio_players[server.id].start()
                     # await self.wait_for_disconnect(server)
 
-    async def voice_state_update(self, before: discord.Member, after: discord.Member):
-        bserver = before.server
-        aserver = after.server
-
-        bvchan = before.voice.voice_channel
-        avchan = after.voice.voice_channel
-
-        if before.bot or after.bot:
+    async def voice_state_update(self, member, before: discord.VoiceState, after: discord.VoiceState):
+        if member.bot:
             return
 
-        if bvchan != avchan:
-            # went from no channel to a channel
-            if (bvchan is None and avchan is not None):
-                # came online
-                text = "{} has joined the channel".format(after.display_name)
-                channel = avchan
-                server = aserver
-            elif (bvchan is not None and avchan is None):
-                # went offline
-                text = "{} has left the channel".format(before.display_name)
-                channel = bvchan
-                server = bserver
-            else:
-                return
-            if self.settings["allow_emoji"] == 'off':
-                text = emoji_pattern.sub(r'', text)
-            if self.settings["profanity_filter"] == 'on':
-                f = ProfanitiesFilter(self.settings["profanity_list"], replacements=" ")
-                f.inside_words = True
-                text = f.clean(text)
-            self.string_to_speech(text)
-            await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
+        if member.voice:
+            text = "{} has joined the channel".format(member.display_name)
+            channel = after.channel
+        else:
+            text = "{} has left the channel".format(member.display_name)
+            channel = before.channel
+        server = channel.guild
 
-    @checks.admin_or_permissions(manage_server=True)
+        if self.config.allow_emoji() == 'off':
+            text = emoji_pattern.sub(r'', text)
+        if self.config.profanity_filter() == 'on':
+            f = ProfanitiesFilter(self.config.profanity_filter(), replacements=" ")
+            f.inside_words = True
+            text = f.clean(text)
+        self.string_to_speech(text)
+        await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
+
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=True, no_pm=True, name='seals')
     async def seals(self, ctx: commands.Context):
         """For when it's time to put someone in their place."""
-        server = ctx.message.author.server
+        server = ctx.message.author.Guild
         channel = ctx.message.author.voice_channel
         await self.sound_play(server, channel,
                               self.save_path + "/seals.mp3")
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=True, no_pm=True, name='say')
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
-        server = ctx.message.author.server
+        server = ctx.message.author.Guild
         channel = ctx.message.author.voice_channel
         self.string_to_speech(message)
         await self.sound_play(server, channel, self.save_path + "/temp_message.mp3")
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name='set_locale')
     async def set_locale(self, locale):
         """Change the TTS speech locale region."""
@@ -319,11 +295,10 @@ class OnJoin:
                     locale))
             return
         else:
-            self.settings["locale"] = locale
-            dataIO.save_json("data/on_join/settings.json", self.settings)
+            self.config.locale.set(locale)
             await self.bot.say("Locale was successfully changed to {}.".format(locales[locale]))
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name='set_voice')
     async def set_voice(self, voice):
         """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
@@ -332,11 +307,10 @@ class OnJoin:
                                "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
             return
         else:
-            self.settings["voice"] = voice
-            dataIO.save_json("data/on_join/settings.json", self.settings)
+            self.config.voice.set(voice)
             await self.bot.say("Voice was successfully changed to {}.".format(voice))
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name='set_speed')
     async def set_speed(self, speed):
         """ Set the WPM speed of the espeak narrator. Range is 80-500. """
@@ -345,11 +319,10 @@ class OnJoin:
             await self.bot.say("{} is not between 80 and 500 WPM.".format(speed))
             return
         else:
-            self.settings["speed"] = speed
-            dataIO.save_json("data/on_join/settings.json", self.settings)
+            self.config.speed.set(speed)
             await self.bot.say("Speed was successfully changed to {}.".format(speed))
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name='allow_emoji')
     async def allow_emoji(self, setting):
         """Change if emojis will be pronounced in names (IN PROGRESS)."""
@@ -359,13 +332,12 @@ class OnJoin:
             return
         else:
             if setting == "on":
-                self.settings["allow_emoji"] = 'on'
+                self.config.allow_emoji.set('on')
             elif setting == "off":
-                self.settings["allow_emoji"] = 'off'
-            dataIO.save_json("data/on_join/settings.json", self.settings)
+                self.config.allow_emoji.set('off')
             await self.bot.say("Emoji speech is now {}.".format(setting))
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name='set_filter')
     async def set_filter(self, setting):
         """Change slurs will be pronounced in names (IN PROGRESS)."""
@@ -375,25 +347,24 @@ class OnJoin:
             return
         else:
             if setting == "on":
-                self.settings["profanity_filter"] = 'on'
+                self.config.profanity_filter.set('on')
             elif setting == "off":
-                self.settings["profanity_filter"] = 'off'
-            dataIO.save_json("data/on_join/settings.json", self.settings)
+                self.config.profanity_filter.set('off')
             await self.bot.say("Profanity filter is now {}.".format(setting))
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name='add_filter')
     async def add_filter(self, word):
         """ Add a word to the censor filter. """
         word = word.lower()
-        if word not in self.settings["profanity_list"]:
-            self.settings["profanity_list"].append(word)
-            dataIO.save_json("data/on_join/settings.json", self.settings)
+        if word not in self.config.profanity_list():
+            async with self.config.profanity_list() as p_list:
+                p_list.append(word)
             await self.bot.say("{} has been added to the profanity filter.".format(word.capitalize()))
         else:
             await self.bot.say("{} is already in the profanity dictionary.".format(word.capitalize()))
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, no_pm=True, name="use_espeak")
     async def use_espeak(self, setting):
         """ Manually toggle espeak 'on' or 'off'. """
@@ -403,29 +374,13 @@ class OnJoin:
             return
         else:
             if setting == "on":
-                self.settings["use_espeak"] = 'on'
+                self.config.use_espeak.set('on')
             elif setting == "off":
-                self.settings["use_espeak"] = 'off'
-        dataIO.save_json("data/on_join/settings.json", self.settings)
+                self.config.use_espeak.set('off')
         await self.bot.say("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
 
 
-def check_folders():
-    if not os.path.exists("data/on_join"):
-        print("Creating data/on_join folder...")
-        os.makedirs("data/on_join")
-
-
-def check_files():
-    f = "data/on_join/settings.json"
-    if not dataIO.is_valid_json(f):
-        print("Creating default on_join settings.json...")
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    check_folders()
-    check_files()
     n = OnJoin(bot)
     bot.add_listener(n.voice_state_update, "on_voice_state_update")
     bot.add_cog(n)
