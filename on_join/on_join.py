@@ -1,16 +1,15 @@
 import asyncio
-import os
 import random
 import re
 from subprocess import call
 
 import discord
-#from cogs.utils.dataIO import dataIO
-from redbot.core import Config, data_manager
 from discord.ext import commands
 from gtts import gTTS
+# from cogs.utils.dataIO import dataIO
+from redbot.core import Config, data_manager
 
-#from .utils import checks
+# from .utils import checks
 
 """
 Module that provides a class that filters profanities
@@ -378,9 +377,3 @@ class OnJoin:
             elif setting == "off":
                 self.config.use_espeak.set('off')
         await self.bot.say("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
-
-
-def setup(bot):
-    n = OnJoin(bot)
-    bot.add_listener(n.voice_state_update, "on_voice_state_update")
-    bot.add_cog(n)
