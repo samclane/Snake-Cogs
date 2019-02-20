@@ -2,7 +2,7 @@
   "AUTHOR": "watersnake",
   "SHORT": "Buy weapons using credits",
   "DESCRIPTION": "Buy persistent weapons, armor, and potions. Battle your friends!",
-  "DISABLED": false,
+  "DISABLED": true,
   "NAME": "armorsmith",
   "TAGS": [
     "armorsmith",

@@ -2,7 +2,7 @@
   "AUTHOR": "watersnake",
   "SHORT": "Play the damn.dog Wikihow trivia game right from your discord!",
   "DESCRIPTION": "Based on the trivia module, and the damn.dog browser game",
-  "DISABLED": false,
+  "DISABLED": true,
   "NAME": "damn-dog",
   "TAGS": [
     "damn-dog",

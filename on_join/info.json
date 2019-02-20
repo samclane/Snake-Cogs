@@ -1,0 +1,18 @@
+{
+  "author": "watersnake",
+  "SHORT": "Announces when a user joins a channel",
+  "description": "Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo",
+  "disabled": false,
+  "name": "on_join",
+  "tags": [
+    "on_join",
+    "tts",
+    "announce",
+    "utility",
+    "tools",
+    "voice"
+  ],
+  "INSTALL_MSG": "Requires gTTS be installed in Python. Optionally, install `espeak` on Linux to use the fallback TTS",
+  "bot_version": [3, 0, 0],
+  "requirements": ["gTTS"]
+}

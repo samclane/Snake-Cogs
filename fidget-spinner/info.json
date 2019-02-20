@@ -2,7 +2,7 @@
   "AUTHOR": "watersnake",
   "SHORT": "Play with fidget-spinner ascii art on your server!",
   "DESCRIPTION": "Spins a small ascii art fidget spinner.",
-  "DISABLED": false,
+  "DISABLED": true,
   "NAME": "fidget-spinner",
   "TAGS": [
     "fidget",
