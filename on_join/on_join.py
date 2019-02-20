@@ -238,7 +238,7 @@ class OnJoin(commands.Cog):
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
 
-        await self.wait_for_disconnect(server)
+            # await self.wait_for_disconnect(server)
 
     async def voice_state_update(self, member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
