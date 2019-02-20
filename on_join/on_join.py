@@ -261,7 +261,7 @@ class OnJoin(commands.Cog):
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
-            if after and after.channel:
+            elif after.channel:
                 text = "{} has joined the channel".format(name)
                 channel = after.channel
 
