@@ -148,6 +148,7 @@ voices = [
     'whisper'
 ]
 
+# force update
 
 class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
