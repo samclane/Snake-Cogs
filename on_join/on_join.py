@@ -188,7 +188,7 @@ class OnJoin(commands.Cog):
         return (voice_channel.user_limit != 0 and
                 len(voice_channel.members) >= voice_channel.user_limit)
 
-    def voice_connected(self, server: discord.Guild) -> bool:
+    def voice_connected_server(self, server: discord.Guild) -> bool:
         if server.voice_client is None:
             return False
         return server.voice_client.is_connected()
@@ -197,7 +197,7 @@ class OnJoin(commands.Cog):
         return server.voice_client
 
     async def _leave_voice_channel(self, server: discord.Guild):
-        if not self.voice_connected(server):
+        if not self.voice_connected_server(server):
             return
         voice_client = self.voice_client(server)
 
@@ -221,8 +221,10 @@ class OnJoin(commands.Cog):
         if self.voice_channel_full(channel):
             return
 
+        await channel.connect()
+
         if isinstance(channel, discord.VoiceChannel):
-            if self.voice_connected(server):
+            if self.voice_connected_server(server):
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
                 else:
@@ -230,7 +232,6 @@ class OnJoin(commands.Cog):
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
             else:
-                await channel.connect()
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
                 else:
