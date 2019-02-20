@@ -152,8 +152,8 @@ voices = [
 class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
-    def __init__(self):
-        self.bot = self
+    def __init__(self, bot):
+        self.bot = bot.user
         self.audio_players = {}
         self.config = Config.get_conf(self, identifier=int(hash("on_join")))
         default_global = {
@@ -189,13 +189,10 @@ class OnJoin(commands.Cog):
                 len(voice_channel.members) >= voice_channel.user_limit)
 
     def voice_connected(self, server: discord.Guild) -> bool:
-        if self.bot.voice:
-            return True
-        else:
-            return False
+        return self.bot.is_voice_connected(server)
 
     def voice_client(self, server: discord.Guild) -> discord.VoiceClient:
-        return self.bot.voice
+        return self.bot.voice_client_in(server)
 
     async def _leave_voice_channel(self, server: discord.Guild):
         if not self.voice_connected(server):
