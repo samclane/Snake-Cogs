@@ -165,23 +165,23 @@ class OnJoin(commands.Cog):
             "profanity_list": [],
             "use_espeak": "off"
         }
-        self.config.register_global(**default_global)
-        self.config.register_guild(**default_global)
+        await self.config.register_global(**default_global)
+        await self.config.register_guild(**default_global)
         self.save_path = data_manager.cog_data_path(self)
 
     def string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
-        use_espeak = self.config.use_espeak()
+        use_espeak = await self.config.use_espeak()
         text = text.lower()
         if use_espeak == "off":
             try:
-                tts = gTTS(text=text, lang=self.config.locale())
+                tts = gTTS(text=text, lang=await self.config.locale())
                 tts.save(self.save_path / "/temp_message.mp3")
             except AttributeError:  # If there's a problem with gTTS, use espeak instead
                 use_espeak = "on"
         if use_espeak == "on":
-            call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(self.config.locale(), self.config.voice(),
-                                                                  self.config.speed(), text,
+            call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(await self.config.locale(), await self.config.voice(),
+                                                                  await self.config.speed(), text,
                                                                   self.save_path / "temp_message.mp3")], shell=True)
 
     def voice_channel_full(self, voice_channel: discord.VoiceChannel) -> bool:
@@ -257,10 +257,10 @@ class OnJoin(commands.Cog):
             channel = before.channel
         server = channel.guild
 
-        if self.config.allow_emoji() == 'off':
+        if await self.config.allow_emoji() == 'off':
             text = emoji_pattern.sub(r'', text)
-        if self.config.profanity_filter() == 'on':
-            f = ProfanitiesFilter(self.config.profanity_filter(), replacements=" ")
+        if await self.config.profanity_filter() == 'on':
+            f = ProfanitiesFilter(await self.config.profanity_filter(), replacements=" ")
             f.inside_words = True
             text = f.clean(text)
         self.string_to_speech(text)
@@ -286,7 +286,7 @@ class OnJoin(commands.Cog):
                     locale))
             return
         else:
-            self.config.locale.set(locale)
+            await self.config.locale.set(locale)
             await ctx("Locale was successfully changed to {}.".format(locales[locale]))
 
     @checks.admin_or_permissions(manage_guild=True)
@@ -298,7 +298,7 @@ class OnJoin(commands.Cog):
                                "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
             return
         else:
-            self.config.voice.set(voice)
+            await self.config.voice.set(voice)
             await ctx("Voice was successfully changed to {}.".format(voice))
 
     @checks.admin_or_permissions(manage_guild=True)
@@ -310,7 +310,7 @@ class OnJoin(commands.Cog):
             await ctx("{} is not between 80 and 500 WPM.".format(speed))
             return
         else:
-            self.config.speed.set(speed)
+            await self.config.speed.set(speed)
             await ctx("Speed was successfully changed to {}.".format(speed))
 
     @checks.admin_or_permissions(manage_guild=True)
@@ -323,9 +323,9 @@ class OnJoin(commands.Cog):
             return
         else:
             if setting == "on":
-                self.config.allow_emoji.set('on')
+                await self.config.allow_emoji.set('on')
             elif setting == "off":
-                self.config.allow_emoji.set('off')
+                await self.config.allow_emoji.set('off')
             await ctx("Emoji speech is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_guild=True)
@@ -338,9 +338,9 @@ class OnJoin(commands.Cog):
             return
         else:
             if setting == "on":
-                self.config.profanity_filter.set('on')
+                await self.config.profanity_filter.set('on')
             elif setting == "off":
-                self.config.profanity_filter.set('off')
+                await self.config.profanity_filter.set('off')
             await ctx.send("Profanity filter is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_guild=True)
@@ -348,8 +348,8 @@ class OnJoin(commands.Cog):
     async def add_filter(self, ctx, word):
         """ Add a word to the censor filter. """
         word = word.lower()
-        if word not in self.config.profanity_list():
-            async with self.config.profanity_list() as p_list:
+        if word not in await self.config.profanity_list():
+            async with await self.config.profanity_list() as p_list:
                 p_list.append(word)
             await ctx.send("{} has been added to the profanity filter.".format(word.capitalize()))
         else:
@@ -365,7 +365,7 @@ class OnJoin(commands.Cog):
             return
         else:
             if setting == "on":
-                self.config.use_espeak.set('on')
+                await self.config.use_espeak.set('on')
             elif setting == "off":
-                self.config.use_espeak.set('off')
+                await self.config.use_espeak.set('off')
         await ctx.send("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
