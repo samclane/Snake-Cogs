@@ -188,10 +188,10 @@ class OnJoin(commands.Cog):
                 len(voice_channel.members) >= voice_channel.user_limit)
 
     def voice_connected(self, server: discord.Guild) -> bool:
-        return server.me.voice.is_connected()
+        return server.voice_client.is_connected()
 
     def voice_client(self, server: discord.Guild) -> discord.VoiceClient:
-        return server.me.voice
+        return server.voice_client
 
     async def _leave_voice_channel(self, server: discord.Guild):
         if not self.voice_connected(server):
