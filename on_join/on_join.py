@@ -242,27 +242,29 @@ class OnJoin(commands.Cog):
         if member.bot:
             return
 
-        name = member.display_name
-        if await self.config.allow_emoji() == 'off':
-            name = emoji_pattern.sub(r'', name)
-        if await self.config.profanity_filter() == 'on':
-            f = ProfanitiesFilter(await self.config.profanity_filter(), replacements=" ")
-            f.inside_words = True
-            name = f.clean(name)
+        if before != after:
 
-        if before:
-            text = "{} has left the channel".format(name)
-            channel = before.channel
+            name = member.display_name
+            if await self.config.allow_emoji() == 'off':
+                name = emoji_pattern.sub(r'', name)
+            if await self.config.profanity_filter() == 'on':
+                f = ProfanitiesFilter(await self.config.profanity_filter(), replacements=" ")
+                f.inside_words = True
+                name = f.clean(name)
 
-            await self.string_to_speech(text)
-            await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
+            if before:
+                text = "{} has left the channel".format(name)
+                channel = before.channel
 
-        if after:
-            text = "{} has joined the channel".format(name)
-            channel = before.channel
+                await self.string_to_speech(text)
+                await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
-            await self.string_to_speech(text)
-            await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
+            if after:
+                text = "{} has joined the channel".format(name)
+                channel = before.channel
+
+                await self.string_to_speech(text)
+                await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
 
     @checks.admin_or_permissions(manage_guild=True)
