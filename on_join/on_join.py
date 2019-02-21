@@ -273,8 +273,8 @@ class OnJoin(commands.Cog):
     @commands.command(pass_context=True, name='say')
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
-        server = ctx.message.author.Guild
-        channel = ctx.message.author.voice_channel
+        server = ctx.channel.server
+        channel = ctx.channel
         await self.string_to_speech(message)
         await self.sound_play(server, channel, str(self.save_path) + "/temp_message.mp3")
 
@@ -283,26 +283,26 @@ class OnJoin(commands.Cog):
     async def set_locale(self, ctx, locale):
         """Change the TTS speech locale region."""
         if locale not in locales.keys():
-            await ctx(
+            await ctx.send(
                 "{} was not found in the list of locales. Look at https://pypi.python.org/pypi/gTTS"
                 " for a list of valid codes.".format(
                     locale))
             return
         else:
             await self.config.locale.set(locale)
-            await ctx("Locale was successfully changed to {}.".format(locales[locale]))
+            await ctx.send("Locale was successfully changed to {}.".format(locales[locale]))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, name='set_voice')
     async def set_voice(self, ctx, voice):
         """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
         if voice not in voices:
-            await ctx("{} is not a valid voice code."
+            await ctx.send("{} is not a valid voice code."
                       "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
             return
         else:
             await self.config.voice.set(voice)
-            await ctx("Voice was successfully changed to {}.".format(voice))
+            await ctx.send("Voice was successfully changed to {}.".format(voice))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name='set_speed')
@@ -310,11 +310,11 @@ class OnJoin(commands.Cog):
         """ Set the WPM speed of the espeak narrator. Range is 80-500. """
         speed = int(speed)
         if not (80 < speed < 500):
-            await ctx("{} is not between 80 and 500 WPM.".format(speed))
+            await ctx.send("{} is not between 80 and 500 WPM.".format(speed))
             return
         else:
             await self.config.speed.set(speed)
-            await ctx("Speed was successfully changed to {}.".format(speed))
+            await ctx.send("Speed was successfully changed to {}.".format(speed))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pname='allow_emoji')
@@ -322,14 +322,14 @@ class OnJoin(commands.Cog):
         """Change if emojis will be pronounced in names (IN PROGRESS)."""
         setting = setting.lower()
         if setting not in ["on", "off"]:
-            await ctx("Please specify if you want emojis 'on' or 'off'")
+            await ctx.send("Please specify if you want emojis 'on' or 'off'")
             return
         else:
             if setting == "on":
                 await self.config.allow_emoji.set('on')
             elif setting == "off":
                 await self.config.allow_emoji.set('off')
-            await ctx("Emoji speech is now {}.".format(setting))
+            await ctx.send("Emoji speech is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name='set_filter')
