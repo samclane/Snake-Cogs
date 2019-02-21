@@ -269,12 +269,12 @@ class OnJoin(commands.Cog):
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
-    @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=True, name='say')
+    @checks.admin()
+    @commands.command(name='say')
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
-        server = ctx.channel.server
-        channel = ctx.channel
+        server = ctx.channel.guild
+        channel = ctx.author.voice.channel
         await self.string_to_speech(message)
         await self.sound_play(server, channel, str(self.save_path) + "/temp_message.mp3")
 
@@ -298,7 +298,7 @@ class OnJoin(commands.Cog):
         """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
         if voice not in voices:
             await ctx.send("{} is not a valid voice code."
-                      "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
+                           "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
             return
         else:
             await self.config.voice.set(voice)
