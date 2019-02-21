@@ -5,15 +5,7 @@ from subprocess import call
 
 import discord
 from gtts import gTTS
-# from cogs.utils.dataIO import dataIO
 from redbot.core import Config, data_manager, checks, commands
-
-# from .utils import checks
-
-"""
-Module that provides a class that filters profanities
-
-"""
 
 
 class ProfanitiesFilter(object):
@@ -152,7 +144,8 @@ voices = [
 class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
-    def __init__(self):
+    def __init__(self, bot):
+        self.bot = bot
         self.audio_players = {}
         self.config = Config.get_conf(self, identifier=int(hash("on_join")))
         default_global = {
@@ -238,7 +231,8 @@ class OnJoin(commands.Cog):
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
 
-            # await self.wait_for_disconnect(server)
+            await asyncio.sleep(.1)
+            await self.wait_for_disconnect(server)
 
     async def voice_state_update(self, member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
@@ -261,14 +255,12 @@ class OnJoin(commands.Cog):
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
-            elif after.channel:
+            if after.channel:
                 text = "{} has joined the channel".format(name)
                 channel = after.channel
 
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
-
-
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=True, name='say')
