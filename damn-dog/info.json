@@ -11,5 +11,6 @@
     "game",
     "fun"
   ],
-  "INSTALL_MSG": "Thank you for installing damn-dog. Type `[p]damndog` to play!!"
+  "INSTALL_MSG": "Thank you for installing damn-dog. Type `[p]damndog` to play!!",
+  "bot_version": [2, 0, 0]
 }
