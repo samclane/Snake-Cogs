@@ -214,7 +214,9 @@ class OnJoin(commands.Cog):
         if self.voice_channel_full(channel):
             return
         if self.voice_client(server) and self.voice_client(server).is_connected():
+            print("Already connected. Fixing problem...")
             await self.wait_for_disconnect(server)
+            print("Done") # TODO Remove prints
 
         if isinstance(channel, discord.VoiceChannel):
             if self.voice_connected(server):
@@ -225,7 +227,10 @@ class OnJoin(commands.Cog):
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
             else:
-                await channel.connect()
+                try:
+                    await channel.connect()
+                except discord.ClientException:
+                    pass
                 if server.id not in self.audio_players:
                     await self.sound_init(server, p)
                 else:
