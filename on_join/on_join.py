@@ -210,33 +210,26 @@ class OnJoin(commands.Cog):
         self.audio_players[server.id] = voice_client
 
     async def sound_play(self, server: discord.Guild,
-                         channel: discord.VoiceChannel, p: str):
+                         channel: discord.VoiceChannel, path: str):
         if self.voice_channel_full(channel):
             return
-        if self.voice_client(server) and self.voice_client(server).is_connected():
-            print("Already connected. Fixing problem...")
-            await self.wait_for_disconnect(server)
-            print("Done") # TODO Remove prints
 
         if isinstance(channel, discord.VoiceChannel):
             if self.voice_connected(server):
                 if server.id not in self.audio_players:
-                    await self.sound_init(server, p)
+                    await self.sound_init(server, path)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
-                    await self.sound_init(server, p)
+                    await self.sound_init(server, path)
             else:
-                try:
-                    await channel.connect()
-                except discord.ClientException:
-                    pass
+                await channel.connect()
                 if server.id not in self.audio_players:
-                    await self.sound_init(server, p)
+                    await self.sound_init(server, path)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
-                    await self.sound_init(server, p)
+                    await self.sound_init(server, path)
 
             await asyncio.sleep(.5)
             await self.wait_for_disconnect(server)
@@ -247,6 +240,11 @@ class OnJoin(commands.Cog):
             return
 
         if before.channel != after.channel:
+
+            if before.channel and after.channel:
+                leaving_server = False
+            else:
+                leaving_server = True
 
             name = member.display_name
             if await self.config.allow_emoji() == 'off':
@@ -263,6 +261,9 @@ class OnJoin(commands.Cog):
 
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
+
+            if not leaving_server:
+                await asyncio.sleep(1)
 
             if before.channel:
                 print("before: " + before.channel.name)
