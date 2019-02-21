@@ -214,8 +214,6 @@ class OnJoin(commands.Cog):
         if self.voice_channel_full(channel):
             return
 
-        await asyncio.sleep(.5)
-
         if isinstance(channel, discord.VoiceChannel):
             if self.voice_connected(server):
                 if server.id not in self.audio_players:
@@ -236,8 +234,9 @@ class OnJoin(commands.Cog):
             await asyncio.sleep(.5)
             await self.wait_for_disconnect(server)
 
-    async def voice_state_update(self, member, before: discord.VoiceState, after: discord.VoiceState):
+    async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
+            print(member.display_name + " joined. Ignoring.")
             return
 
         if before.channel != after.channel:
