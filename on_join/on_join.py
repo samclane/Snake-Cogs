@@ -236,7 +236,7 @@ class OnJoin(commands.Cog):
 
     async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
-            print(member.display_name + " joined. Ignoring.")
+            print(member.display_name + " is a Bot. Ignoring.")
             return
 
         if before.channel != after.channel:
@@ -250,6 +250,7 @@ class OnJoin(commands.Cog):
                 name = f.clean(name)
 
             if after.channel:
+                print("after: " + after.channel.name)
                 text = "{} has joined the channel".format(name)
                 channel = after.channel
 
@@ -257,6 +258,7 @@ class OnJoin(commands.Cog):
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
             if before.channel:
+                print("before: " + before.channel.name)
                 text = "{} has left the channel".format(name)
                 channel = before.channel
 
