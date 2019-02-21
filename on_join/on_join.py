@@ -263,7 +263,7 @@ class OnJoin(commands.Cog):
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
             if not leaving_server:
-                await asyncio.sleep(1)
+                await asyncio.sleep(.5)
 
             if before.channel:
                 print("before: " + before.channel.name)
