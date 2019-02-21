@@ -213,6 +213,8 @@ class OnJoin(commands.Cog):
                          channel: discord.VoiceChannel, p: str):
         if self.voice_channel_full(channel):
             return
+        if self.voice_client(server) and self.voice_client(server).is_connected():
+            await self.wait_for_disconnect(server)
 
         if isinstance(channel, discord.VoiceChannel):
             if self.voice_connected(server):
