@@ -10,5 +10,5 @@
     "tools"
   ],
   "INSTALL_MSG": "ATTENTION: Look in the data folder for 'gui.html', and open that to view the tool.",
-  "bot_version": [2, 0, 0]
+  "bot_version": [3, 0, 0]
 }

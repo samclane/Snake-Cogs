@@ -1,10 +1,9 @@
-import asyncio
-
 import jsonpickle
-import websockets
+from redbot.core import commands
 
 
-class NetworkTool:
+# Todo: Build "Bot" Dummp class to send to GUI
+class NetworkTool(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -14,15 +13,3 @@ class NetworkTool:
             frozen = jsonpickle.encode(self.bot)
             await websocket.send(frozen)
             print(frozen)
-
-
-# test
-def setup(bot):
-    n = NetworkTool(bot)
-
-    try:
-        asyncio.get_event_loop().run_until_complete(websockets.serve(n.hello, 'localhost', 8784))
-    except RuntimeError:
-        pass
-
-    bot.add_cog(n)
