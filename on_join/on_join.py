@@ -223,7 +223,12 @@ class OnJoin(commands.Cog):
                         self.audio_players[server.id].stop()
                     await self.sound_init(server, path)
             else:
-                await channel.connect()
+                try:
+                    await channel.connect()
+                except discord.errors.ClientException:
+                    # If we have any problems just leave the server and ignore the event
+                    await self.wait_for_disconnect(server)
+                    return
                 if server.id not in self.audio_players:
                     await self.sound_init(server, path)
                 else:

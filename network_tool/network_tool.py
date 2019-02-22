@@ -1,10 +1,10 @@
-import jsonpickle
-from redbot.core import commands
+from redbot.core import commands, bot
 
+import jsonpickle
 
 # Todo: Build "Bot" Dummp class to send to GUI
 class NetworkTool(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: bot.RedBase):
         self.bot = bot
 
     async def hello(self, websocket, path):
