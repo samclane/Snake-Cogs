@@ -1,7 +1,7 @@
 {
   "AUTHOR": "watersnake",
   "SHORT": "Tool for remote monitoring of bot.",
-  "DESCRIPTION": "Uses jsonpickle and hosts a local websocket.",
+  "DESCRIPTION": "Uses json and hosts a local websocket.",
   "DISABLED": false,
   "NAME": "network_tool",
   "TAGS": [
