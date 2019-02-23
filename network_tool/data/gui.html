@@ -30,11 +30,11 @@
                 for (propName in bot.commands) {
                     propValue = bot.commands[propName];
                     $("#commands dl").append('<dt>' + propName + '</dt>');
-                    $("#commands dl").append('<dd>' + propValue.help + '</dd>');
+                    $("#commands dl").append('<dd>' + propValue + '</dd>');
                 }
                 for (var propName in bot.connection._servers) {
                     propValue = bot.connection._servers[propName];
-                    $("#servers ul").append('<li>' + propValue.name + '</li>');
+                    $("#servers ul").append('<li>' + propValue + '</li>');
                 }
                 $("#prefix").html('<dd>' + bot.settings.bot_settings.PREFIXES["0"] + '</dd>');
                 $("#admin-role").html('<dd>' + bot.settings.bot_settings.default.ADMIN_ROLE + '</dd>');

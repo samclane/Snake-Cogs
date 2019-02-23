@@ -13,20 +13,21 @@ class NetworkTool(commands.Cog):
                 "user": {
                     "name": str(self.bot)
                 },
-                "_servers": {str(s): str(s) for s in self.bot.description}
+                "_servers": [str(g) for g in self.bot.guilds]
             },
             "cogs": [type(c).__name__ for c in self.bot.cogs.values()],
-            "commands": {str(c): str(c) for c in self.bot.commands},
+            "commands": {str(c): c.help for c in self.bot.commands},
             "settings": {
                 "bot_settings": {
-                    "PREFIXES": {"0": str(self.bot.command_prefix)},
+                    "PREFIXES": {"0": str("TODO")},
                     "default": {
-                        "ADMIN_ROLE": str(self.bot.owner_id)
+                        "ADMIN_ROLE": str("TODO: Remove this"),
+                        "MOD_ROLE": str("TODO: Remove this")
                     }
                 }
             },
             "_is_logged_in": {
-                "_value": str(self.bot.uptime)
+                "_value": str("TODO: Remove this")
             }
         }
 
