@@ -95,6 +95,7 @@ class OnJoin(commands.Cog):
             self, identifier=651171001051118411410511810597, force_registration=True
         )
         self.audioconf.register_guild(delay=30.0, repeat=True)
+        self.queue_count = 0
         self.config = Config.get_conf(self, identifier=int(hash("on_join")))
         default_global = {
             "locale": "en-us",
@@ -125,8 +126,6 @@ class OnJoin(commands.Cog):
                                                                   str(self.save_path) + "temp_message.mp3")],
                  shell=True)
 
-    ####
-
     async def sound_play(self, guild: discord.Guild, channel: discord.VoiceChannel, filepath: str):
         if self.audio is None:
             self.audio: Audio = self.bot.get_cog("Audio")
@@ -135,13 +134,16 @@ class OnJoin(commands.Cog):
             print("Audio is not loaded. Load it and try again.")
             return
 
-        await lavalink.connect(channel)
-        lavaplayer = lavalink.get_player(guild.id)
-        lavaplayer.store("connect", datetime.datetime.utcnow())
-        lavaplayer.store("channel", channel)
         loop = self.bot.loop
 
         async def run_sound():
+            self.queue_count += 1
+            await lavalink.connect(channel)
+            lavaplayer = lavalink.get_player(guild.id)
+            lavaplayer.store("connect", datetime.datetime.utcnow())
+            lavaplayer.store("channel", channel)
+            await lavaplayer.wait_until_ready()
+
             await lavaplayer.stop()
             track = await lavaplayer.get_tracks(filepath)
             track = track[0]
@@ -153,7 +155,9 @@ class OnJoin(commands.Cog):
 
             await asyncio.sleep(seconds)
 
-            await lavaplayer.disconnect()
+            if self.queue_count <= 1:
+                await lavaplayer.disconnect()
+            self.queue_count -= 1
 
         self._task = loop.create_task(run_sound())
 
