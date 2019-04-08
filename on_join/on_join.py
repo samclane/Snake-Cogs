@@ -1,72 +1,15 @@
 import asyncio
-import random
-import re
+import datetime
 from subprocess import call
 
 import discord
+import lavalink
 from gtts import gTTS
+from redbot.cogs.audio import Audio
 from redbot.core import Config, data_manager, checks, commands
+from redbot.core.bot import Red
 
-
-class ProfanitiesFilter(object):
-    def __init__(self, filterlist, ignore_case=True, replacements="$@%-?!",
-                 complete=True, inside_words=False):
-        """
-        Inits the profanity filter.
-
-        filterlist -- a list of regular expressions that
-        matches words that are forbidden
-        ignore_case -- ignore capitalization
-        replacements -- string with characters to replace the forbidden word
-        complete -- completely remove the word or keep the first and last char?
-        inside_words -- search inside other words?
-
-        """
-
-        self.badwords = filterlist
-        self.ignore_case = ignore_case
-        self.replacements = replacements
-        self.complete = complete
-        self.inside_words = inside_words
-
-    def _make_clean_word(self, length):
-        """
-        Generates a random replacement string of a given length
-        using the chars in self.replacements.
-
-        """
-        return ''.join([random.choice(self.replacements) for i in
-                        range(length)])
-
-    def __replacer(self, match):
-        value = match.group()
-        if self.complete:
-            return self._make_clean_word(len(value))
-        else:
-            return value[0] + self._make_clean_word(len(value) - 2) + value[-1]
-
-    def clean(self, text):
-        """Cleans a string from profanity."""
-
-        regexp_insidewords = {
-            True: r'(%s)',
-            False: r'\b(%s)\b',
-        }
-
-        regexp = (regexp_insidewords[self.inside_words] %
-                  '|'.join(self.badwords))
-
-        r = re.compile(regexp, re.IGNORECASE if self.ignore_case else 0)
-
-        return r.sub(self.__replacer, text)
-
-
-emoji_pattern = re.compile("["
-                           u"\U0001F600-\U0001F64F"  # emoticons
-                           u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-                           u"\U0001F680-\U0001F6FF"  # transport & map symbols
-                           u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                           "]+", flags=re.UNICODE)
+from .string_filters import ProfanitiesFilter, REGEX_EMOJI
 
 locales = {
     'af': 'Afrikaans',
@@ -145,8 +88,13 @@ class OnJoin(commands.Cog):
     """Uses TTS to announce when a user joins the channel, like Teamspeak or Ventrillo"""
 
     def __init__(self, bot):
-        self.bot = bot
-        self.audio_players = {}
+        super().__init__()
+        self.bot: Red = bot
+        self.audio = None
+        self.audioconf = Config.get_conf(
+            self, identifier=651171001051118411410511810597, force_registration=True
+        )
+        self.audioconf.register_guild(delay=30.0, repeat=True)
         self.config = Config.get_conf(self, identifier=int(hash("on_join")))
         default_global = {
             "locale": "en-us",
@@ -177,66 +125,37 @@ class OnJoin(commands.Cog):
                                                                   str(self.save_path) + "temp_message.mp3")],
                  shell=True)
 
-    def voice_channel_full(self, voice_channel: discord.VoiceChannel) -> bool:
-        return (voice_channel.user_limit != 0 and
-                len(voice_channel.members) >= voice_channel.user_limit)
+    ####
 
-    def voice_connected(self, server: discord.Guild) -> bool:
-        if server.voice_client is None:
-            return False
-        return server.voice_client.is_connected()
+    async def sound_play(self, guild: discord.Guild, channel: discord.VoiceChannel, filepath: str):
+        if self.audio is None:
+            self.audio: Audio = self.bot.get_cog("Audio")
 
-    def voice_client(self, server: discord.Guild) -> discord.VoiceClient:
-        return server.voice_client
-
-    async def _leave_voice_channel(self, server: discord.Guild):
-        if not self.voice_connected(server):
-            return
-        voice_client = self.voice_client(server)
-
-        if server.id in self.audio_players:
-            self.audio_players[server.id].stop()
-        await voice_client.disconnect()
-
-    async def wait_for_disconnect(self, server: discord.Guild):
-        while self.audio_players[server.id].is_playing():
-            await asyncio.sleep(0.1)
-        await self._leave_voice_channel(server)
-
-    async def sound_init(self, server: discord.Guild, path: str):
-        options = "-filter \"volume=volume=1.00\""
-        voice_client = self.voice_client(server)
-        voice_client.play(discord.FFmpegPCMAudio(path, options=options))
-        self.audio_players[server.id] = voice_client
-
-    async def sound_play(self, server: discord.Guild,
-                         channel: discord.VoiceChannel, path: str):
-        if self.voice_channel_full(channel):
+        if self.audio is None:
+            print("Audio is not loaded. Load it and try again.")
             return
 
-        if isinstance(channel, discord.VoiceChannel):
-            if self.voice_connected(server):
-                if server.id not in self.audio_players:
-                    await self.sound_init(server, path)
-                else:
-                    if self.audio_players[server.id].is_playing():
-                        self.audio_players[server.id].stop()
-                    await self.sound_init(server, path)
-            else:
-                try:
-                    await channel.connect()
-                except discord.errors.ClientException:
-                    # If we have any problems just leave the server and ignore the event
-                    await self.wait_for_disconnect(server)
-                    return
-                if server.id not in self.audio_players:
-                    await self.sound_init(server, path)
-                else:
-                    if self.audio_players[server.id].is_playing():
-                        self.audio_players[server.id].stop()
-                    await self.sound_init(server, path)
+        await lavalink.connect(channel)
+        lavaplayer = lavalink.get_player(guild.id)
+        lavaplayer.store("connect", datetime.datetime.utcnow())
+        lavaplayer.store("channel", channel)
+        loop = self.bot.loop
 
-            await self.wait_for_disconnect(server)
+        async def run_sound():
+            await lavaplayer.stop()
+            track = await lavaplayer.get_tracks(filepath)
+            track = track[0]
+            seconds = track.length / 1000
+            lavaplayer.add(self.bot, track)
+
+            if not lavaplayer.current:
+                await lavaplayer.play()
+
+            await asyncio.sleep(seconds)
+
+            await lavaplayer.disconnect()
+
+        self._task = loop.create_task(run_sound())
 
     async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
@@ -244,14 +163,9 @@ class OnJoin(commands.Cog):
 
         if before.channel != after.channel:
 
-            if before.channel and after.channel:
-                leaving_server = False
-            else:
-                leaving_server = True
-
             name = member.display_name
             if await self.config.allow_emoji() == 'off':
-                name = emoji_pattern.sub(r'', name)
+                name = REGEX_EMOJI.sub(r'', name)
             if await self.config.profanity_filter() == 'on':
                 f = ProfanitiesFilter(await self.config.profanity_filter(), replacements=" ")
                 f.inside_words = True
@@ -264,10 +178,7 @@ class OnJoin(commands.Cog):
                 await self.string_to_speech(text)
                 await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
 
-            if not leaving_server:
-                await asyncio.sleep(.5)
-
-            if before.channel:
+            elif before.channel:
                 text = "{} has left the channel".format(name)
                 channel = before.channel
 
