@@ -143,7 +143,12 @@ class OnJoin(commands.Cog):
             await lavaplayer.wait_until_ready()
 
             await lavaplayer.stop()
-            track = await lavaplayer.get_tracks(filepath)
+            try:
+                track = await lavaplayer.get_tracks(filepath)
+            except RuntimeError:
+                await lavaplayer.disconnect()
+                return
+
             track = track[0]
             seconds = track.length / 1000
             lavaplayer.add(self.bot, track)
