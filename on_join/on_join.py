@@ -95,7 +95,6 @@ class OnJoin(commands.Cog):
             self, identifier=651171001051118411410511810597, force_registration=True
         )
         self.audioconf.register_guild(delay=30.0, repeat=True)
-        self.player_task_count = 0
         self.config = Config.get_conf(self, identifier=int(hash("on_join")))
         default_global = {
             "locale": "en-us",
@@ -137,7 +136,6 @@ class OnJoin(commands.Cog):
         loop = self.bot.loop
 
         async def run_sound():
-            self.player_task_count += 1
             await lavalink.connect(channel)
             lavaplayer = lavalink.get_player(guild.id)
             lavaplayer.store("connect", datetime.datetime.utcnow())
@@ -155,9 +153,7 @@ class OnJoin(commands.Cog):
 
             await asyncio.sleep(seconds)
 
-            if self.player_task_count <= 1:
-                await lavaplayer.disconnect()
-            self.player_task_count -= 1
+            await lavaplayer.disconnect()
 
         loop.create_task(run_sound())
 
