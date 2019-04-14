@@ -167,6 +167,7 @@ class OnJoin(commands.Cog):
 
             except RuntimeError:
                 LOG.exception("Something went wrong trying to play speech. Continuing...")
+                await lavaplayer.disconnect()
 
         # Stop current announcement and begin most recent one
         if self._audio_task and not self._audio_task.done():
