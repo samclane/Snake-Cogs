@@ -55,7 +55,7 @@ class ProfanitiesFilter(object):
         return r.sub(self.__replacer, text)
 
 
-REGEX_EMOJI = re.compile("["
+EMOJI_REGEX = re.compile("["
                          u"\U0001F600-\U0001F64F"  # emoticons
                          u"\U0001F300-\U0001F5FF"  # symbols & pictographs
                          u"\U0001F680-\U0001F6FF"  # transport & map symbols

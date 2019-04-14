@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import logging
 from subprocess import call
 
 import discord
@@ -9,9 +10,11 @@ from redbot.cogs.audio import Audio
 from redbot.core import Config, data_manager, checks, commands
 from redbot.core.bot import Red
 
-from .string_filters import ProfanitiesFilter, REGEX_EMOJI
+from .string_filters import ProfanitiesFilter, EMOJI_REGEX
 
-locales = {
+LOG = logging.getLogger("red.audio.on_join")
+
+LOCALES = {
     'af': 'Afrikaans',
     'sq': 'Albanian',
     'ar': 'Arabic',
@@ -67,7 +70,7 @@ locales = {
     'cy': 'Welsh'
 }
 
-voices = [
+TTS_VOICES = [
     'm1',
     'm2',
     'm3',
@@ -109,6 +112,8 @@ class OnJoin(commands.Cog):
         self.config.register_guild(**default_global)
         self.save_path = data_manager.cog_data_path(self)
 
+        self._audio_task = None
+
     async def string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
         use_espeak = await self.config.use_espeak()
@@ -125,7 +130,7 @@ class OnJoin(commands.Cog):
                                                                   str(self.save_path) + "temp_message.mp3")],
                  shell=True)
 
-    async def sound_play(self, guild: discord.Guild, channel: discord.VoiceChannel, filepath: str):
+    async def sound_play(self, channel: discord.VoiceChannel, filepath: str):
         if self.audio is None:
             self.audio: Audio = self.bot.get_cog("Audio")
 
@@ -135,32 +140,38 @@ class OnJoin(commands.Cog):
 
         loop = self.bot.loop
 
-        async def run_sound():
-            await lavalink.connect(channel)
-            lavaplayer = lavalink.get_player(guild.id)
-            lavaplayer.store("connect", datetime.datetime.utcnow())
-            lavaplayer.store("channel", channel)
-            await lavaplayer.wait_until_ready()
+        async def run_sound(bot):
 
-            await lavaplayer.stop()
             try:
-                track = await lavaplayer.get_tracks(filepath)
-            except RuntimeError:
-                await lavaplayer.disconnect()
+                lavaplayer = await lavalink.connect(channel)
+            except IndexError:
+                LOG.exception("Tried to run too quickly after lavalink initialization. Continuing...")
                 return
 
-            track = track[0]
-            seconds = track.length / 1000
-            lavaplayer.add(self.bot, track)
+            try:
+                lavaplayer.store("connect", datetime.datetime.utcnow())
+                lavaplayer.store("channel", channel)
+                await lavaplayer.wait_until_ready()
 
-            if not lavaplayer.current:
-                await lavaplayer.play()
+                await lavaplayer.stop()
+                track = await lavaplayer.get_tracks(filepath)
 
-            await asyncio.sleep(seconds)
+                track = track[0]
+                seconds = track.length / 1000
+                lavaplayer.add(bot, track)
 
-            await lavaplayer.disconnect()
+                if not lavaplayer.current:
+                    await lavaplayer.play()
+                    await asyncio.sleep(seconds, loop=bot.loop)
+                    await lavaplayer.disconnect()
 
-        loop.create_task(run_sound())
+            except RuntimeError:
+                LOG.exception("Something went wrong trying to play speech. Continuing...")
+
+        # Stop current announcement and begin most recent one
+        if self._audio_task and not self._audio_task.done():
+            self._audio_task.cancel()
+        self._audio_task = loop.create_task(run_sound(self.bot))
 
     async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         if member.bot:
@@ -170,40 +181,39 @@ class OnJoin(commands.Cog):
 
             name = member.display_name
             if await self.config.allow_emoji() == 'off':
-                name = REGEX_EMOJI.sub(r'', name)
+                name = EMOJI_REGEX.sub(r'', name)
             if await self.config.profanity_filter() == 'on':
-                f = ProfanitiesFilter(await self.config.profanity_filter(), replacements=" ")
-                f.inside_words = True
-                name = f.clean(name)
+                p_filter = ProfanitiesFilter(await self.config.profanity_filter(), replacements=" ")
+                p_filter.inside_words = True
+                name = p_filter.clean(name)
 
             if after.channel:
                 text = "{} has joined the channel".format(name)
                 channel = after.channel
 
                 await self.string_to_speech(text)
-                await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
+                await self.sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
             elif before.channel:
                 text = "{} has left the channel".format(name)
                 channel = before.channel
 
                 await self.string_to_speech(text)
-                await self.sound_play(channel.guild, channel, str(self.save_path) + "/temp_message.mp3")
+                await self.sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
     @checks.admin()
     @commands.command(name='say')
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
-        server = ctx.channel.guild
         channel = ctx.author.voice.channel
         await self.string_to_speech(message)
-        await self.sound_play(server, channel, str(self.save_path) + "/temp_message.mp3")
+        await self.sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, name='set_locale')
     async def set_locale(self, ctx, locale):
         """Change the TTS speech locale region."""
-        if locale not in locales.keys():
+        if locale not in LOCALES.keys():
             await ctx.send(
                 "{} was not found in the list of locales. Look at https://pypi.python.org/pypi/gTTS"
                 " for a list of valid codes.".format(
@@ -211,15 +221,15 @@ class OnJoin(commands.Cog):
             return
         else:
             await self.config.locale.set(locale)
-            await ctx.send("Locale was successfully changed to {}.".format(locales[locale]))
+            await ctx.send("Locale was successfully changed to {}.".format(LOCALES[locale]))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, name='set_voice')
     async def set_voice(self, ctx, voice):
         """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
-        if voice not in voices:
+        if voice not in TTS_VOICES:
             await ctx.send("{} is not a valid voice code."
-                           "Please choose one of the following:\n {}".format(voice, '\n'.join(voices)))
+                           "Please choose one of the following:\n {}".format(voice, '\n'.join(TTS_VOICES)))
             return
         else:
             await self.config.voice.set(voice)
@@ -230,7 +240,7 @@ class OnJoin(commands.Cog):
     async def set_speed(self, ctx, speed):
         """ Set the WPM speed of the espeak narrator. Range is 80-500. """
         speed = int(speed)
-        if not (80 < speed < 500):
+        if not 80 < speed < 500:
             await ctx.send("{} is not between 80 and 500 WPM.".format(speed))
             return
         else:
