@@ -143,7 +143,7 @@ class OnJoin(commands.Cog):
         async def run_sound(bot):
 
             try:
-                lavaplayer = await lavalink.connect(channel)
+                lavaplayer = await asyncio.shield(lavalink.connect(channel))
             except IndexError:
                 LOG.exception("Tried to run too quickly after lavalink initialization. Continuing...")
                 return
@@ -163,11 +163,11 @@ class OnJoin(commands.Cog):
                 if not lavaplayer.current:
                     await lavaplayer.play()
                     await asyncio.sleep(seconds, loop=bot.loop)
-                    await lavaplayer.disconnect()
+                    await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
                 LOG.exception("Something went wrong trying to play speech. Continuing...")
-                await lavaplayer.disconnect()
+                await asyncio.shield(lavaplayer.disconnect())
 
         # Stop current announcement and begin most recent one
         if self._audio_task and not self._audio_task.done():
