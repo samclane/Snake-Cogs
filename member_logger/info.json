@@ -2,7 +2,7 @@
   "AUTHOR": "watersnake",
   "SHORT": "Gathers information on when users interact with each other, for use in later analysis.",
   "DESCRIPTION": "Gathers information on when users interact with each other. Code for analyzing collected data can be found here: https://github.com/samclane/DiscordSocialGraph",
-  "DISABLED": false,
+  "DISABLED": true,
   "NAME": "member_logger",
   "TAGS": [
     "logging",
