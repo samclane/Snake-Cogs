@@ -201,7 +201,7 @@ class DamnSession:
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
-        await self.context.send(file=discord.File(fp=img))
+        await self.context.send(file=discord.File(fp=img, filename="damn-image"))
         msg = "Choices:\n"
         for idx, ans in enumerate(self.answer_set, 1):
             idx = str(idx)
