@@ -145,7 +145,7 @@ class OnJoin(commands.Cog):
             try:
                 lavaplayer = await asyncio.shield(lavalink.connect(channel))
             except IndexError:
-                LOG.exception("Tried to run too quickly after lavalink initialization. Continuing...")
+                LOG.exception("Something went wrong connecting to the Lavalink Node. Continuing...")
                 return
 
             try:
@@ -154,6 +154,7 @@ class OnJoin(commands.Cog):
                 await lavaplayer.wait_until_ready()
 
                 await lavaplayer.stop()
+                print(filepath)
                 track = await lavaplayer.get_tracks(filepath)
 
                 track = track[0]
