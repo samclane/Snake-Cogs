@@ -1,146 +1,134 @@
 import asyncio
-import os
 import time
-from collections import Counter, defaultdict
+from collections import Counter
 from os import listdir
 from os.path import isfile, join
 from random import choice
 
 import discord
-from discord.ext import commands
-
-from .utils import checks
-from .utils.chat_formatting import box
-from .utils.dataIO import dataIO
-
-DEFAULTS = {
-    "MAX_SCORE": 10,
-    "TIMEOUT": 120,
-    "DELAY": 15,
-    "BOT_PLAYS": False,
-    "REVEAL_ANSWER": True
-}
+from redbot.core import Config, data_manager, checks, commands
+from redbot.core.bot import Red
+from redbot.core.utils import box
 
 
-# this comment forces an update
-
-class DamnDog:
+class DamnDog(commands.Cog):
     """General commands"""
 
     def __init__(self, bot):
-        self.bot = bot
-        self.damn_sessions = []
-        self.file_path = "data/damn-dog/settings.json"
-        settings = dataIO.load_json(self.file_path)
-        self.settings = defaultdict(lambda: DEFAULTS.copy(), settings)
+        super().__init__()
+        self.bot: Red = bot
+        self.config = Config.get_conf(self, identifier=int(hash("damn_dog")))
+        default_global = {
+            "max_score": 10,
+            "timeout": 120,
+            "delay": 15,
+            "bot_plays": False,
+            "reveal_answer": True
+        }
+        self.config.register_global(**default_global)
+        self.config.register_guild(**default_global)
+        self.img_path = str(data_manager.bundled_data_path(self)) + "\\img\\"
 
-    @commands.group(pass_context=True, no_pm=True)
+        self.damn_sessions = []
+
+    @commands.group(no_pm=True)
     @checks.mod_or_permissions(administrator=True)
     async def damnset(self, ctx):
         """Change DamnDog Settings"""
-        server = ctx.message.server
         if ctx.invoked_subcommand is None:
-            settings = self.settings[server.id]
-            msg = box("Redbot gains points: {BOT_PLAYS}\n"
-                      "Seconds to answer: {DELAY}\n"
-                      "Points to win: {MAX_SCORE}\n"
-                      "Reveal answer on timeout: {REVEAL_ANSWER}\n"
-                      "".format(**settings))
+            msg = box("Redbot gains points: {}\n"
+                      "Seconds to answer: {}\n"
+                      "Points to win: {}\n"
+                      "Seconds to timeout: {}\n"
+                      "Reveal answer on timeout: {}\n"
+                      "".format(await self.config.bot_plays(),
+                                await self.config.delay(),
+                                await self.config.max_score(),
+                                await self.config.timeout(),
+                                await self.config.reveal_answer()))
             msg += "\nSee {}help damnset to edit the settings".format(ctx.prefix)
-            await self.bot.say(msg)
+            await ctx.send(msg)
 
-    @damnset.command(pass_context=True)
+    @damnset.command()
     async def maxscore(self, ctx, score: int):
         """Points required to win"""
-        server = ctx.message.server
         if score > 0:
-            self.settings[server.id]["MAX_SCORE"] = score
-            self.save_settings()
-            await self.bot.say("Points required to win set to {}".format(score))
+            await self.config.max_score.set(score)
+            await ctx.send("Points required to win set to {}".format(score))
         else:
-            await self.bot.say("Score must be greater than 0.")
+            await ctx.send("Score must be greater than 0.")
 
-    @damnset.command(pass_context=True)
+    @damnset.command()
     async def timelimit(self, ctx, seconds: int):
         """Maximum seconds to answer"""
-        server = ctx.message.server
         if seconds > 4:
-            self.settings[server.id]["DELAY"] = seconds
-            self.save_settings()
-            await self.bot.say("Maximum seconds to answer set to {}".format(seconds))
+            await self.config.delay.set(seconds)
+            await ctx.send("Maximum seconds to answer set to {}".format(seconds))
         else:
-            await self.bot.say("Seconds must be at least 5.")
+            await ctx.send("Seconds must be at least 5.")
 
-    @damnset.command(pass_context=True)
+    @damnset.command()
     async def botplays(self, ctx):
         """Red gains points"""
-        server = ctx.message.server
-        if self.settings[server.id]["BOT_PLAYS"]:
-            self.settings[server.id]["BOT_PLAYS"] = False
-            await self.bot.say("Alright, I won't embarrass you at Damn.Dog anymore.")
+        if await self.config.bot_plays():
+            await self.config.bot_plays.set(False)
+            await ctx.send("Alright, I won't embarrass you at Damn.Dog anymore.")
         else:
-            self.settings[server.id]["BOT_PLAYS"] = True
-            await self.bot.say("I'll gain a point every time you don't answer in time.")
-        self.save_settings()
+            await self.config.bot_plays.set(True)
+            await ctx.send("I'll gain a point every time you don't answer in time.")
 
-    @damnset.command(pass_context=True)
+    @damnset.command()
     async def revealanswer(self, ctx):
         """Reveals answer to the question on timeout"""
-        server = ctx.message.server
-        if self.settings[server.id]["REVEAL_ANSWER"]:
-            self.settings[server.id]["REVEAL_ANSWER"] = False
-            await self.bot.say("I won't reveal the answer to the questions anymore.")
+        if await self.config.reveal_answer():
+            await self.config.reveal_answer.set(False)
+            await ctx.send("I won't reveal the answer to the questions anymore.")
         else:
-            self.settings[server.id]["REVEAL_ANSWER"] = True
-            await self.bot.say("I'll reveal the answer if no one knows it.")
-        self.save_settings()
+            await self.config.reveal_answer.set(True)
+            await ctx.send("I'll reveal the answer if no one knows it.")
 
-    @commands.group(pass_context=True, invoke_without_command=True, no_pm=True)
+    @commands.group(invoke_without_command=True, no_pm=True)
     async def damndog(self, ctx):
         """Start a damn.dog session"""
         message = ctx.message
-        server = message.server
         session = self.get_damn_by_channel(message.channel)
         if not session:
             try:
                 damn_questions = self.get_damn_data()
             except Exception as e:
                 print(e)
-                await self.bot.say("There was an unknown error getting damn.dog data: {}".format(e))
+                await ctx.send("There was an unknown error getting damn.dog data: {}".format(e))
             else:
-                settings = self.settings[server.id]
-                d = DamnSession(self.bot, damn_questions, message, settings)
+                config = self.config
+                d = DamnSession(self, self.bot, damn_questions, ctx, config)
                 self.damn_sessions.append(d)
                 await d.new_question()
         else:
-            await self.bot.say("A damn.dog session is already ongoing in this channel.")
+            await ctx.send("A damn.dog session is already ongoing in this channel.")
 
-    @damndog.group(name="stop", pass_context=True, no_pm=True)
-    async def damn_stop(self, ctx):
+    @damndog.command(no_pm=True)
+    async def stop(self, ctx):
         """Stops an ongoing damndog session"""
         author = ctx.message.author
-        server = author.server
-        admin_role = self.bot.settings.get_server_admin(server)
-        mod_role = self.bot.settings.get_server_mod(server)
-        is_admin = discord.utils.get(author.roles, name=admin_role)
-        is_mod = discord.utils.get(author.roles, name=mod_role)
-        is_owner = author.id == self.bot.settings.owner
-        is_server_owner = author == server.owner
+        guild = author.guild
+        is_server_owner = author == guild.owner
+        is_admin = await self.bot.is_admin(author)
+        is_mod = await self.bot.is_mod(author)
+        is_owner = await self.bot.is_owner(author)
         is_authorized = is_admin or is_mod or is_owner or is_server_owner
 
         session = self.get_damn_by_channel(ctx.message.channel)
         if session:
             if author == session.starter or is_authorized:
                 await session.end_game()
-                await self.bot.say("DamnDog stopped.")
+                await ctx.send("DamnDog stopped.")
             else:
-                await self.bot.say("You are not allowed to do that.")
+                await ctx.send("You are not allowed to do that.")
         else:
-            await self.bot.say("There's no damndog session ongoing in this channel.")
+            await ctx.send("There's no damndog session ongoing in this channel.")
 
     def get_damn_data(self):
-        path = "data/damn-dog/img"
-        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        onlyfiles = [f for f in listdir(self.img_path) if isfile(join(self.img_path, f))]
         img_dict = dict()
         for idx, fn in enumerate(onlyfiles):
             onlyfiles[idx] = fn.replace('-', ' ')[:-4]
@@ -154,7 +142,7 @@ class DamnDog:
         return None
 
     async def on_message(self, message):
-        if message.author != self.bot.user:
+        if not message.author.bot:
             session = self.get_damn_by_channel(message.channel)
             if session:
                 await session.check_answer(message)
@@ -163,12 +151,10 @@ class DamnDog:
         if instance in self.damn_sessions:
             self.damn_sessions.remove(instance)
 
-    def save_settings(self):
-        dataIO.save_json(self.file_path, self.settings)
-
 
 class DamnSession:
-    def __init__(self, bot, damn_data, message, settings):
+    def __init__(self, cog, bot, damn_data, context, config):
+        self.cog = cog
         self.bot = bot
         self.reveal_message = "The answer is {}."
         self.fail_message = "On to the next one..."
@@ -177,15 +163,16 @@ class DamnSession:
         self.answer_dict = dict()
         self.has_answered = set()
         self.damn_data = damn_data
-        self.channel = message.channel
-        self.starter = message.author
+        self.context = context
+        self.channel = context.message.channel
+        self.starter = context.message.author
         self.scores = Counter()
         self.status = "new question"
         self.timer = None
         self.timeout = time.perf_counter()
         self.count = 0
-        self.settings = settings
-        self.path = "data/damn-dog/img"
+        self.config = config
+        self.img_path = str(data_manager.bundled_data_path(self.cog)) + "\\img\\"
 
     async def stop_damn(self):
         self.status = "stop"
@@ -199,14 +186,14 @@ class DamnSession:
 
     async def new_question(self):
         for score in self.scores.values():
-            if score == self.settings["MAX_SCORE"]:
+            if score == await self.config.max_score():
                 await self.end_game()
                 return True
         if self.damn_data == {}:
             await self.end_game()
             return True
         self.correct_answer = choice(list(self.damn_data.keys()))
-        img = self.path + "/{}".format(self.damn_data[self.correct_answer])
+        img = self.img_path + "/{}".format(self.damn_data[self.correct_answer])
         self.answer_set.add(self.correct_answer)
         del self.damn_data[self.correct_answer]
         for _ in range(3):
@@ -214,18 +201,18 @@ class DamnSession:
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
-        await self.bot.send_file(destination=self.channel, fp=img)
+        await self.context.send(file=discord.File(fp=img))
         msg = "Choices:\n"
         for idx, ans in enumerate(self.answer_set, 1):
             idx = str(idx)
             self.answer_dict[ans] = idx
             msg += "**{}.** {}\n".format(idx, ans)
-        await self.bot.say(msg)
+        await self.context.send(msg)
 
-        while self.status != "correct answer" and (abs(self.timer - int(time.perf_counter()))) <= self.settings[
-            "DELAY"]:
-            if abs(self.timeout - int(time.perf_counter())) >= self.settings["TIMEOUT"]:
-                await self.bot.say("I guess I'll stop then...")
+        while self.status != "correct answer" and (
+        abs(self.timer - int(time.perf_counter()))) <= await self.config.delay():
+            if abs(self.timeout - int(time.perf_counter())) >= await self.config.timeout():
+                await self.context.send("I guess I'll stop then...")
                 await self.stop_damn()
                 return True
             await asyncio.sleep(1)  # Waiting for an answer or for the time limit
@@ -237,16 +224,16 @@ class DamnSession:
         elif self.status == "stop":
             return True
         else:
-            if self.settings["REVEAL_ANSWER"]:
+            if await self.config.reveal_answer():
                 msg = self.reveal_message.format(self.correct_answer)
             else:
                 msg = self.fail_message
-            if self.settings["BOT_PLAYS"]:
+            if await self.config.bot_plays():
                 msg += " **+1** for me!"
                 self.scores[self.bot.user] += 1
             self.reset_round()
-            await self.bot.say(msg)
-            await self.bot.type()
+            await self.context.send(msg)
+            self.context.typing()
             await asyncio.sleep(3)
             if not self.status == "stop":
                 await self.new_question()
@@ -255,12 +242,10 @@ class DamnSession:
         t = "+ Results: \n\n"
         for user, score in self.scores.most_common():
             t += "+ {}\t{}\n".format(user, score)
-        await self.bot.say(box(t, lang="diff"))
+        await self.context.send(box(t, lang="diff"))
 
     async def check_answer(self, message):
-        if message.author == self.bot.user:
-            return
-        elif self.correct_answer is None:
+        if self.correct_answer is None:
             return
         elif message.author in self.has_answered:
             return
@@ -278,7 +263,7 @@ class DamnSession:
             self.scores[message.author] += 1
             msg = "The correct answer was \"{}\"\n".format(self.correct_answer)
             msg += "You got it {}! **+1** to you!".format(message.author.name)
-            await self.bot.send_message(message.channel, msg)
+            await self.context.send(msg)
             self.reset_round()
         else:
             self.has_answered.add(message.author)
@@ -288,23 +273,3 @@ class DamnSession:
         self.answer_dict = dict()
         self.answer_set = set()
         self.has_answered = set()
-
-
-def check_folders():
-    folders = ("data", "data/img/")
-    for folder in folders:
-        if not os.path.exists(folder):
-            print("Creating " + folder + " folder...")
-            os.makedirs(folder)
-
-
-def check_files():
-    if not os.path.isfile("data/damn-dog/settings.json"):
-        print("Creating empty settings.json")
-        dataIO.save_json("data/damn-dog/settings.json", {})
-
-
-def setup(bot):
-    check_folders()
-    check_files()
-    bot.add_cog(DamnDog(bot))
