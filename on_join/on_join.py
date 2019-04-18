@@ -154,7 +154,6 @@ class OnJoin(commands.Cog):
                 await lavaplayer.wait_until_ready()
 
                 await lavaplayer.stop()
-                print(filepath)
                 track = await lavaplayer.get_tracks(filepath)
 
                 track = track[0]
@@ -167,7 +166,10 @@ class OnJoin(commands.Cog):
                     await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
-                LOG.exception("Something went wrong trying to play speech. Continuing...")
+                LOG.exception("Something went wrong trying to play speech. Disconnecting...")
+                await asyncio.shield(lavaplayer.disconnect())
+            except IndexError:
+                LOG.exception("Something went wrong trying to find speech file. Disconnecting...")
                 await asyncio.shield(lavaplayer.disconnect())
 
         # Stop current announcement and begin most recent one
