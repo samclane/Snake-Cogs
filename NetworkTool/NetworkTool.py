@@ -1,10 +1,15 @@
-from redbot.core import commands
-from redbot.core import bot as r_bot
-
 import json
+import logging
+
+from redbot.core import commands
+from redbot.core.bot import Red
+
+LOG = logging.getLogger("red.NetworkTool")
+
 
 class NetworkTool(commands.Cog):
-    def __init__(self, bot: r_bot.RedBase):
+    def __init__(self, bot: Red.RedBase):
+        super().__init__()
         self.bot = bot
 
     def build_bot_json(self):
@@ -36,4 +41,4 @@ class NetworkTool(commands.Cog):
         if msg == "hello":  # first contact
             bot_json = json.dumps(self.build_bot_json())
             await websocket.send(bot_json)
-            print(json.dumps(self.build_bot_json()))
+            LOG.info(json.dumps(self.build_bot_json()))

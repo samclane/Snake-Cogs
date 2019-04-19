@@ -4,15 +4,15 @@ Cogs repo for my personal Red-Bot discord installation.
 
 To add cogs, use ```[p]cog repo add snake-cogs https://github.com/samclane/Snake-Cogs```
 
-Check if there are any dependancies, and install them using pip3
+Check if there are any dependencies, and install them using pip3
 
 ## Cog Overview
 
-**Damn-Dog** - Play the damn.dog Wikihow trivia game right from your discord!
+**DamnDog** - Play the damn.dog Wikihow trivia game right from your Discord chat!
 
-**on_join** - Uses gTTS to announce when a user joins the channel, like Teamspeak or Ventrillo
+**OnJoin** - Uses gTTS to announce when a user joins the channel, like Teamspeak or Ventrillo.
 
-**network_tool** - Cog that updates a webpage with diagnostic info. Currently on a shaky first-release. 
+**NetworkTool** - Cog that updates a webpage with diagnostic info, sent via websocket.
 
 
 ## Wiki
@@ -25,5 +25,5 @@ Twentysix26 - Making the bot
 
 dir(ir) - Stepping me through some dumb questions
 
-tmercswims - on_join uses code from his customjoinleave cog to play audio. Check out his cogs at https://github.com/tmercswims/tmerc-cogs
+tmercswims - on_join uses code from his `customjoinleave` cog to play audio. Check out his cogs at https://github.com/tmercswims/tmerc-cogs
 

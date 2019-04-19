@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 from collections import Counter
 from os import listdir
@@ -11,13 +12,16 @@ from redbot.core.bot import Red
 from redbot.core.utils import box
 
 
+LOG = logging.getLogger("red.DamnDog")
+
+
 class DamnDog(commands.Cog):
     """General commands"""
 
     def __init__(self, bot):
         super().__init__()
         self.bot: Red = bot
-        self.config = Config.get_conf(self, identifier=int(hash("damn_dog")))
+        self.config = Config.get_conf(self, identifier=int(hash("DamnDog")))
         default_global = {
             "max_score": 10,
             "timeout": 120,
@@ -96,7 +100,7 @@ class DamnDog(commands.Cog):
             try:
                 damn_questions = self.get_damn_data()
             except Exception as e:
-                print(e)
+                LOG.exception("Error getting damn.dog data...")
                 await ctx.send("There was an unknown error getting damn.dog data: {}".format(e))
             else:
                 config = self.config
@@ -201,7 +205,7 @@ class DamnSession:
         self.status = "waiting for answer"
         self.count += 1
         self.timer = int(time.perf_counter())
-        await self.context.send(file=discord.File(fp=img, filename="damn-image"))
+        await self.context.send(file=discord.File(fp=img, filename="damn-image.jpg"))
         msg = "Choices:\n"
         for idx, ans in enumerate(self.answer_set, 1):
             idx = str(idx)

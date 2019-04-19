@@ -10,9 +10,9 @@ from redbot.cogs.audio import Audio
 from redbot.core import Config, data_manager, checks, commands
 from redbot.core.bot import Red
 
-from .string_filters import ProfanitiesFilter, EMOJI_REGEX
+from .StringFilters import ProfanitiesFilter, EMOJI_REGEX
 
-LOG = logging.getLogger("red.audio.on_join")
+LOG = logging.getLogger("red.audio.OnJoin")
 
 LOCALES = {
     'af': 'Afrikaans',
@@ -98,7 +98,7 @@ class OnJoin(commands.Cog):
             self, identifier=651171001051118411410511810597, force_registration=True
         )
         self.audioconf.register_guild(delay=30.0, repeat=True)
-        self.config = Config.get_conf(self, identifier=int(hash("on_join")))
+        self.config = Config.get_conf(self, identifier=int(hash("OnJoin")))
         default_global = {
             "locale": "en-us",
             "voice": "ml",
@@ -218,7 +218,7 @@ class OnJoin(commands.Cog):
         await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, name='set_locale')
+    @commands.command(name='set_locale')
     async def set_locale(self, ctx, locale):
         """Change the TTS speech locale region."""
         if locale not in LOCALES.keys():
@@ -232,7 +232,7 @@ class OnJoin(commands.Cog):
             await ctx.send("Locale was successfully changed to {}.".format(LOCALES[locale]))
 
     @checks.admin_or_permissions(manage_guild=True)
-    @commands.command(pass_context=False, name='set_voice')
+    @commands.command(name='set_voice')
     async def set_voice(self, ctx, voice):
         """ Change the voice style of the espeak narrator. Valid selections are m(1-7), f(1-4), croak, and whisper."""
         if voice not in TTS_VOICES:

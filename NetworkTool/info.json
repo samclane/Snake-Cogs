@@ -1,0 +1,14 @@
+{
+  "author": ["WaterSnake"],
+  "short": "Tool for remote monitoring of bot.",
+  "description": "Uses json and hosts a local websocket.",
+  "disabled": false,
+  "name": "NetworkTool",
+  "tags": [
+    "network_tool",
+    "utility",
+    "tools"
+  ],
+  "INSTALL_MSG": "ATTENTION: Look in the data folder for 'gui.html', and open that to view the tool.",
+  "bot_version": [3, 0, 0]
+}

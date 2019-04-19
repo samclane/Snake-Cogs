@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 
-from .network_tool import NetworkTool
+from .NetworkTool import NetworkTool
 
 # test
 def setup(bot):

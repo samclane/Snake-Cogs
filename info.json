@@ -1,6 +1,7 @@
 {
-  "NAME": "Snake-Cogs",
-  "AUTHOR": "Watersnake",
-  "SHORT": "General purpose cogs",
-  "DESCRIPTION": "Cogs that make life easier!"
+  "author": ["WaterSnake"],
+  "install_msg": "Thanks for installing!",
+  "name": "Snake-Cogs",
+  "short": "General purpose cogs",
+  "description": "Cogs that make life easier!"
 }
