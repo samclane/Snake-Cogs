@@ -178,6 +178,7 @@ class OnJoin(commands.Cog):
         # Stop current announcement and begin most recent one
         if self._audio_task and not self._audio_task.done():
             self._audio_task.cancel()
+            await self._audio_task
         self._audio_task = loop.create_task(run_sound(self.bot))
 
     async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
