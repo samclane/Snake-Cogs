@@ -141,24 +141,28 @@ class OnJoin(commands.Cog):
         loop = self.bot.loop
 
         # Build an async task to actually play the sound file
-        async def run_sound(bot):
+        async def run_sound(bot: Red):
             try:
+                # Get audio player for channel
                 lavaplayer = await asyncio.shield(lavalink.connect(channel))
             except IndexError:
                 LOG.exception("Something went wrong connecting to the Lavalink Node. Continuing...")
                 return
 
             try:
+                # Save connection info and prepare audio player
                 lavaplayer.store("connect", datetime.datetime.utcnow())
                 lavaplayer.store("channel", channel)
                 await lavaplayer.wait_until_ready()
                 await lavaplayer.stop()
 
+                # Get generated track and add it to the queue
                 track = await lavaplayer.get_tracks(filepath)
                 track = track[0]
                 seconds = track.length / 1000
                 lavaplayer.add(bot, track)
 
+                # Make the announcement
                 if not lavaplayer.current:
                     await lavaplayer.play()
                     await asyncio.sleep(seconds, loop=bot.loop)
@@ -182,6 +186,7 @@ class OnJoin(commands.Cog):
 
         if before.channel != after.channel:
 
+            # Apply active filters to name
             name = member.display_name
             if await self.config.allow_emoji() == 'off':
                 name = EMOJI_REGEX.sub(r'', name)
