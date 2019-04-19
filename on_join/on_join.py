@@ -114,7 +114,7 @@ class OnJoin(commands.Cog):
 
         self._audio_task = None
 
-    async def string_to_speech(self, text):
+    async def _string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
         use_espeak = await self.config.use_espeak()
         text = text.lower()
@@ -130,18 +130,18 @@ class OnJoin(commands.Cog):
                                                                   str(self.save_path) + "temp_message.mp3")],
                  shell=True)
 
-    async def sound_play(self, channel: discord.VoiceChannel, filepath: str):
+    async def _sound_play(self, channel: discord.VoiceChannel, filepath: str):
         if self.audio is None:
             self.audio: Audio = self.bot.get_cog("Audio")
 
         if self.audio is None:
-            print("Audio is not loaded. Load it and try again.")
+            LOG.error("Audio is not loaded. Load it and try again.")
             return
 
         loop = self.bot.loop
 
+        # Build an async task to actually play the sound file
         async def run_sound(bot):
-
             try:
                 lavaplayer = await asyncio.shield(lavalink.connect(channel))
             except IndexError:
@@ -152,10 +152,9 @@ class OnJoin(commands.Cog):
                 lavaplayer.store("connect", datetime.datetime.utcnow())
                 lavaplayer.store("channel", channel)
                 await lavaplayer.wait_until_ready()
-
                 await lavaplayer.stop()
-                track = await lavaplayer.get_tracks(filepath)
 
+                track = await lavaplayer.get_tracks(filepath)
                 track = track[0]
                 seconds = track.length / 1000
                 lavaplayer.add(bot, track)
@@ -195,23 +194,23 @@ class OnJoin(commands.Cog):
                 text = "{} has joined the channel".format(name)
                 channel = after.channel
 
-                await self.string_to_speech(text)
-                await self.sound_play(channel, str(self.save_path) + "/temp_message.mp3")
+                await self._string_to_speech(text)
+                await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
             elif before.channel:
                 text = "{} has left the channel".format(name)
                 channel = before.channel
 
-                await self.string_to_speech(text)
-                await self.sound_play(channel, str(self.save_path) + "/temp_message.mp3")
+                await self._string_to_speech(text)
+                await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
     @checks.admin()
     @commands.command(name='say')
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
         channel = ctx.author.voice.channel
-        await self.string_to_speech(message)
-        await self.sound_play(channel, str(self.save_path) + "/temp_message.mp3")
+        await self._string_to_speech(message)
+        await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pass_context=False, name='set_locale')
