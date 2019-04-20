@@ -1,9 +1,10 @@
 import asyncio
+
 import websockets
 
 from .NetworkTool import NetworkTool
 
-# test
+
 def setup(bot):
     n = NetworkTool(bot)
 

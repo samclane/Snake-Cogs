@@ -11,7 +11,6 @@ from redbot.core import Config, data_manager, checks, commands
 from redbot.core.bot import Red
 from redbot.core.utils import box
 
-
 LOG = logging.getLogger("red.DamnDog")
 
 
@@ -95,18 +94,18 @@ class DamnDog(commands.Cog):
     async def damndog(self, ctx):
         """Start a damn.dog session"""
         message = ctx.message
-        session = self.get_damn_by_channel(message.channel)
+        session = self._get_damn_by_channel(message.channel)
         if not session:
             try:
-                damn_questions = self.get_damn_data()
+                damn_questions = self._get_damn_data()
             except Exception as e:
                 LOG.exception("Error getting damn.dog data...")
                 await ctx.send("There was an unknown error getting damn.dog data: {}".format(e))
             else:
                 config = self.config
-                d = DamnSession(self, self.bot, damn_questions, ctx, config)
-                self.damn_sessions.append(d)
-                await d.new_question()
+                session = DamnSession(self, self.bot, damn_questions, ctx, config)
+                self.damn_sessions.append(session)
+                await session.new_question()
         else:
             await ctx.send("A damn.dog session is already ongoing in this channel.")
 
@@ -121,7 +120,7 @@ class DamnDog(commands.Cog):
         is_owner = await self.bot.is_owner(author)
         is_authorized = is_admin or is_mod or is_owner or is_server_owner
 
-        session = self.get_damn_by_channel(ctx.message.channel)
+        session = self._get_damn_by_channel(ctx.message.channel)
         if session:
             if author == session.starter or is_authorized:
                 await session.end_game()
@@ -131,23 +130,23 @@ class DamnDog(commands.Cog):
         else:
             await ctx.send("There's no damndog session ongoing in this channel.")
 
-    def get_damn_data(self):
+    def _get_damn_data(self):
         onlyfiles = [f for f in listdir(self.img_path) if isfile(join(self.img_path, f))]
         img_dict = dict()
-        for idx, fn in enumerate(onlyfiles):
-            onlyfiles[idx] = fn.replace('-', ' ')[:-4]
-            img_dict[onlyfiles[idx]] = fn
+        for idx, filename in enumerate(onlyfiles):
+            onlyfiles[idx] = filename.replace('-', ' ')[:-4]
+            img_dict[onlyfiles[idx]] = filename
         return img_dict
 
-    def get_damn_by_channel(self, channel):
-        for d in self.damn_sessions:
-            if d.channel == channel:
-                return d
+    def _get_damn_by_channel(self, channel):
+        for session in self.damn_sessions:
+            if session.channel == channel:
+                return session
         return None
 
     async def on_message(self, message):
         if not message.author.bot:
-            session = self.get_damn_by_channel(message.channel)
+            session = self._get_damn_by_channel(message.channel)
             if session:
                 await session.check_answer(message)
 
@@ -157,6 +156,7 @@ class DamnDog(commands.Cog):
 
 
 class DamnSession:
+    """Contains state information for a given session of DamnDog Trivia"""
     def __init__(self, cog, bot, damn_data, context, config):
         self.cog = cog
         self.bot = bot
@@ -213,8 +213,8 @@ class DamnSession:
             msg += "**{}.** {}\n".format(idx, ans)
         await self.context.send(msg)
 
-        while self.status != "correct answer" and (
-        abs(self.timer - int(time.perf_counter()))) <= await self.config.delay():
+        while self.status != "correct answer" and abs(
+                self.timer - int(time.perf_counter())) <= await self.config.delay():
             if abs(self.timeout - int(time.perf_counter())) >= await self.config.timeout():
                 await self.context.send("I guess I'll stop then...")
                 await self.stop_damn()
@@ -251,7 +251,7 @@ class DamnSession:
     async def check_answer(self, message):
         if self.correct_answer is None:
             return
-        elif message.author in self.has_answered:
+        if message.author in self.has_answered:
             return
 
         self.timeout = time.perf_counter()

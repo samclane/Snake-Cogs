@@ -1,11 +1,15 @@
+import logging
+
 from redbot.core.bot import Red
 
 from .OnJoin import OnJoin
 
+LOG = logging.getLogger("red.audio.OnJoin")
+
 
 async def setup(bot: Red):
     if bot.get_cog("OnJoin"):
-        print("OnJoin already loaded, attempting to unload first...")
+        LOG.warning("OnJoin already loaded, attempting to unload first...")
         bot.remove_cog("OnJoin")
         await bot.remove_loaded_package("OnJoin")
         bot.unload_extension("OnJoin")

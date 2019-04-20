@@ -181,6 +181,8 @@ class OnJoin(commands.Cog):
         self._audio_task = loop.create_task(run_sound(self.bot))
 
     async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+        """Event handler for users switching voice channels. Prompts the bot to enter the prev. channel and announce
+        the user's departure"""
         if member.bot:
             return
 
@@ -227,9 +229,9 @@ class OnJoin(commands.Cog):
                 " for a list of valid codes.".format(
                     locale))
             return
-        else:
-            await self.config.locale.set(locale)
-            await ctx.send("Locale was successfully changed to {}.".format(LOCALES[locale]))
+
+        await self.config.locale.set(locale)
+        await ctx.send("Locale was successfully changed to {}.".format(LOCALES[locale]))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name='set_voice')
@@ -239,9 +241,9 @@ class OnJoin(commands.Cog):
             await ctx.send("{} is not a valid voice code."
                            "Please choose one of the following:\n {}".format(voice, '\n'.join(TTS_VOICES)))
             return
-        else:
-            await self.config.voice.set(voice)
-            await ctx.send("Voice was successfully changed to {}.".format(voice))
+
+        await self.config.voice.set(voice)
+        await ctx.send("Voice was successfully changed to {}.".format(voice))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name='set_speed')
@@ -251,9 +253,9 @@ class OnJoin(commands.Cog):
         if not 80 < speed < 500:
             await ctx.send("{} is not between 80 and 500 WPM.".format(speed))
             return
-        else:
-            await self.config.speed.set(speed)
-            await ctx.send("Speed was successfully changed to {}.".format(speed))
+
+        await self.config.speed.set(speed)
+        await ctx.send("Speed was successfully changed to {}.".format(speed))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(pname='allow_emoji')
@@ -263,12 +265,12 @@ class OnJoin(commands.Cog):
         if setting not in ["on", "off"]:
             await ctx.send("Please specify if you want emojis 'on' or 'off'")
             return
-        else:
-            if setting == "on":
-                await self.config.allow_emoji.set('on')
-            elif setting == "off":
-                await self.config.allow_emoji.set('off')
-            await ctx.send("Emoji speech is now {}.".format(setting))
+
+        if setting == "on":
+            await self.config.allow_emoji.set('on')
+        elif setting == "off":
+            await self.config.allow_emoji.set('off')
+        await ctx.send("Emoji speech is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name='set_filter')
@@ -278,12 +280,12 @@ class OnJoin(commands.Cog):
         if setting not in ["on", "off"]:
             await ctx.send("Please specify if you want the profanity filter 'on' or 'off'")
             return
-        else:
-            if setting == "on":
-                await self.config.profanity_filter.set('on')
-            elif setting == "off":
-                await self.config.profanity_filter.set('off')
-            await ctx.send("Profanity filter is now {}.".format(setting))
+
+        if setting == "on":
+            await self.config.profanity_filter.set('on')
+        elif setting == "off":
+            await self.config.profanity_filter.set('off')
+        await ctx.send("Profanity filter is now {}.".format(setting))
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name='add_filter')
@@ -305,9 +307,9 @@ class OnJoin(commands.Cog):
         if setting not in ["on", "off"]:
             await ctx.send("Please specify if you want to use espeak (yes) or gTTS( no).")
             return
-        else:
-            if setting == "on":
-                await self.config.use_espeak.set('on')
-            elif setting == "off":
-                await self.config.use_espeak.set('off')
+
+        if setting == "on":
+            await self.config.use_espeak.set('on')
+        elif setting == "off":
+            await self.config.use_espeak.set('off')
         await ctx.send("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
