@@ -198,8 +198,13 @@ class OnJoin(commands.Cog):
                 name = p_filter.clean(name)
 
             if after.channel:
-                text = "{} has joined the channel".format(name)
-                channel = after.channel
+                if after.afk:
+                    # User went AFK; let remaining members know
+                    text = "{} has gone AFK".format(name)
+                    channel = before.channel
+                else:
+                    text = "{} has joined the channel".format(name)
+                    channel = after.channel
 
                 await self._string_to_speech(text)
                 await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
