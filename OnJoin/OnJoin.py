@@ -116,6 +116,7 @@ class OnJoin(commands.Cog):
 
     async def _string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
+        LOG.info(f"Generating speech from string: \"{text}\"")
         use_espeak = await self.config.use_espeak()
         text = text.lower()
         if use_espeak == "off":
@@ -135,7 +136,15 @@ class OnJoin(commands.Cog):
             self.audio: Audio = self.bot.get_cog("Audio")
 
         if self.audio is None:
-            LOG.error("Audio is not loaded. Load it and try again.")
+            LOG.error("Audio Cog is not loaded. Try loading it, then reloading OnJoin.")
+            return
+
+        if filepath is None or len(filepath) == 0:  # TODO maybe raise exceptions here?
+            LOG.error(f"Filepath provided was an empty String or None")
+            return
+
+        if channel is None:
+            LOG.error(f"No channel was provided to play sound: {filepath}")
             return
 
         loop = self.bot.loop
@@ -146,7 +155,7 @@ class OnJoin(commands.Cog):
                 # Get audio player for channel
                 lavaplayer = await asyncio.shield(lavalink.connect(channel))
             except IndexError:
-                LOG.exception("Something went wrong connecting to the Lavalink Node. Continuing...")
+                LOG.exception("No LavaLink nodes were found. Attempting to continue...")
                 return
 
             try:
@@ -158,6 +167,9 @@ class OnJoin(commands.Cog):
 
                 # Get generated track and add it to the queue
                 load = await lavaplayer.load_tracks(filepath)
+                if load.has_error:
+                    LOG.error(f"Exception while playing sound: {load.exception_message}")
+                    return
                 track = load.tracks[0]
                 seconds = track.length / 1000
                 lavaplayer.add(bot, track)
@@ -165,14 +177,14 @@ class OnJoin(commands.Cog):
                 # Make the announcement
                 if not lavaplayer.current:
                     await lavaplayer.play()
-                    await asyncio.sleep(seconds, loop=bot.loop)
-                    await asyncio.shield(lavaplayer.disconnect())
+                    # await asyncio.sleep(seconds, loop=bot.loop)
+                    # await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
                 LOG.exception("Something went wrong trying to play speech. Disconnecting...")
                 await asyncio.shield(lavaplayer.disconnect())
             except IndexError:
-                LOG.exception("Something went wrong trying to find speech file. Disconnecting...")
+                LOG.exception("Something went wrong trying to find the speech file. Disconnecting...")
                 await asyncio.shield(lavaplayer.disconnect())
 
         # Stop current announcement and begin most recent one
@@ -221,6 +233,9 @@ class OnJoin(commands.Cog):
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
         channel = ctx.author.voice.channel
+        if channel is None:
+            await ctx.send("You must be in a voice channel first.")
+            return
         await self._string_to_speech(message)
         await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
