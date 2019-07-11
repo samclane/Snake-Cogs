@@ -116,6 +116,7 @@ class OnJoin(commands.Cog):
 
     async def _string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
+        LOG.info(f"Generating speech from string: \"{text}\"")
         use_espeak = await self.config.use_espeak()
         text = text.lower()
         if use_espeak == "off":
