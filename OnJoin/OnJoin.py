@@ -138,14 +138,6 @@ class OnJoin(commands.Cog):
             LOG.error("Audio Cog is not loaded. Try loading it, then reloading OnJoin.")
             return
 
-        if filepath is None or len(filepath) == 0:  # TODO maybe raise exceptions here?
-            LOG.error(f"Filepath provided was an empty String or None")
-            return
-
-        if channel is None:
-            LOG.error(f"No channel was provided to play sound: {filepath}")
-            return
-
         loop = self.bot.loop
 
         # Build an async task to actually play the sound file
