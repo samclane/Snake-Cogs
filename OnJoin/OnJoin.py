@@ -157,8 +157,11 @@ class OnJoin(commands.Cog):
                 await lavaplayer.stop()
 
                 # Get generated track and add it to the queue
-                track = await lavaplayer.get_tracks(filepath)
-                track = track[0]
+                load = await lavaplayer.load_tracks(filepath)
+                if load.has_error:
+                    LOG.error(f"Error playing sound: {load.exception_message}")
+                    return
+                track = load.tracks[0]
                 seconds = track.length / 1000
                 lavaplayer.add(bot, track)
 
