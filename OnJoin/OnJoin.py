@@ -116,7 +116,6 @@ class OnJoin(commands.Cog):
 
     async def _string_to_speech(self, text):
         """ Create TTS mp3 file `temp_message.mp3` """
-        # TODO LOG
         use_espeak = await self.config.use_espeak()
         text = text.lower()
         if use_espeak == "off":
@@ -139,14 +138,6 @@ class OnJoin(commands.Cog):
             LOG.error("Audio is not loaded. Load it and try again.")
             return
 
-        if filepath is None or len(filepath) == 0:  # TODO maybe raise exceptions here?
-            LOG.error(f"Filepath provided was an empty String or None")
-            return
-
-        if channel is None:
-            LOG.error(f"No channel was provided to play sound: {filepath}")
-            return
-
         loop = self.bot.loop
 
         # Build an async task to actually play the sound file
@@ -167,9 +158,6 @@ class OnJoin(commands.Cog):
 
                 # Get generated track and add it to the queue
                 load = await lavaplayer.load_tracks(filepath)
-                if load.has_error:
-                    LOG.error(f"Error playing sound: {load.exception_message}")
-                    return
                 track = load.tracks[0]
                 seconds = track.length / 1000
                 lavaplayer.add(bot, track)
@@ -233,9 +221,6 @@ class OnJoin(commands.Cog):
     async def say(self, ctx: commands.Context, *, message):
         """Have the bot use TTS say a string in the current voice channel."""
         channel = ctx.author.voice.channel
-        if channel is None:
-            await ctx.send("You must be in a voice channel first.")
-            return
         await self._string_to_speech(message)
         await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
 
