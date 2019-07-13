@@ -179,7 +179,7 @@ class OnJoin(commands.Cog):
                 if not lavaplayer.current:
                     await lavaplayer.play()
                     await asyncio.sleep(seconds, loop=self.bot.loop)
-                    # await asyncio.shield(lavaplayer.disconnect())
+                    await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
                 LOG.exception("Something went wrong trying to play speech. Disconnecting...")
