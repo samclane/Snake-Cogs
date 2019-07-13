@@ -180,7 +180,7 @@ class OnJoin(commands.Cog):
                     await lavaplayer.wait_until_ready()
                     await lavaplayer.play()
                     await asyncio.sleep(seconds, loop=bot.loop)
-                    await lavaplayer.close()
+                    # await lavaplayer.close()
                     # await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
