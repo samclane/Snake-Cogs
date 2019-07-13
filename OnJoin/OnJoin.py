@@ -152,7 +152,6 @@ class OnJoin(commands.Cog):
 
         # Build an async task to actually play the sound file
         async def run_sound(bot: Red):
-            LOG.info("run_sound called again")
             try:
                 # Get audio player for channel
                 if lavalink.get_player(channel.guild.id).channel == channel:
@@ -182,10 +181,8 @@ class OnJoin(commands.Cog):
 
                 # Make the announcement
                 if not lavaplayer.current:
-                    await asyncio.sleep(1, loop=bot.loop)
                     await lavaplayer.play()
-                    await asyncio.sleep(seconds, loop=bot.loop)
-                    # await lavaplayer.close()
+                    lavaplayer.reset_session()
                     # await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
