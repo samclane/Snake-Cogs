@@ -153,7 +153,10 @@ class OnJoin(commands.Cog):
         async def run_sound(bot: Red):
             try:
                 # Get audio player for channel
-                lavaplayer = await asyncio.shield(lavalink.connect(channel))
+                if lavalink.get_player(channel.guild.id):
+                    lavaplayer = lavalink.get_player(channel.guild.id)
+                else:
+                    lavaplayer = await asyncio.shield(lavalink.connect(channel))
             except IndexError:
                 LOG.exception("No LavaLink nodes were found. Attempting to continue...")
                 return
@@ -176,7 +179,7 @@ class OnJoin(commands.Cog):
 
                 # Make the announcement
                 if not lavaplayer.current:
-                    await asyncio.shield(lavaplayer.play(), loop=bot.loop)
+                    await lavaplayer.play()
                     # await asyncio.sleep(seconds, loop=bot.loop)
                     # await asyncio.shield(lavaplayer.disconnect())
 
