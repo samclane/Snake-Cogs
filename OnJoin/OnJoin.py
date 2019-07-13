@@ -9,6 +9,7 @@ from gtts import gTTS
 from redbot.cogs.audio import Audio
 from redbot.core import Config, data_manager, checks, commands
 from redbot.core.bot import Red
+from lavalink import Player
 
 from .StringFilters import ProfanitiesFilter, EMOJI_REGEX
 
@@ -153,7 +154,7 @@ class OnJoin(commands.Cog):
         async def run_sound(bot: Red):
             try:
                 # Get audio player for channel
-                lavaplayer = await asyncio.shield(lavalink.connect(channel))
+                lavaplayer: Player = await asyncio.shield(lavalink.connect(channel))
             except IndexError:
                 LOG.exception("No LavaLink nodes were found. Attempting to continue...")
                 return
@@ -178,7 +179,7 @@ class OnJoin(commands.Cog):
                 if not lavaplayer.current:
                     await lavaplayer.play()
                     await asyncio.sleep(seconds, loop=bot.loop)
-                    await lavaplayer.stop()
+                    await lavaplayer.close()
                     # await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
