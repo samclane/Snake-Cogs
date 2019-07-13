@@ -152,6 +152,7 @@ class OnJoin(commands.Cog):
 
         # Build an async task to actually play the sound file
         async def run_sound(bot: Red):
+            LOG.info("run_sound called again")
             try:
                 # Get audio player for channel
                 if lavalink.get_player(channel.guild.id).channel == channel:
