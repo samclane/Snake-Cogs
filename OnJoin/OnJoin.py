@@ -177,8 +177,8 @@ class OnJoin(commands.Cog):
                 # Make the announcement
                 if not lavaplayer.current:
                     await lavaplayer.play()
+                    await asyncio.sleep(seconds, loop=bot.loop)
                     await lavaplayer.stop()
-                    # await asyncio.sleep(seconds, loop=bot.loop)
                     # await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
