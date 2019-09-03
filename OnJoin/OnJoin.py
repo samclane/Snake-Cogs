@@ -173,24 +173,22 @@ class OnJoin(commands.Cog):
                     return
                 track = load.tracks[0]
                 seconds = track.length / 1000
-                lavaplayer.add(bot, track)
+                # lavaplayer.add(bot, track)
+                lavaplayer.queue.insert(0, track)
 
                 # Make the announcement
                 if not lavaplayer.current:
                     await lavaplayer.play()
                     await asyncio.sleep(seconds, loop=self.bot.loop)
-                    await asyncio.shield(lavaplayer.disconnect())
 
             except RuntimeError:
                 LOG.exception("Something went wrong trying to play speech. Disconnecting...")
-                await asyncio.shield(lavaplayer.disconnect())
             except IndexError:
                 LOG.exception("Something went wrong trying to find the speech file. Disconnecting...")
-                await asyncio.shield(lavaplayer.disconnect())
 
         # Stop current announcement and begin most recent one
-        if self._audio_task and not self._audio_task.done():
-            self._audio_task.cancel()
+        #if self._audio_task and not self._audio_task.done():
+        #    self._audio_task.cancel()
         self._audio_task = loop.create_task(run_sound(self.bot))
 
     async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
@@ -334,3 +332,7 @@ class OnJoin(commands.Cog):
         elif setting == "off":
             await self.config.use_espeak.set('off')
         await ctx.send("Now using {} as the TTS engine".format("espeak" if setting == "on" else "gTTS"))
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        logging.error(f"{ctx}:  {error}")
