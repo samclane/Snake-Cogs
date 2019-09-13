@@ -1,5 +1,3 @@
-import asyncio
-import datetime
 import logging
 from subprocess import call
 
@@ -9,7 +7,6 @@ from gtts import gTTS
 from redbot.cogs.audio import Audio
 from redbot.core import Config, data_manager, checks, commands
 from redbot.core.bot import Red
-from lavalink import Player
 
 from .StringFilters import ProfanitiesFilter, EMOJI_REGEX
 

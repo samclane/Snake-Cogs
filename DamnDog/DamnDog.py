@@ -30,7 +30,7 @@ class DamnDog(commands.Cog):
         }
         self.config.register_global(**default_global)
         self.config.register_guild(**default_global)
-        self.img_path = str(data_manager.bundled_data_path(self)) + "\\img\\"
+        self.img_path = str(data_manager.bundled_data_path(self) / "img")
 
         self.damn_sessions = []
 
@@ -144,6 +144,7 @@ class DamnDog(commands.Cog):
                 return session
         return None
 
+    @commands.Cog.listener()
     async def on_message(self, message):
         if not message.author.bot:
             session = self._get_damn_by_channel(message.channel)
@@ -176,7 +177,7 @@ class DamnSession:
         self.timeout = time.perf_counter()
         self.count = 0
         self.config = config
-        self.img_path = str(data_manager.bundled_data_path(self.cog)) + "\\img\\"
+        self.img_path = str(data_manager.bundled_data_path(cog) / "img")
 
     async def stop_damn(self):
         self.status = "stop"

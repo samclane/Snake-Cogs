@@ -2,13 +2,12 @@ import json
 import logging
 
 from redbot.core import commands
-from redbot.core.bot import Red
 
 LOG = logging.getLogger("red.NetworkTool")
 
 
 class NetworkTool(commands.Cog):
-    def __init__(self, bot: Red.RedBase):
+    def __init__(self, bot):
         super().__init__()
         self.bot = bot
 
