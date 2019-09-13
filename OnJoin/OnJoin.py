@@ -123,16 +123,17 @@ class OnJoin(commands.Cog):
         if use_espeak == "off":
             try:
                 tts = gTTS(text=text, lang=await self.config.locale())
-                tts.save(str(self.save_path) + "/temp_message.mp3")
+                tts.save(str(self.save_path) + r"\temp_message.mp3")
             except AttributeError:  # If there's a problem with gTTS, use espeak instead
                 use_espeak = "on"
         if use_espeak == "on":
             call(['espeak -v{}+{} -s{} "{}" --stdout > {}'.format(await self.config.locale(), await self.config.voice(),
                                                                   await self.config.speed(), text,
-                                                                  str(self.save_path) + "temp_message.mp3")],
+                                                                  str(self.save_path) + r"\temp_message.mp3")],
                  shell=True)
 
     async def _sound_play(self, channel: discord.VoiceChannel, filepath: str):
+        LOG.info(f"Playing sound in channel {channel.name}.")
         if self.audio is None:
             self.audio: Audio = self.bot.get_cog("Audio")
 
@@ -148,48 +149,10 @@ class OnJoin(commands.Cog):
             LOG.error(f"No channel was provided to play sound: {filepath}")
             return
 
-        loop = self.bot.loop
-
-        # Build an async task to actually play the sound file
-        async def run_sound(bot: Red):
-            try:
-                # Get audio player for channel
-                lavaplayer = await asyncio.shield(lavalink.connect(channel))
-            except IndexError:
-                LOG.exception("No LavaLink nodes were found. Attempting to continue...")
-                return
-
-            try:
-                # Save connection info and prepare audio player
-                lavaplayer.store("connect", datetime.datetime.utcnow())
-                lavaplayer.store("channel", channel)
-                await lavaplayer.wait_until_ready()
-                await lavaplayer.stop()
-
-                # Get generated track and add it to the queue
-                load = await lavaplayer.load_tracks(filepath)
-                if load.has_error:
-                    LOG.error(f"Exception while playing sound: {load.exception_message}")
-                    return
-                track = load.tracks[0]
-                seconds = track.length / 1000
-                # lavaplayer.add(bot, track)
-                lavaplayer.queue.insert(0, track)
-
-                # Make the announcement
-                if not lavaplayer.current:
-                    await lavaplayer.play()
-                    await asyncio.sleep(seconds, loop=self.bot.loop)
-
-            except RuntimeError:
-                LOG.exception("Something went wrong trying to play speech. Disconnecting...")
-            except IndexError:
-                LOG.exception("Something went wrong trying to find the speech file. Disconnecting...")
-
-        # Stop current announcement and begin most recent one
-        #if self._audio_task and not self._audio_task.done():
-        #    self._audio_task.cancel()
-        self._audio_task = loop.create_task(run_sound(self.bot))
+        player = await lavalink.connect(channel)
+        tracks = (await player.load_tracks(str(self.save_path) + r"\temp_message.mp3")).tracks
+        player.add(self.bot, tracks[0])
+        await player.play()
 
     async def voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         """Event handler for users switching voice channels. Prompts the bot to enter the prev. channel and announce
@@ -218,14 +181,14 @@ class OnJoin(commands.Cog):
                     channel = after.channel
 
                 await self._string_to_speech(text)
-                await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
+                await self._sound_play(channel, str(self.save_path) + r"\temp_message.mp3")
 
             elif before.channel:
                 text = "{} has left the channel".format(name)
                 channel = before.channel
 
                 await self._string_to_speech(text)
-                await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
+                await self._sound_play(channel, str(self.save_path) + r"\temp_message.mp3")
 
     @checks.admin()
     @commands.command(name='say')
@@ -236,7 +199,7 @@ class OnJoin(commands.Cog):
             await ctx.send("You must be in a voice channel first.")
             return
         await self._string_to_speech(message)
-        await self._sound_play(channel, str(self.save_path) + "/temp_message.mp3")
+        await self._sound_play(channel, str(self.save_path) + r"\temp_message.mp3")
 
     @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name='set_locale')
